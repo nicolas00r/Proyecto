@@ -1,7 +1,7 @@
 compile = "make"
 run = "./main"
 hidden = ["main", "main-debug", "**/*.o", "**/*.d", ".ccls-cache", "Makefile"]
-modules = ["c-clang14", "cpp-clang14", "nix"]
+modules = ["c-clang14", "nix"]
 
 [nix]
 channel = "stable-23_11"
