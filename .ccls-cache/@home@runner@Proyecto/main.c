@@ -4,7 +4,7 @@
 #include <string.h>
 #include "tdas/list.h"
 #include "tdas/queue.h"
-
+#define NUM_PROPIEDADES 28
 //STRUCTS
 // Declarar los datos de los jugadores
 typedef struct {
@@ -21,7 +21,7 @@ typedef struct  {
     bool esPropiedad;
     TipoJugador* propietario; //REEMPLAZAR VOID* POR TIPO JUGADOR
     int precio;
-    int renta_base;
+    int renta;
     int casas;
     int precio_casa;
     char sector[50];
@@ -58,63 +58,194 @@ typedef struct {
     Queue* arca_comunal;
 }partidaGlobal;
 
-//INICIACIÓN DEL JUEGO
-void inicializar_propiedades( TipoPropiedad propiedades[]) {
-    // Inicialización de propiedades
-     TipoPropiedad propiedades_iniciales[] = {
-        {"TORPEDERAS", true, NULL, 600, 40, 0, 500, "PLAYA ANCHA", false},
-        {"PUCV SEDE ALIMENTOS", true, NULL, 650, 85, 0, 500, "PLAYA ANCHA", false},
-        {"ESTACIÓN PUERTO", false, NULL, 2000, 500, 0, 0, "METRO", false},
-        {"PLAZA VICTORIA", true, NULL, 1000, 120, 0, 500, "VALPARAÍSO", false},
-        {"PUCV IBC", true, NULL, 1100, 150, 0, 500, "VALPARAÍSO", false},
-        {"AV. PEDRO MONT", true, NULL, 1200, 160, 0, 500, "VALPARAÍSO", false},
-        {"LAGUNA VERDE", true, NULL, 1400, 200, 0, 1000, "CURAUMA", false},
-        {"PUCV CAMPUS CURAUMA", true, NULL, 1500, 235, 0, 1000, "CURAUMA", false},
-        {"LAGO PEÑUELAS", true, NULL, 1650, 250, 0, 1000, "CURAUMA", false},
-        {"ESTACIÓN BARÓN", false, NULL, 2000, 500, 0, 0, "METRO", false},
-        {"MUELLE BARÓN", true, NULL, 1800, 280, 0, 1000, "COSTA VALPO", false},
-        {"CALETA PORTALES", true, NULL, 1900, 290, 0, 1000, "COSTA VALPO", false},
-        {"PUCV ESCUELA ECONOMÍA", true, NULL, 2000, 320, 0, 1000, "COSTA VALPO", false},
-        {"PUCV SEDE MECÁNICA", true, NULL, 2200, 375, 0, 1500, "INTERIOR", false},
-        {"QUILPUE", true, NULL, 2400, 400, 0, 1500, "INTERIOR", false},
-        {"VILLA ALEMANA", true, NULL, 2400, 400, 0, 1500, "INTERIOR", false},
-        {"ESTACIÓN LIMACHE", false, NULL, 2000, 500, 0, 0, "METRO", false},
-        {"LIMACHE", true, NULL, 2600, 440, 0, 1500, "INTERIOR II", false},
-        {"QUILLOTA", true, NULL, 2600, 440, 0, 1500, "INTERIOR II", false},
-        {"PUCV FACU. AGRONOMÍA", true, NULL, 2800, 480, 0, 1500, "INTERIOR II", false},
-        {"MUELLE VERGARA", true, NULL, 3000, 520, 0, 2000, "VIÑA DEL MAR", false},
-        {"PUCV SEDE SAUSALITO", true, NULL, 3200, 560, 0, 2000, "VIÑA DEL MAR", false},
-        {"15 NORTE", true, NULL, 3200, 560, 0, 2000, "VIÑA DEL MAR", false},
-        {"ESTACIÓN MIRAMAR", false, NULL, 2000, 500, 0, 0, "METRO", false},
-        {"REÑACA", true, NULL, 3500, 700, 0, 2000, "NORTE VIÑA", false},
-        {"DUNAS DE CONCON", true, NULL, 4000, 1000, 0, 2000, "NORTE VIÑA", false},
-        {"ESVAL (AGUA)", false, NULL, 2000, 50, 0, 0, "COMPAÑIAS", false},
-        {"CHILQUINTA (LUZ)", false, NULL, 2000, 50, 0, 0, "COMPAÑIAS", false}
-    };
+void presioneEnter() {
+    printf("Presione Enter para continuar...");
+    getchar();
+    // Limpiar BUFFER
+    while (getchar() != '\n');
 
-    // Copiar los datos iniciales a las propiedades pasadas como argumento
-    int num_propiedades = sizeof(propiedades_iniciales) / sizeof(propiedades_iniciales[0]);
-    for (int i = 0; i < num_propiedades; i++) {
-        propiedades[i] = propiedades_iniciales[i];
-    }
 }
-
 
 //Función para limpiar la pantalla
 void limpiar_pantalla() {
     system("clear");
 }
 
-void presioneEnter() {
-    printf("Presione Enter para continuar...\n\n");
-    getchar();
-    // Limpiar BUFFER
-    while (getchar() != '\n');
+//INICIACIÓN DEL JUEGO
+TipoPropiedad* inicializar_propiedades() {
+    // Crear un array estático de TipoPropiedad con todas las propiedades iniciales
+    static TipoPropiedad propiedades[NUM_PROPIEDADES] = {
+        {"TORPEDERAS", true, NULL, 600, 40, 0, 500, "PLAYA ANCHA", false},
+        {"PUCV SEDE ALIMENTOS", true, NULL, 650, 75, 0, 500, "PLAYA ANCHA", false},
+        {"ESTACIÓN PUERTO", false, NULL, 2000, 250, 0, 0, "METRO", false},
+        {"PLAZA VICTORIA", true, NULL, 1000, 120, 0, 500, "VALPARAÍSO", false},
+        {"PUCV IBC", true, NULL, 1100, 150, 0, 500, "VALPARAÍSO", false},
+        {"AV. PEDRO MONT", true, NULL, 1200, 160, 0, 500, "VALPARAÍSO", false},
+        {"LAGUNA VERDE", true, NULL, 1400, 200, 0, 1000, "CURAUMA", false},
+        {"PUCV CAMPUS CURAUMA", true, NULL, 1500, 235, 0, 1000, "CURAUMA", false},
+        {"LAGO PEÑUELAS", true, NULL, 1650, 250, 0, 1000, "CURAUMA", false},
+        {"ESTACIÓN BARÓN", false, NULL, 2000, 250, 0, 0, "METRO", false},
+        {"MUELLE BARÓN", true, NULL, 1800, 280, 0, 1000, "COSTA VALPO", false},
+        {"CALETA PORTALES", true, NULL, 1900, 290, 0, 1000, "COSTA VALPO", false},
+        {"PUCV ESCUELA ECONOMÍA", true, NULL, 2000, 320, 0, 1000, "COSTA VALPO", false},
+        {"PUCV SEDE MECÁNICA", true, NULL, 2200, 375, 0, 1500, "INTERIOR", false},
+        {"QUILPUE", true, NULL, 2400, 400, 0, 1500, "INTERIOR", false},
+        {"VILLA ALEMANA", true, NULL, 2400, 400, 0, 1500, "INTERIOR", false},
+        {"ESTACIÓN LIMACHE", false, NULL, 2000, 250, 0, 0, "METRO", false},
+        {"OLMUE", true, NULL, 2600, 440, 0, 1500, "INTERIOR II", false},
+        {"QUILLOTA", true, NULL, 2600, 440, 0, 1500, "INTERIOR II", false},
+        {"PUCV FACU. AGRONOMÍA", true, NULL, 2800, 480, 0, 1500, "INTERIOR II", false},
+        {"MUELLE VERGARA", true, NULL, 3000, 520, 0, 2000, "VIÑA DEL MAR", false},
+        {"PUCV SEDE SAUSALITO", true, NULL, 3200, 560, 0, 2000, "VIÑA DEL MAR", false},
+        {"15 NORTE", true, NULL, 3200, 560, 0, 2000, "VIÑA DEL MAR", false},
+        {"ESTACIÓN MIRAMAR", false, NULL, 2000, 250, 0, 0, "METRO", false},
+        {"REÑACA", true, NULL, 3500, 700, 0, 2000, "NORTE VIÑA", false},
+        {"DUNAS DE CONCON", true, NULL, 4000, 1000, 0, 2000, "NORTE VIÑA", false},
+        {"ESVAL (AGUA)", false, NULL, 2000, 50, 0, 0, "COMPAÑIAS", false},
+        {"CHILQUINTA (LUZ)", false, NULL, 2000, 50, 0, 0, "COMPAÑIAS", false}
+    };
 
+    return propiedades;
+}
 
+TipoPropiedad* buscar_propiedad_por_nombre(TipoPropiedad* propiedades, const char* nombre) {
+    for (int i = 0; i < NUM_PROPIEDADES; ++i) {
+        if (strcmp(propiedades[i].nombre, nombre) == 0) {
+            return &propiedades[i];
+        }
+    }
+    return NULL; // Si no se encuentra la propiedad
+}
+//FUNCIONES DE COMPRA Y VENTA DE PROPIEDADES
 
+void comprar_propiedad(TipoJugador* jugador, TipoPropiedad* propiedad) {
+    // Verificar que la propiedad no tiene dueño
+    if (propiedad->propietario == NULL) {
+        // Verificar que el jugador tiene suficiente dinero para comprar la propiedad
+        if (jugador->dinero >= propiedad->precio) {
+            char respuesta;
+            printf("¿Quieres comprar %s por %d? (s/n): ", propiedad->nombre, propiedad->precio);
+            scanf(" %c", &respuesta);
 
+            if (respuesta == 's' || respuesta == 'S') {
+                // Reducir el dinero del jugador en el precio de la propiedad
+                jugador->dinero -= propiedad->precio;
 
+                // Asignar la propiedad al jugador
+                propiedad->propietario = jugador;
+
+                // Agregar la propiedad a la lista de propiedades del jugador
+                list_pushFront(jugador->propiedades, propiedad);
+
+                printf("Felicidades %s, has comprado la propiedad %s por %d!\n", jugador->nombre_jugador, propiedad->nombre, propiedad->precio);
+            } else {
+                return;
+            }
+        } else {
+            // El jugador no tiene suficiente dinero para comprar la propiedad
+            printf("%s, no tienes suficiente dinero para comprar la propiedad %s.\n", jugador->nombre_jugador, propiedad->nombre);
+        }
+    } else {
+        // La propiedad ya tiene un dueño
+        printf("La propiedad %s ya tiene un dueño y no puede ser comprada.\n", propiedad->nombre);
+    }
+    presioneEnter();
+}
+
+void comprar_casas(TipoJugador* jugador, TipoPropiedad* propiedad) {
+    // Verificar que la propiedad tiene dueño y que el jugador es el propietario
+    if (propiedad->propietario == jugador) {
+        // Verificar que la propiedad no está hipotecada
+        if (!propiedad->hipotecado) {
+            int num_casas;
+            printf("¿Cuántas casas quieres comprar para la propiedad %s? (máximo 5): ", propiedad->nombre);
+            scanf("%d", &num_casas);
+
+            // Verificar que el número total de casas no exceda el límite
+            if (propiedad->casas + num_casas <= 5) {
+                // Calcular el costo total de las casas a comprar
+                int costo_total = propiedad->precio_casa * num_casas;
+
+                // Verificar que el jugador tiene suficiente dinero para comprar las casas
+                if (jugador->dinero >= costo_total) {
+                    char respuesta;
+                    printf("¿Quieres comprar %d casas para la propiedad %s por %d? (s/n): ", num_casas, propiedad->nombre, costo_total);
+                    scanf(" %c", &respuesta);
+
+                    if (respuesta == 's' || respuesta == 'S') {
+                        // Reducir el dinero del jugador en el costo total
+                        jugador->dinero -= costo_total;
+
+                        // Incrementar el número de casas en la propiedad
+                        propiedad->casas += num_casas;
+
+                        printf("Felicidades %s, has comprado %d casas para la propiedad %s por %d!\n", jugador->nombre_jugador, num_casas, propiedad->nombre, costo_total);
+                    } else {
+                        printf("%s, has decidido no comprar %d casas para la propiedad %s.\n", jugador->nombre_jugador, num_casas, propiedad->nombre);
+                    }
+                } else {
+                    // El jugador no tiene suficiente dinero para comprar las casas
+                    printf("%s, no tienes suficiente dinero para comprar %d casas para la propiedad %s.\n", jugador->nombre_jugador, num_casas, propiedad->nombre);
+                }
+            } else {
+                // No se puede exceder el número máximo de casas
+                printf("%s, no puedes comprar %d casas para la propiedad %s porque excede el límite de 5 casas.\n", jugador->nombre_jugador, num_casas, propiedad->nombre);
+            }
+        } else {
+            // La propiedad está hipotecada
+            printf("%s, no puedes comprar casas para la propiedad %s porque está hipotecada.\n", jugador->nombre_jugador, propiedad->nombre);
+        }
+    } else {
+        // El jugador no es el propietario de la propiedad
+        printf("%s, no eres el propietario de la propiedad %s y no puedes comprar casas para ella.\n", jugador->nombre_jugador, propiedad->nombre);
+    }
+    presioneEnter();
+}
+
+//TESTEO DEL JUEGO FUNCIONES
+// Función exclusiva para programadores para probar comprar_propiedad y comprar_casas
+void testear_funciones() {
+    // Crear jugadores de prueba
+    TipoJugador jugador1 = { 1500, 0, "Jugador 1", 0, NULL, NULL }; // Inicializar las listas con NULL o funciones de creación de listas
+    TipoJugador jugador2 = { 2000, 0, "Jugador 2", 0, NULL, NULL };
+
+    // Inicializar propiedades
+    TipoPropiedad* propiedades = inicializar_propiedades();
+
+    // Buscar propiedades específicas por nombre (ejemplo)
+    TipoPropiedad* propiedad1 = buscar_propiedad_por_nombre(propiedades, "TORPEDERAS");
+    TipoPropiedad* propiedad2 = buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS");
+
+    // Simular compra de propiedad por jugador1
+    printf("\n== Jugador 1 intenta comprar Propiedad 1 ==\n");
+    comprar_propiedad(&jugador1, propiedad1);
+
+    // Simular intento de jugador2 de comprar propiedad ya comprada
+    printf("\n== Jugador 2 intenta comprar Propiedad 1 ==\n");
+    comprar_propiedad(&jugador2, propiedad1);
+
+    // Simular compra de casas por jugador1 en Propiedad 1
+    printf("\n== Jugador 1 intenta comprar casas para Propiedad 1 ==\n");
+    comprar_casas(&jugador1, propiedad1);
+
+    // Simular compra de casas por jugador1 en Propiedad 2
+    printf("\n== Jugador 1 intenta comprar  casas para Propiedad 2 ==\n");
+    comprar_casas(&jugador1, propiedad2);
+
+    // Simular intento de jugador2 de comprar casas en Propiedad 1 sin ser propietario
+    printf("\n== Jugador 2 intenta comprar casas para Propiedad 1 (no es propietario) ==\n");
+    comprar_casas(&jugador2, propiedad1);
+
+    // Mostrar estado final de las propiedades y jugadores
+    printf("\n== Estado final de las propiedades y jugadores ==\n");
+    printf("Propiedad 1: %s, Propietario: %s, Casas: %d\n", propiedad1->nombre, propiedad1->propietario ? propiedad1->propietario->nombre_jugador : "Sin dueño", propiedad1->casas);
+    printf("Propiedad 2: %s, Propietario: %s, Casas: %d\n", propiedad2->nombre, propiedad2->propietario ? propiedad2->propietario->nombre_jugador : "Sin dueño", propiedad2->casas);
+    printf("Jugador 1: %s, Dinero: %d\n", jugador1.nombre_jugador, jugador1.dinero);
+    printf("Jugador 2: %s, Dinero: %d\n", jugador2.nombre_jugador, jugador2.dinero);
+
+    // Liberar memoria de las listas de propiedades (si aplica)
+    list_clean(jugador1.propiedades);
+    list_clean(jugador2.propiedades);
 }
 
 
@@ -155,7 +286,7 @@ void guardar_partida(partidaGlobal *partida, const char *filename) {
                     propiedad->esPropiedad,
                     propiedad->propietario->nombre_jugador,
                     propiedad->precio,
-                    propiedad->renta_base,
+                    propiedad->renta,
                     propiedad->sector,
                     propiedad->hipotecado);
         } else if (strcmp(casilla->tipo, "C") == 0) {
@@ -205,9 +336,9 @@ int main() {
                 printf("Iniciando nueva partida...\n");
 
                 // Inicializamos las propiedades
-                TipoPropiedad propiedades[30]; // Asegúrate de que el tamaño sea suficiente para todas las propiedades
+                
 
-                inicializar_propiedades(propiedades);
+                TipoPropiedad* propiedades = inicializar_propiedades();
 
                 break;
             case 2:
@@ -229,6 +360,12 @@ int main() {
 
                 // Lógica para salir del juego
                 break;
+
+            case 666:
+                limpiar_pantalla();
+                testear_funciones();
+                //OPCION PROGRAMADOR
+                
             default:
                 limpiar_pantalla();
                 printf("Opción no válida. Por favor, seleccione una opción válida.\n");
