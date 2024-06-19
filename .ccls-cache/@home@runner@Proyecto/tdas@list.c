@@ -199,4 +199,9 @@ void list_clean(List *L) {
   L->tail = NULL;
   L->current = NULL;
   L->size = 0;
+  //Lista esta vacia
+
+}
+int list_isEmpty(List* L) {
+  return L->head == NULL;
 }
