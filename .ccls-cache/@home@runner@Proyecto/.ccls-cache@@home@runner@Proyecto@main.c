@@ -1,93 +1,72 @@
-#include "funciones.h"
+<<<<<<< HEAD
+#include "tdas/list.h"
+#include "tdas/queue.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-#include <stdbool.h>
-#include "tdas/list.h"
-#include "tdas/queue.h"
 #define NUM_PROPIEDADES 28
-//STRUCTS
-// Declarar los datos de los jugadores
-struct TipoJugador{
-    int dinero;                    // Dinero del jugador
-    int penalizacion;              // Penalizacion de la carcel hacia al jugador
-    char nombre_jugador[40];       // Nombre del jugador
-    int posicion;                  // Posicion del jugador
-    List *propiedades;    
-    List *cartas;
-};
+// STRUCTS
+//  Declarar los datos de los jugadores
+typedef struct {
+  int dinero;              // Dinero del jugador
+  int penalizacion;        // Penalizacion de la carcel hacia al jugador
+  char nombre_jugador[40]; // Nombre del jugador
+  int posicion;            // Posicion del jugador
+  List *propiedades;
+  List *cartas;
+} TipoJugador;
 
-struct TipoPropiedad{
-    char nombre[50];
-    bool esPropiedad;
-    TipoJugador* propietario; //REEMPLAZAR VOID* POR TIPO JUGADOR
-    int precio;
-    int renta;
-    int casas;
-    int precio_casa;
-    char sector[50];
-    bool hipotecado;
-}; 
+typedef struct {
+  char nombre[50];
+  bool esPropiedad;
+  TipoJugador *propietario; // REEMPLAZAR VOID* POR TIPO JUGADOR
+  int precio;
+  int renta;
+  unsigned int casas;
+  int precio_casa;
+  char sector[50];
+  bool hipotecado;
+} TipoPropiedad;
 
-typedef struct{
-    char descripcion[200]; //Descripción de la carta
-    void (*efecto)(TipoJugador* jugador); // Función que define el efecto de la carta en el jugador
-}TipoCarta;
+typedef struct {
+  char *descripcion;
+  void *efecto;
+} TipoCarta;
 
 // Declarar los datos de las casillas
 typedef struct {
-    char nombre_casilla[40];     // Nombre de la casilla
-    char tipo[5]; // "P" para propiedad, "C" para carta
-    union {
-        TipoPropiedad *propiedad;    
-        int cantidad_impuesto;
-        TipoCarta* carta;              
-    };
-}TipoCasilla;
+  char nombre_casilla[40]; // Nombre de la casilla
+  char tipo[5]; // Tipo de casilla "P" para propiedad y "C" para carta
+  union {
+    TipoPropiedad *propiedad;
+    int cantidad_impuesto;
+    TipoCarta *carta;
+  };
+} TipoCasilla;
 
 typedef struct {
-     TipoCasilla *casillas[40]; // Arreglo de casillas del tablero
-}TipoTablero;
+  TipoCasilla *casillas[40]; // Arreglo de casillas del tablero
+} TipoTablero;
 
-struct partidaGlobal{
-    TipoTablero *tablero;
-    List *jugadores;
-    List *turnos;
-    Queue* fortuna;
-    Queue* arca_comunal;
-};
-
-typedef TipoPropiedad TipoPropiedad;
-typedef TipoJugador TipoJugador;
-typedef partidaGlobal partidaGlobal;
+typedef struct {
+  TipoTablero *tablero;
+  List *jugadores;
+  // circle_list *turnos;
+  Queue *fortuna;
+  Queue *arca_comunal;
+} partidaGlobal;
 
 void presioneEnter() {
-    printf("Presione Enter para continuar...");
-    getchar();
-    // Limpiar BUFFER
-    while (getchar() != '\n');
-
+  printf("Presione Enter para continuar...");
+  getchar();
+  // Limpiar BUFFER
+  while (getchar() != '\n')
+    ;
 }
 
-//Función para limpiar la pantalla
-void limpiar_pantalla() {
-    system("clear");
-}
-
-// Inicializar semilla aleatoria, esto permitirá que cada vez que se corra
-// el programa, los resultados sean diferentes
-void inicializar_aleatoriedad(){
-    srand(time(NULL));
-}
-
-// Función para tirar los dados
-int tirar_dados(){
-    int dado1 = (rand() % 6) + 1; // Genera un número aleatorio entre 1 y 6
-    int dado2 = (rand() % 6) + 1; // Genera un número aleatorio entre 1 y 6
-
-    return dado1 + dado2;
-}
+// Función para limpiar la pantalla
+void limpiar_pantalla() { system("clear"); }
 
 // INICIACIÓN DEL JUEGO
 TipoPropiedad *inicializar_propiedades() {
@@ -283,7 +262,7 @@ void testear_funciones() {
 
   printf("\n== Jugador 2 intenta comprar Propiedad 2 ==\n");
   comprar_propiedad(&jugador2, buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS"));
-
+  
   // Simular compra de casas por jugador1 en Propiedad 1
   printf("\n== Jugador 1 intenta comprar casas para Propiedad 1 ==\n");
   comprar_casas(&jugador1, buscar_propiedad_por_nombre(propiedades, "TORPEDERAS"));
@@ -318,80 +297,142 @@ void testear_funciones() {
 
   // Reinicializar propiedades
   reinicializar_propiedades(propiedades);
-
+  
   presioneEnter();
 }
 
-
-//REGLAS
+// REGLAS
 void mostrar_reglas() {
-    printf("Reglas del juego:\n");
-    printf("\n=== Reglas del Monopoly ===\n");
-    printf("1. El objetivo del juego es ser el jugador con más cantidad de dinero acumulado.\n");
-    printf("2. Los jugadores se mueven por el tablero comprando propiedades y cobrando renta.\n");
-    printf("3. Se pueden construir casas en propiedades para aumentar la renta que generan.\n");
-    printf("4. Si un jugador cae en una propiedad sin dueño, puede comprarla. Si ya tiene dueño, paga renta.\n");
-    printf("5. Hay casillas especiales como fortuna y arca comunal, la cual tienen efectos variados que pueden afectar positiva o negativamente al jugador.\n");
-    printf("6. Si un jugador acaba en la carcel, deberá esperar 3 turnos o pagar una fianza para salir.\n");
-    printf("7. El juego termina cuando solo queda un jugador con dinero y propiedades, es decir, cuando todo el resto este en bancarrota!.\n");
-    printf("===========================\n");
+  printf("Reglas del juego:\n");
+  printf("\n=== Reglas del Monopoly ===\n");
+  printf("1. El objetivo del juego es ser el jugador con más cantidad de "
+         "dinero acumulado.\n");
+  printf("2. Los jugadores se mueven por el tablero comprando propiedades y "
+         "cobrando renta.\n");
+  printf("3. Se pueden construir casas en propiedades para aumentar la renta "
+         "que generan.\n");
+  printf("4. Si un jugador cae en una propiedad sin dueño, puede comprarla. Si "
+         "ya tiene dueño, paga renta.\n");
+  printf("5. Hay casillas especiales como fortuna y arca comunal, la cual "
+         "tienen efectos variados que pueden afectar positiva o negativamente "
+         "al jugador.\n");
+  printf("6. Si un jugador acaba en la carcel, deberá esperar 3 turnos o pagar "
+         "una fianza para salir.\n");
+  printf("7. El juego termina cuando solo queda un jugador con dinero y "
+         "propiedades. O cuando hayan pasado un determinado número de turnos, "
+         "cuando esto pase, el jugador que haya más acumulado más dinero entre "
+         "su plata actual y el valor de sus propiedades, ganará.\n");
+  printf("===========================\n");
 
-    presioneEnter();
-    return;
+  presioneEnter();
+  return;
 }
 
-//Funcion para guardar partida
+// Funcion para guardar partida
 void guardar_partida(partidaGlobal *partida, const char *filename) {
-    FILE *file = fopen(filename, "w");
-    if (file == NULL) {
-        printf("Error al abrir el archivo para guardar la partida.\n");
-        return;
-    }
+  FILE *file = fopen(filename, "w");
+  if (file == NULL) {
+    printf("Error al abrir el archivo para guardar la partida.\n");
+    return;
+  }
 
-    // Guardar datos del tablero
-    for (int i = 0; i < 40; i++) 
-    {
-        TipoCasilla *casilla = partida->tablero->casillas[i];
-        fprintf(file, "%s,%s,", casilla->nombre_casilla, casilla->tipo);
-        if (strcmp(casilla->tipo, "P") == 0) {
-            TipoPropiedad *propiedad = casilla->propiedad;
-            fprintf(file, "%s,%d,%s,%d,%d,%s,%d\n",
-                    propiedad->nombre,
-                    propiedad->esPropiedad,
-                    propiedad->propietario->nombre_jugador,
-                    propiedad->precio,
-                    propiedad->renta,
-                    propiedad->sector,
-                    propiedad->hipotecado);
-        } else if (strcmp(casilla->tipo, "C") == 0) {
-            fprintf(file, "\n");
-        } else {
-            fprintf(file, "%d\n", casilla->cantidad_impuesto);
-        }
+  // Guardar datos del tablero
+  for (int i = 0; i < 40; i++) {
+    TipoCasilla *casilla = partida->tablero->casillas[i];
+    fprintf(file, "%s,%s,", casilla->nombre_casilla, casilla->tipo);
+    if (strcmp(casilla->tipo, "P") == 0) {
+      TipoPropiedad *propiedad = casilla->propiedad;
+      fprintf(file, "%s,%d,%s,%d,%d,%s,%d\n", propiedad->nombre,
+              propiedad->esPropiedad, propiedad->propietario->nombre_jugador,
+              propiedad->precio, propiedad->renta, propiedad->sector,
+              propiedad->hipotecado);
+    } else if (strcmp(casilla->tipo, "C") == 0) {
+      fprintf(file, "\n");
+    } else {
+      fprintf(file, "%d\n", casilla->cantidad_impuesto);
     }
+  }
 
-    //Guardar datos de los jugadores
-    List *jugadores = partida->jugadores;
-    TipoJugador *jugador = list_first(jugadores);
-    while(jugador != NULL)
-    {
-        fprintf(file, "%d,%d,%s,%d\n", jugador->dinero, jugador->penalizacion, jugador->nombre_jugador, jugador->posicion);
-        jugador = list_next(jugadores);
-    }
+  // Guardar datos de los jugadores
+  List *jugadores = partida->jugadores;
+  TipoJugador *jugador = list_first(jugadores);
+  while (jugador != NULL) {
+    fprintf(file, "%d,%d,%s,%d\n", jugador->dinero, jugador->penalizacion,
+            jugador->nombre_jugador, jugador->posicion);
+    jugador = list_next(jugadores);
+  }
 
-    fclose(file);
+  fclose(file);
 }
-
 // Función para mostrar el menú inicial
 void mostrarMenuInicial() {
 
-    printf("╔══════════════════════════════════════════════════╗\n");
-    printf("║        ＭＯＮＯＰＯＬY    ＶＡＬＰＡＲＡÍＳＯ    ║\n");
-    printf("╚══════════════════════════════════════════════════╝\n");
-    printf("=== MENÚ INICIAL ===\n");
-    printf("1. Nueva partida\n");
-    printf("2. Cargar partida\n");
-    printf("3. Reglas\n");
-    printf("4. Salir del juego\n");
-    printf("Seleccione una opción: ");
+  printf("╔══════════════════════════════════════════════════╗\n");
+  printf("║        ＭＯＮＯＰＯＬY    ＶＡＬＰＡＲＡÍＳＯ    ║\n");
+  printf("╚══════════════════════════════════════════════════╝\n");
+  printf("=== MENÚ INICIAL ===\n");
+  printf("1. Nueva partida\n");
+  printf("2. Cargar partida\n");
+  printf("3. Reglas\n");
+  printf("4. Salir del juego\n");
+  printf("Seleccione una opción: ");
+}
+=======
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "funciones.h"
+>>>>>>> b15d5d40083b33da2a8e91ac72763720c586c2e2
+
+int main() {
+  int opcion;
+
+  // Loop del menú inicial
+  do {
+    mostrarMenuInicial();
+    scanf("%d", &opcion);
+    switch (opcion) {
+    case 1:
+      // Lógica para iniciar una nueva partida
+      limpiar_pantalla();
+      printf("Iniciando nueva partida...\n");
+
+      // Inicializamos las propiedades
+
+      TipoPropiedad *propiedades = inicializar_propiedades();
+
+      break;
+    case 2:
+      // Lógica para cargar una partida guardada
+      limpiar_pantalla();
+      printf("Cargando partida...\n");
+
+      break;
+    case 3:
+      limpiar_pantalla();
+      printf("Mostrando reglas del juego...\n\n");
+      // Lógica para mostrar las reglas del juego
+      mostrar_reglas();
+      limpiar_pantalla();
+      break;
+    case 4:
+      limpiar_pantalla();
+      printf("Saliendo del juego...\n");
+
+      // Lógica para salir del juego
+      break;
+
+    case 666:
+      limpiar_pantalla();
+      testear_funciones();
+      // OPCION PROGRAMADOR
+      //MOSTRAR TORPEDERAS
+      printf("");  
+    default:
+      limpiar_pantalla();
+      printf("Opción no válida. Por favor, seleccione una opción válida.\n");
+    }
+  } while (opcion !=
+           4); // Salir del loop si se selecciona la opción 4 (Salir del juego)
+  return 0;
 }
