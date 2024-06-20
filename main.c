@@ -37,8 +37,8 @@ typedef struct{
 
 // Declarar los datos de las casillas
 typedef struct {
-    char nombre_casilla[40];       // Nombre de la casilla
-    char tipo[5];                 // Tipo de casilla "P" para propiedad y "C" para carta
+    char nombre_casilla[40];     // Nombre de la casilla
+    char tipo[5];    // Tipo de casilla "P" para propiedad y "C" para carta
     union {
         TipoPropiedad *propiedad;    
         int cantidad_impuesto;
@@ -53,7 +53,6 @@ typedef struct {
 typedef struct {
     TipoTablero *tablero;
     List *jugadores;
-    //circle_list *turnos;
     Queue* fortuna;
     Queue* arca_comunal;
 }partidaGlobal;

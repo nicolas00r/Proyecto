@@ -13,6 +13,9 @@ void *list_first(List *L);
 // puntero a dicho elemento.
 void *list_next(List *L);
 
+// Función similar a list_next que funciona como una lista circular
+void *next_circular(List *L);
+
 // Esta función inserta un nuevo elemento al inicio de la lista.
 void list_pushFront(List *L, void *dato);
 
