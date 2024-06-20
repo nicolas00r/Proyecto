@@ -15,9 +15,7 @@ int main() {
                 // Lógica para iniciar una nueva partida
                 limpiar_pantalla();
                 printf("Iniciando nueva partida...\n");
-
-                // Inicializamos las propiedades
-                
+                                
 
                 TipoPropiedad* propiedades = inicializar_propiedades();
 

@@ -43,7 +43,7 @@ void list_sortedInsert(List *L, void *data,
 
 int list_size(List* L);
 
-//fucnion para saber si esta vacia la lista
+// Función para saber si esta vacia la lista
 int list_isEmpty(List* L);
 
 #endif
