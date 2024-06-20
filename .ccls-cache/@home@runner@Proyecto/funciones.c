@@ -126,6 +126,11 @@ TipoPropiedad* inicializar_propiedades() {
     return propiedades;
 }
 
+TipoCarta *inicializar_cartas()
+{
+    
+}
+
 TipoPropiedad* buscar_propiedad_por_nombre(TipoPropiedad* propiedades, const char* nombre) {
     for (int i = 0; i < NUM_PROPIEDADES; ++i) {
         if (strcmp(propiedades[i].nombre, nombre) == 0) {
