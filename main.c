@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h> 
 #include <string.h>
+#include <time.h>
 #include "tdas/list.h"
 #include "tdas/queue.h"
 #define NUM_PROPIEDADES 28
@@ -68,6 +69,20 @@ void presioneEnter() {
 //Función para limpiar la pantalla
 void limpiar_pantalla() {
     system("clear");
+}
+
+// Inicializar semilla aleatoria, esto permitirá que cada vez que se corra
+// el programa, los resultados sean diferentes
+void inicializar_aleatoriedad(){
+    srand(time(NULL));
+}
+
+// Función para tirar los dados
+int tirar_dados(){
+    int dado1 = (rand() % 6) + 1; // Genera un número aleatorio entre 1 y 6
+    int dado2 = (rand() % 6) + 1; // Genera un número aleatorio entre 1 y 6
+
+    return dado1 + dado2;
 }
 
 //INICIACIÓN DEL JUEGO
@@ -258,7 +273,7 @@ void mostrar_reglas() {
     printf("4. Si un jugador cae en una propiedad sin dueño, puede comprarla. Si ya tiene dueño, paga renta.\n");
     printf("5. Hay casillas especiales como fortuna y arca comunal, la cual tienen efectos variados que pueden afectar positiva o negativamente al jugador.\n");
     printf("6. Si un jugador acaba en la carcel, deberá esperar 3 turnos o pagar una fianza para salir.\n");
-    printf("7. El juego termina cuando solo queda un jugador con dinero y propiedades. O cuando hayan pasado un determinado número de turnos, cuando esto pase, el jugador que haya más acumulado más dinero entre su plata actual y el valor de sus propiedades, ganará.\n");
+    printf("7. El juego termina cuando solo queda un jugador con dinero y propiedades, es decir, cuando todo el resto este en bancarrota!.\n");
     printf("===========================\n");
 
     presioneEnter();
