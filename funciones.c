@@ -78,7 +78,7 @@ void presioneEnter() {
 void limpiar_pantalla() {
     system("clear");
 }
-
+//Funcion para solicitar la cantidad de jugadores
 int solicitar_jugadores()
 {
     int num_jugadores;
@@ -224,6 +224,79 @@ TipoPropiedad *buscar_propiedad_por_nombre(TipoPropiedad *propiedades,
   }
   return NULL; // Si no se encuentra la propiedad
 }
+
+
+
+//FUNCIONES PARA LA HIPOTECA DE PROPIEDADES
+void hipotecar_propiedad(TipoJugador *jugador, TipoPropiedad *propiedad)
+{
+    if (propiedad->propietario == jugador)
+    {
+        if (!propiedad->hipotecado)
+        {
+            printf("¿Quieres hipotecar la propiedad %s por %d? (s/n): ", propiedad->nombre, propiedad->precio / 2);
+            char respuesta;
+            scanf(" %c", &respuesta);
+            if (respuesta == 's' || respuesta == 'S')
+            {
+                propiedad->hipotecado = true;
+                jugador->dinero += propiedad->precio / 2;
+                printf("Felicidades %s, has hipotecado la propiedad %s y has recibido %d!\n", jugador->nombre_jugador, propiedad->nombre, propiedad->precio / 2);
+
+                printf("Recuerda que no podrás cobrar renta por %s mientras esté hipotecada.\n", propiedad->nombre);
+            }
+            else
+            {
+                return;
+            }
+        }
+        else
+        {
+            printf("La propiedad %s ya está hipotecada.\n", propiedad->nombre);
+        }
+    }
+    else
+    {
+        printf("La propiedad %s no está a tu nombre.\n", propiedad->nombre);
+    }
+
+
+}
+
+void recuperar_propiedad_hipotecada(TipoJugador *jugador, TipoPropiedad *propiedad)
+{
+    if (propiedad->hipotecado && propiedad->propietario == jugador) {
+        int precio_venta = propiedad->precio / 2 + propiedad->precio * 0.1;
+
+        // Preguntar al jugador si desea recuperar la propiedad
+        printf("¿Quieres recuperar la propiedad %s por %d? (s/n): ", propiedad->nombre, precio_venta);
+        char respuesta;
+        scanf(" %c", &respuesta);
+
+        if (respuesta == 's' || respuesta == 'S') {
+            // Verificar si el jugador tiene suficiente dinero para recuperar la propiedad
+            if (jugador->dinero >= precio_venta) {
+                jugador->dinero -= precio_venta;
+                propiedad->hipotecado = false;
+
+                printf("%s, has recuperado la propiedad %s por %d!\n",
+                       jugador->nombre_jugador, propiedad->nombre, precio_venta);
+            } else {
+                printf("%s, no tienes suficiente dinero para recuperar la propiedad %s.\n",
+                       jugador->nombre_jugador, propiedad->nombre);
+            }
+        } else {
+            printf("No se ha recuperado la propiedad %s.\n", propiedad->nombre);
+        }
+
+    } else {
+        printf("No puedes recuperar esta propiedad hipotecada.\n");
+    } 
+}
+
+
+
+
 // FUNCIONES DE COMPRA Y VENTA DE PROPIEDADES
 
 void comprar_propiedad(TipoJugador *jugador, TipoPropiedad *propiedad) {
