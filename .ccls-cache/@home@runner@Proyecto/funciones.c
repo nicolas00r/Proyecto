@@ -95,7 +95,7 @@ TipoPropiedad *inicializar_propiedades() {
   // iniciales
   static TipoPropiedad propiedades[NUM_PROPIEDADES] = {
       {"TORPEDERAS", true, NULL, 600, 40, 0, 500, "PLAYA ANCHA", false},
-      {"PUCV SEDE ALIMENTOS", true, NULL, 650, 75, 0, 500, "PLAYA ANCHA",
+      {"PUCV SEDE ALIMENTOS", true, NULL, 800, 65, 0, 500, "PLAYA ANCHA",
        false},
       {"ESTACIÓN PUERTO", false, NULL, 2000, 250, 0, 0, "METRO", false},
       {"PLAZA VICTORIA", true, NULL, 1000, 120, 0, 500, "VALPARAÍSO", false},
@@ -188,138 +188,187 @@ void comprar_propiedad(TipoJugador *jugador, TipoPropiedad *propiedad) {
   presioneEnter();
 }
 
+// Función para comprar casas en una propiedad
 void comprar_casas(TipoJugador *jugador, TipoPropiedad *propiedad) {
-  // Verificar que la propiedad tiene dueño y que el jugador es el propietario
-  if (propiedad->propietario == jugador) {
-    // Verificar que la propiedad no está hipotecada
-    if (!propiedad->hipotecado) {
-      unsigned int num_casas;
-      printf(
-          "¿Cuántas casas quieres comprar para la propiedad %s? (máximo 5): ",
-          propiedad->nombre);
-      scanf("%d", &num_casas);
+    // Verificar que la propiedad tiene dueño y que el jugador es el propietario
+    if (propiedad->propietario == jugador) {
+        // Verificar que la propiedad no está hipotecada
+        if (!propiedad->hipotecado) {
+            unsigned int num_casas;
+            printf("¿Cuántas casas quieres comprar para la propiedad %s? (máximo 5): ", propiedad->nombre);
+            scanf("%d", &num_casas);
 
-      // Verificar que el número total de casas no exceda el límite
-      if (propiedad->casas + num_casas <= 5 && num_casas > 0) {
-        // Calcular el costo total de las casas a comprar
-          unsigned int costo_total = propiedad->precio_casa * num_casas;
+            // Verificar que el número total de casas no exceda el límite
+            if (propiedad->casas + num_casas <= 5 && num_casas > 0) {
+                // Calcular el costo total de las casas a comprar
+                unsigned int costo_total = propiedad->precio_casa * num_casas;
 
-        // Verificar que el jugador tiene suficiente dinero para comprar las
-        // casas
-        if (jugador->dinero >= costo_total) {
-          char respuesta;
-          printf(
-              "¿Quieres comprar %d casas para la propiedad %s por %d? (s/n): ",
-              num_casas, propiedad->nombre, costo_total);
-          scanf(" %c", &respuesta);
+                // Verificar que el jugador tiene suficiente dinero para comprar las casas
+                if (jugador->dinero >= costo_total) {
+                    char respuesta;
+                    printf("¿Quieres comprar %d casas para la propiedad %s por %d? (s/n): ", num_casas, propiedad->nombre, costo_total);
+                    scanf(" %c", &respuesta);
 
-          if (respuesta == 's' || respuesta == 'S') {
-            // Reducir el dinero del jugador en el costo total
-            jugador->dinero -= costo_total;
+                    if (respuesta == 's' || respuesta == 'S') {
+                        // Reducir el dinero del jugador en el costo total
+                        jugador->dinero -= costo_total;
 
-            // Incrementar el número de casas en la propiedad
-            propiedad->casas += num_casas;
+                        // Incrementar el número de casas en la propiedad
+                        propiedad->casas += num_casas;
 
-            printf("Felicidades %s, has comprado %d casas para la propiedad %s "
-                   "por %d!\n",
-                   jugador->nombre_jugador, num_casas, propiedad->nombre,
-                   costo_total);
-          } else {
-            printf(
-                "%s, has decidido no comprar %d casas para la propiedad %s.\n",
-                jugador->nombre_jugador, num_casas, propiedad->nombre);
-          }
+                        // Incrementar la renta según la cantidad de casas compradas
+                        propiedad->renta *= (2 * num_casas);
+
+                        printf("Felicidades %s, has comprado %d casas para la propiedad %s por %d!\n",
+                            jugador->nombre_jugador, num_casas, propiedad->nombre, costo_total);
+                    } else {
+                        printf("%s, has decidido no comprar %d casas para la propiedad %s.\n",
+                            jugador->nombre_jugador, num_casas, propiedad->nombre);
+                    }
+                } else {
+                    // El jugador no tiene suficiente dinero para comprar las casas
+                    printf("%s, no tienes suficiente dinero para comprar %d casas para la propiedad %s.\n",
+                        jugador->nombre_jugador, num_casas, propiedad->nombre);
+                }
+            } else {
+                // No se puede exceder el número máximo de casas
+                printf("%s, no puedes comprar %d casas para la propiedad %s porque excede el límite de 5 casas.\n",
+                    jugador->nombre_jugador, num_casas, propiedad->nombre);
+            }
         } else {
-          // El jugador no tiene suficiente dinero para comprar las casas
-          printf("%s, no tienes suficiente dinero para comprar %d casas para "
-                 "la propiedad %s.\n",
-                 jugador->nombre_jugador, num_casas, propiedad->nombre);
+            // La propiedad está hipotecada
+            printf("%s, no puedes comprar casas para la propiedad %s porque está hipotecada.\n",
+                jugador->nombre_jugador, propiedad->nombre);
         }
-      } else {
-        // No se puede exceder el número máximo de casas
-        printf("%s, no puedes comprar %d casas para la propiedad %s porque "
-               "excede el límite de 5 casas.\n",
-               jugador->nombre_jugador, num_casas, propiedad->nombre);
-      }
     } else {
-      // La propiedad está hipotecada
-      printf("%s, no puedes comprar casas para la propiedad %s porque está "
-             "hipotecada.\n",
-             jugador->nombre_jugador, propiedad->nombre);
+        // El jugador no es el propietario de la propiedad
+        printf("%s, no eres el propietario de la propiedad %s y no puedes comprar casas para ella.\n",
+            jugador->nombre_jugador, propiedad->nombre);
     }
-  } else {
-    // El jugador no es el propietario de la propiedad
-    printf("%s, no eres el propietario de la propiedad %s y no puedes comprar "
-           "casas para ella.\n",
-           jugador->nombre_jugador, propiedad->nombre);
-  }
-  presioneEnter();
+    presioneEnter();
+}
+
+//VENDER CASAS
+void vender_casas(TipoJugador *jugador, TipoPropiedad *propiedad) {
+    // Verificar que la propiedad tiene dueño y que el jugador es el propietario
+    if (propiedad->propietario == jugador) {
+        // Verificar que la propiedad tiene casas para vender
+        if (propiedad->casas > 0) {
+            unsigned int num_casas;
+            printf("¿Cuántas casas quieres vender para la propiedad %s? (máximo %d): ", propiedad->nombre, propiedad->casas);
+            scanf("%d", &num_casas);
+
+            // Verificar que el número de casas a vender no exceda las casas disponibles
+            if (num_casas > 0 && num_casas <= propiedad->casas) {
+                // Calcular el monto total de venta (mitad del costo de las casas)
+                unsigned int monto_total = (propiedad->precio_casa * num_casas) / 2;
+
+                char respuesta;
+                printf("¿Quieres vender %d casas de la propiedad %s por %d? (s/n): ", num_casas, propiedad->nombre, monto_total);
+                scanf(" %c", &respuesta);
+
+                if (respuesta == 's' || respuesta == 'S') {
+                    // Incrementar el dinero del jugador en el monto total
+                    jugador->dinero += monto_total;
+
+                    // Reducir el número de casas en la propiedad
+                    propiedad->casas -= num_casas;
+
+                    // Ajustar la renta según la cantidad de casas vendidas
+                    for (unsigned int i = 0; i < num_casas; i++) {
+                        propiedad->renta /= 2;
+                    }
+
+                    printf("Felicidades %s, has vendido %d casas de la propiedad %s por %d!\n",
+                           jugador->nombre_jugador, num_casas, propiedad->nombre, monto_total);
+                } else {
+                    printf("%s, has decidido no vender %d casas de la propiedad %s.\n",
+                           jugador->nombre_jugador, num_casas, propiedad->nombre);
+                }
+            } else {
+                // No se puede vender más casas de las disponibles
+                printf("%s, no puedes vender %d casas de la propiedad %s porque solo tienes %d casas.\n",
+                       jugador->nombre_jugador, num_casas, propiedad->nombre, propiedad->casas);
+            }
+        } else {
+            // La propiedad no tiene casas para vender
+            printf("%s, no puedes vender casas de la propiedad %s porque no tiene casas.\n",
+                   jugador->nombre_jugador, propiedad->nombre);
+        }
+    } else {
+        // El jugador no es el propietario de la propiedad
+        printf("%s, no eres el propietario de la propiedad %s y no puedes vender casas de ella.\n",
+               jugador->nombre_jugador, propiedad->nombre);
+    }
+    presioneEnter();
 }
 
 // TESTEO DEL JUEGO FUNCIONES
 //  Función exclusiva para programadores para probar comprar_propiedad y
 //  comprar_casas
 void testear_funciones() {
-  // Crear jugadores de prueba
-  TipoJugador jugador1 = {1500, 0,   "Manuel", 0,
-                          NULL, NULL}; // Inicializar las listas con NULL o
-                                       // funciones de creación de listas
-  TipoJugador jugador2 = {2000, 0, "No Manuel", 0, NULL, NULL};
+    // Crear jugadores de prueba
+    TipoJugador jugador1 = {5000, 0, "Manuel", 0, NULL, NULL}; // Inicializar las listas con NULL o funciones de creación de listas
+    TipoJugador jugador2 = {5000, 0, "No Manuel", 0, NULL, NULL};
 
-  // Inicializar propiedades
-  TipoPropiedad *propiedades = inicializar_propiedades();
+    // Inicializar propiedades
+    TipoPropiedad *propiedades = inicializar_propiedades();
 
-  // Buscar propiedades específicas por nombre (ejemplo)
+    // Simular compra de propiedad por jugador1
+    printf("\n== Jugador 1 intenta comprar Propiedad 1 ==\n");
+    comprar_propiedad(&jugador1, buscar_propiedad_por_nombre(propiedades, "TORPEDERAS"));
 
+    // Simular intento de jugador2 de comprar propiedad ya comprada
+    printf("\n== Jugador 2 intenta comprar Propiedad 1 ==\n");
+    comprar_propiedad(&jugador2, buscar_propiedad_por_nombre(propiedades, "TORPEDERAS"));
 
-  // Simular compra de propiedad por jugador1
-  printf("\n== Jugador 1 intenta comprar Propiedad 1 ==\n");
-  comprar_propiedad(&jugador1, buscar_propiedad_por_nombre(propiedades, "TORPEDERAS"));
+    // Simular compra de otra propiedad por jugador2
+    printf("\n== Jugador 2 intenta comprar Propiedad 2 ==\n");
+    comprar_propiedad(&jugador2, buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS"));
 
-  // Simular intento de jugador2 de comprar propiedad ya comprada
-  printf("\n== Jugador 2 intenta comprar Propiedad 1 ==\n");
-  comprar_propiedad(&jugador2, buscar_propiedad_por_nombre(propiedades, "TORPEDERAS"));
+    // Simular compra de casas por jugador1 en Propiedad 1
+    printf("\n== Jugador 1 intenta comprar casas para Propiedad 1 ==\n");
+    comprar_casas(&jugador1, buscar_propiedad_por_nombre(propiedades, "TORPEDERAS"));
 
+    // Simular compra de casas por jugador1 en Propiedad 2
+    printf("\n== Jugador 1 intenta comprar casas para Propiedad 2 ==\n");
+    comprar_casas(&jugador1, buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS"));
 
-  printf("\n== Jugador 2 intenta comprar Propiedad 2 ==\n");
-  comprar_propiedad(&jugador2, buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS"));
+    // Simular intento de jugador2 de comprar casas en Propiedad 2
+    printf("\n== Jugador 2 intenta comprar casas para Propiedad 2 ==\n");
+    comprar_casas(&jugador2, buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS"));
 
-  // Simular compra de casas por jugador1 en Propiedad 1
-  printf("\n== Jugador 1 intenta comprar casas para Propiedad 1 ==\n");
-  comprar_casas(&jugador1, buscar_propiedad_por_nombre(propiedades, "TORPEDERAS"));
+    // Simular venta de casas por jugador1 en Propiedad 1
+    printf("\n== Jugador 1 intenta vender casas de Propiedad 1 ==\n");
+    vender_casas(&jugador1, buscar_propiedad_por_nombre(propiedades, "TORPEDERAS"));
 
-  // Simular compra de casas por jugador1 en Propiedad 2
-  printf("\n== Jugador 1 intenta comprar  casas para Propiedad 2 ==\n");
-  comprar_casas(&jugador1, buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS"));
+    // Simular venta de casas por jugador1 en Propiedad 2
+    printf("\n== Jugador 1 intenta vender casas de Propiedad 2 ==\n");
+    vender_casas(&jugador1, buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS"));
 
-  // Simular intento de jugador2 de comprar casas en Propiedad 1 sin ser
-  // propietario
-  printf("\n== Jugador 2 intenta comprar casas para Propiedad 2 ==\n");
-  comprar_casas(&jugador2, buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS"));
+    // Mostrar estado final de las propiedades y jugadores
+    printf("\n== Estado final de las propiedades y jugadores ==\n");
+    printf("Propiedad 1: %s, Propietario: %s, Casas: %d, Renta: %d\n",
+           buscar_propiedad_por_nombre(propiedades, "TORPEDERAS")->nombre,
+           buscar_propiedad_por_nombre(propiedades, "TORPEDERAS")->propietario ? buscar_propiedad_por_nombre(propiedades, "TORPEDERAS")->propietario->nombre_jugador : "Sin dueño",
+           buscar_propiedad_por_nombre(propiedades, "TORPEDERAS")->casas,
+           buscar_propiedad_por_nombre(propiedades, "TORPEDERAS")->renta);
+    printf("Propiedad 2: %s, Propietario: %s, Casas: %d, Renta: %d\n",
+           buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS")->nombre,
+           buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS")->propietario ? buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS")->propietario->nombre_jugador : "Sin dueño",
+           buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS")->casas,
+           buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS")->renta);
+    printf("Jugador 1: %s, Dinero: %d\n", jugador1.nombre_jugador, jugador1.dinero);
+    printf("Jugador 2: %s, Dinero: %d\n", jugador2.nombre_jugador, jugador2.dinero);
 
-  // Mostrar estado final de las propiedades y jugadores
-  printf("\n== Estado final de las propiedades y jugadores ==\n");
-  printf("Propiedad 1: %s, Propietario: %s, Casas: %d\n", buscar_propiedad_por_nombre(propiedades, "TORPEDERAS")->nombre,
-      buscar_propiedad_por_nombre(propiedades, "TORPEDERAS")->propietario ? buscar_propiedad_por_nombre(propiedades, "TORPEDERAS")->propietario->nombre_jugador
-                                 : "Sin dueño",
-      buscar_propiedad_por_nombre(propiedades, "TORPEDERAS")->casas);
-  printf("Propiedad 2: %s, Propietario: %s, Casas: %d\n", buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS")->nombre,
-      buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS")->propietario ? buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS")->propietario->nombre_jugador
-                                 : "Sin dueño",
-      buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS")->casas);
-  printf("Jugador 1: %s, Dinero: %d\n", jugador1.nombre_jugador,
-         jugador1.dinero);
-  printf("Jugador 2: %s, Dinero: %d\n", jugador2.nombre_jugador,
-         jugador2.dinero);
+    // Liberar memoria de las listas de propiedades (si aplica)
+    list_clean(jugador1.propiedades);
+    list_clean(jugador2.propiedades);
 
-  // Liberar memoria de las listas de propiedades (si aplica)
-  list_clean(jugador1.propiedades);
-  list_clean(jugador2.propiedades);
+    // Reinicializar propiedades
+    reinicializar_propiedades(propiedades);
 
-  // Reinicializar propiedades
-  reinicializar_propiedades(propiedades);
-
-  presioneEnter();
+    presioneEnter();
 }
 
 
