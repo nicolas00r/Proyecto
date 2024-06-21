@@ -31,7 +31,6 @@ struct TipoPropiedad{
     char sector[50];
     bool hipotecado;
     int coordenadaX;
-    int coordenadaY;
 }; 
 
 typedef struct{
@@ -42,12 +41,10 @@ typedef struct{
 // Declarar los datos de las casillas
 typedef struct {
     char nombre_casilla[40];     // Nombre de la casilla
-    char tipo; // "P" para propiedad, "C" para carta, "J" para carcel
-    union {
-        TipoPropiedad *propiedad;    
-        int cantidad_impuesto;
-        TipoCarta* carta;              
-    };
+    char tipo; // "P" para propiedad, "C" para carta, "J" para carcel, "S" para servicio "E" para salida, "M" para metro. 
+    TipoPropiedad *propiedad;   
+    int cantidad_impuesto;
+
 }TipoCasilla;
 
 struct partidaGlobal{
@@ -153,46 +150,46 @@ TipoPropiedad *inicializar_propiedades() {
   // Crear un array estático de TipoPropiedad con todas las propiedades
   // iniciales
   static TipoPropiedad propiedades[NUM_PROPIEDADES] = {
-    {"SALIDA (COBRE $2000)", false, NULL, 0, 0, 0, 0, "NEUTRO", false, 10, 10},
-    {"TORPEDERAS", true, NULL, 600, 40, 0, 500, "PLAYA ANCHA", false, 10, 9},
-    {"ARCA COMUNAL", false, NULL, 0, 0, 0, 0, "CARTAS", false, 10, 8},
-    {"SEDE ALIMENTOS PUCV", true, NULL, 800, 65, 0, 500, "PLAYA ANCHA", false, 10, 7},
-    {"IMPUESTOS (PAGAR $2000)", false, NULL, 0, 0, 0, 0, "PAGAR", false, 10, 6},
-    {"ESTACIÓN PUERTO", false, NULL, 2000, 250, 0, 0, "METRO", false, 10, 5},
-    {"PARQUE ITALIA", true, NULL, 1000, 120, 0, 500, "VALPARAÍSO", false, 10, 4},
-    {"FORTUNA", false, NULL, 0, 0, 0, 0, "CARTAS", false, 10, 3},
-    {"IBC PUCV", true, NULL, 1100, 150, 0, 500, "VALPARAÍSO", false, 10, 2},
-    {"AV. PEDRO MONT", true, NULL, 1200, 160, 0, 500, "VALPARAÍSO", false, 10, 1},
-    {"CARCEL", false, NULL, 0, 0, 0, 0, "NEUTRO", false, 10, 0},
-    {"LAGUNA VERDE", true, NULL, 1400, 200, 0, 1000, "CURAUMA", false, 9, 0},
-    {"CAMPUS CURAUMA PUCV", true, NULL, 1500, 235, 0, 1000, "CURAUMA", false, 7, 0},
-    {"ESVAL (AGUA)", false, NULL, 2000, 50, 0, 0, "COMPAÑIAS", false, 8, 0},
-    {"LAGO PEÑUELAS", true, NULL, 1650, 250, 0, 1000, "CURAUMA", false, 6, 0},
-    {"ESTACIÓN BARÓN", false, NULL, 2000, 250, 0, 0, "METRO", false, 5, 0},
-    {"MUELLE BARÓN", true, NULL, 1800, 280, 0, 1000, "COSTA VALPO", false, 4, 0},
-    {"CALETA PORTALES", true, NULL, 1900, 290, 0, 1000, "COSTA VALPO", false, 2, 0},
-    {"ARCA COMUNAL", false, NULL, 0, 0, 0, 0, "CARTAS", false, 3, 0},
-    {"ESCUELA ECONOMÍA PUCV", true, NULL, 2000, 320, 0, 1000, "COSTA VALPO", false, 1, 0},
-    {"RELOJ DE FLORES", false, NULL, 0, 0, 0, 0, "NEUTRO", false, 0, 0},
-    {"SEDE MECÁNICA PUCV", true, NULL, 2200, 375, 0, 1500, "INTERIOR", false, 0, 1},
-    {"QUILPUE", true, NULL, 2400, 400, 0, 1500, "INTERIOR", false, 0, 3},
-    {"FORTUNA", false, NULL, 0, 0, 0, 0, "CARTAS", false, 0, 2},
-    {"VILLA ALEMANA", true, NULL, 2400, 400, 0, 1500, "INTERIOR", false, 0, 4},
-    {"ESTACIÓN LIMACHE", false, NULL, 2000, 250, 0, 0, "METRO", false, 0, 5},
-    {"OLMUE", true, NULL, 2600, 440, 0, 1500, "INTERIOR II", false, 0, 6},
-    {"QUILLOTA", true, NULL, 2600, 440, 0, 1500, "INTERIOR II", false, 0, 7},
-    {"VAYA A CARCEL", false, NULL, 0, 0, 0, 0, "NEUTRO", false, 0, 10},
-    {"FACU. AGRONOMÍA PUCV", true, NULL, 2800, 480, 0, 1500, "INTERIOR II", false, 0, 9},
-    {"MUELLE VERGARA", true, NULL, 3000, 520, 0, 2000, "VIÑA DEL MAR", false, 1, 10},
-    {"SEDE SAUSALITO PUCV", true, NULL, 3200, 560, 0, 2000, "VIÑA DEL MAR", false, 2, 10},
-    {"ARCA COMUNAL", false, NULL, 0, 0, 0, 0, "CARTAS", false, 3, 10},
-    {"15 NORTE", true, NULL, 3200, 560, 0, 2000, "VIÑA DEL MAR", false, 4, 10},
-    {"ESTACIÓN MIRAMAR", false, NULL, 2000, 250, 0, 0, "METRO", false, 5, 10},
-    {"RENACA", true, NULL, 3500, 700, 0, 2000, "NORTE VIÑA", false, 7, 10},
-    {"FORTUNA", false, NULL, 0, 0, 0, 0, "CARTAS", false, 6, 10},
-    {"MC DONALD (PAGAR $1000)", false, NULL, 0, 0, 0, 0, "PAGAR", false, 8, 10},
-    {"DUNAS DE CONCON", true, NULL, 4000, 1000, 0, 2000, "NORTE VIÑA", false, 9, 10},
-    {"CHILQUINTA (LUZ)", false, NULL, 2000, 50, 0, 0, "COMPAÑIAS", false, 0, 8}};
+    {"SALIDA (COBRE $2000)", false, NULL, 0, 0, 0, 0, "SALIDA", false, 0},
+    {"TORPEDERAS", true, NULL, 600, 40, 0, 500, "PLAYA ANCHA", false, 1},
+    {"ARCA COMUNAL", false, NULL, 0, 0, 0, 0, "CARTAS", false, 2},
+    {"SEDE ALIMENTOS PUCV", true, NULL, 800, 65, 0, 500, "PLAYA ANCHA", false, 3},
+    {"IMPUESTOS (PAGAR $2000)", false, NULL, 0, 0, 0, 0, "PAGAR", false, 4},
+    {"ESTACIÓN PUERTO", false, NULL, 2000, 250, 0, 0, "METRO", false, 5},
+    {"PARQUE ITALIA", true, NULL, 1000, 120, 0, 500, "VALPARAÍSO", false, 6},
+    {"FORTUNA", false, NULL, 0, 0, 0, 0, "CARTAS", false, 7},
+    {"IBC PUCV", true, NULL, 1100, 150, 0, 500, "VALPARAÍSO", false, 8},
+    {"AV. PEDRO MONT", true, NULL, 1200, 160, 0, 500, "VALPARAÍSO", false, 9},
+    {"CARCEL", false, NULL, 0, 0, 0, 0, "CARCEL", false, 10},
+    {"LAGUNA VERDE", true, NULL, 1400, 200, 0, 1000, "CURAUMA", false, 11},
+    {"CAMPUS CURAUMA PUCV", true, NULL, 1500, 235, 0, 1000, "CURAUMA", false, 12},
+    {"ESVAL (AGUA)", false, NULL, 2000, 50, 0, 0, "COMPAÑIAS", false, 13},
+    {"LAGO PEÑUELAS", true, NULL, 1650, 250, 0, 1000, "CURAUMA", false, 14},
+    {"ESTACIÓN BARÓN", false, NULL, 2000, 250, 0, 0, "METRO", false, 15},
+    {"MUELLE BARÓN", true, NULL, 1800, 280, 0, 1000, "COSTA VALPO", false, 16},
+    {"CALETA PORTALES", true, NULL, 1900, 290, 0, 1000, "COSTA VALPO", false, 17},
+    {"ARCA COMUNAL", false, NULL, 0, 0, 0, 0, "CARTAS", false, 18},
+    {"ESCUELA ECONOMÍA PUCV", true, NULL, 2000, 320, 0, 1000, "COSTA VALPO", false, 19},
+    {"RELOJ DE FLORES", false, NULL, 0, 0, 0, 0, "NEUTRO", false, 20},
+    {"SEDE MECÁNICA PUCV", true, NULL, 2200, 375, 0, 1500, "INTERIOR", false, 21},
+    {"QUILPUE", true, NULL, 2400, 400, 0, 1500, "INTERIOR", false, 22},
+    {"FORTUNA", false, NULL, 0, 0, 0, 0, "CARTAS", false, 23},
+    {"VILLA ALEMANA", true, NULL, 2400, 400, 0, 1500, "INTERIOR", false, 24},
+    {"ESTACIÓN LIMACHE", false, NULL, 2000, 250, 0, 0, "METRO", false, 25},
+    {"OLMUE", true, NULL, 2600, 440, 0, 1500, "INTERIOR II", false, 26},
+    {"QUILLOTA", true, NULL, 2600, 440, 0, 1500, "INTERIOR II", false, 27},
+    {"VAYA A CARCEL", false, NULL, 0, 0, 0, 0, "NEUTRO", false, 28},
+    {"FACU. AGRONOMÍA PUCV", true, NULL, 2800, 480, 0, 1500, "INTERIOR II", false, 29},
+    {"MUELLE VERGARA", true, NULL, 3000, 520, 0, 2000, "VIÑA DEL MAR", false, 30},
+    {"SEDE SAUSALITO PUCV", true, NULL, 3200, 560, 0, 2000, "VIÑA DEL MAR", false, 31},
+    {"ARCA COMUNAL", false, NULL, 0, 0, 0, 0, "CARTAS", false, 32},
+    {"15 NORTE", true, NULL, 3200, 560, 0, 2000, "VIÑA DEL MAR", false, 33},
+    {"ESTACIÓN MIRAMAR", false, NULL, 2000, 250, 0, 0, "METRO", false, 34},
+    {"RENACA", true, NULL, 3500, 700, 0, 2000, "NORTE VIÑA", false, 35},
+    {"FORTUNA", false, NULL, 0, 0, 0, 0, "CARTAS", false, 36},
+    {"MC DONALD (PAGAR $1000)", false, NULL, 0, 0, 0, 0, "PAGAR", false, 37},
+    {"DUNAS DE CONCON", true, NULL, 4000, 1000, 0, 2000, "NORTE VIÑA", false, 38},
+    {"CHILQUINTA (LUZ)", false, NULL, 2000, 50, 0, 0, "COMPAÑIAS", false, 39}};
 
   return propiedades;
 }
@@ -442,36 +439,46 @@ void vender_casas(TipoJugador *jugador, TipoPropiedad *propiedad) {
     }
     presioneEnter();
 }
-// INICIALIZAR TABLERO
-void inicializarTablero(TipoPropiedad *propiedades) {
-    char tablero[11][11][4]; // Matriz para almacenar nombres de propiedades (limitado a 3 caracteres)
 
-    // Inicializar todo el tablero como casillas vacías
-    for (int i = 0; i < 11; i++) {
-        for (int j = 0; j < 11; j++) {
-            strcpy(tablero[i][j], "   "); // Inicializar el nombre como tres espacios
-        }
+TipoCasilla* inicializarTablero(TipoPropiedad propiedades[NUM_PROPIEDADES]) {
+    TipoCasilla* tablero = malloc(NUM_PROPIEDADES * sizeof(TipoCasilla));
+    if (tablero == NULL) {
+        fprintf(stderr, "Error: No se pudo asignar memoria para el tablero.\n");
+        return NULL;
     }
 
-    // Asignar propiedades al tablero con sus coordenadas
     for (int i = 0; i < NUM_PROPIEDADES; i++) {
-        int x = propiedades[i].coordenadaX;
-        int y = propiedades[i].coordenadaY;
+        TipoCasilla casilla;
+        strcpy(casilla.nombre_casilla, propiedades[i].nombre);
 
-        // Asignar el nombre de la propiedad a la casilla correspondiente
-        strncpy(tablero[x][y], propiedades[i].nombre, 3);
-    }
-
-    // Imprimir el tablero para verificar la inicialización
-    printf("\n== Tablero Inicializado ==\n");
-    for (int i = 0; i < 11; i++) {
-        for (int j = 0; j < 11; j++) {
-            printf("[%s] ", tablero[i][j]);
+        if (strcmp(propiedades[i].sector, "CARTAS") == 0) {
+            casilla.tipo = 'C';
+            //casilla.carta = NULL;  // Inicializar con un puntero a carta, ajustar según tu implementación
+        } else if (strcmp(propiedades[i].sector, "PAGAR") == 0) {
+            casilla.tipo = 'I';
+            casilla.cantidad_impuesto = propiedades[i].precio;  // Ajustar si es necesario
+        } else if (strcmp(propiedades[i].sector, "NEUTRO") == 0) {
+            casilla.tipo = 'N';
+        } else if (strcmp(propiedades[i].sector, "SALIDA") == 0) {
+            casilla.tipo = 'E';  // Tipo "E" para salida
+        } else if (strcmp(propiedades[i].sector, "METRO") == 0) {
+            casilla.tipo = 'M';  // Tipo "M" para metro
+            casilla.propiedad = &propiedades[i];
+        } else if (strcmp(propiedades[i].sector, "CARCEL") == 0) {
+            casilla.tipo = 'J';  // Tipo "J" para cárcel
+        } else if (strcmp(propiedades[i].sector, "COMPAÑIAS") == 0) {
+            casilla.tipo = 'S';  // Tipo "S" para servicio
+            casilla.propiedad = &propiedades[i];
+        } else {
+            casilla.tipo = 'P';  // Tipo "P" para propiedad
+            casilla.propiedad = &propiedades[i];
         }
-        printf("\n");
+
+        int index = propiedades[i].coordenadaX; // Coordenada ya enumerada de 0 a 39
+        tablero[index] = casilla;
     }
 
-    presioneEnter();
+    return tablero;
 }
 
 
@@ -490,7 +497,17 @@ void testear_funciones() {
     TipoPropiedad *propiedades = inicializar_propiedades();
     
     // Inicializar tablero
-    inicializarTablero(propiedades);
+    TipoCasilla*  tablero = inicializarTablero(propiedades);
+    
+    // Ejemplo de cómo acceder a una casilla del tablero
+    printf("Casilla en la coordenada 0: %s. TIPO = %c\n", tablero[0].nombre_casilla, tablero[0].tipo);
+    printf("Casilla en la coordenada 6: %s. TIPO = %c\n", tablero[7].nombre_casilla, tablero[7].tipo);
+    printf("Casilla en la coordenada 5: %s. TIPO = %c\n", tablero[5].nombre_casilla, tablero[5].tipo);
+    printf("Casilla en la coordenada 9: %s. TIPO = %c\n", tablero[9].nombre_casilla, tablero[9].tipo);
+    printf("Casilla en la coordenada 10: %s. TIPO = %c\n", tablero[10].nombre_casilla, tablero[10].tipo);
+    printf("Casilla en la coordenada 12: %s. TIPO = %c\n", tablero[12].nombre_casilla, tablero[12].tipo);
+    printf("Casilla en la coordenada 20: %s. TIPO = %c\n", tablero[20].nombre_casilla, tablero[20].tipo);
+    
     // Simular compra de propiedad por jugador1
     printf("\n== Jugador 1 intenta comprar Propiedad 1 ==\n");
     comprar_propiedad(&jugador1, buscar_propiedad_por_nombre(propiedades, "TORPEDERAS"));
