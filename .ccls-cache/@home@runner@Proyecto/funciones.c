@@ -75,6 +75,71 @@ void limpiar_pantalla() {
     system("clear");
 }
 
+int solicitar_jugadores()
+{
+    int num_jugadores;
+    do {
+        printf("Ingrese el número de jugadores (2 a 4): ");
+        scanf("%d", &num_jugadores);
+        while (getchar() != '\n'); // Limpiar el buffer de entrada  
+        if (num_jugadores < 2 || num_jugadores > 4)
+            printf("!! El número de jugadores debe estar entre 2 y 4. !!\n");
+    } while (num_jugadores < 2 || num_jugadores > 4);
+    return num_jugadores;
+}
+
+void asignar_jugadores(partidaGlobal *partida, int num_jugadores) {
+    // Inicializar la lista de jugadores si aún no está inicializada
+    if (partida->jugadores == NULL) {
+        partida->jugadores = list_create();
+        if (partida->jugadores == NULL) {
+            printf("No se pudo crear la lista de jugadores\n");
+            return;
+        }
+    } else {
+        // Limpiar la lista de jugadores existente
+        list_clean(partida->jugadores);
+    }
+
+    // Asignar valores iniciales y nombres a los jugadores
+    for (int i = 0; i < num_jugadores; i++) {
+        TipoJugador *jugador = (TipoJugador *)malloc(sizeof(TipoJugador));
+        if (jugador == NULL) {
+            printf("Error al asignar memoria para el jugador %d\n", i+1);
+            return;
+        }
+
+        printf("Ingrese el nombre del jugador %d: ", i+1);
+        fgets(jugador->nombre_jugador, sizeof(jugador->nombre_jugador), stdin);
+        jugador->nombre_jugador[strcspn(jugador->nombre_jugador, "\n")] = '\0'; // Eliminar el salto de línea
+
+        jugador->dinero = 15000;
+        jugador->penalizacion = 0;
+        jugador->posicion = 0;
+        jugador->propiedades = list_create();
+        jugador->cartas = list_create();
+
+        // Agregar el jugador a la lista de jugadores de la partida
+        list_pushBack(partida->jugadores, jugador);
+
+
+    }
+    //verificar que se añadieron correctamente BORRAR FINAL CODIGO
+    int tamano = list_size(partida->jugadores);
+    if (tamano == num_jugadores) {
+        printf("Se han asignado correctamente los jugadores\n");
+    } else {
+        printf("No se han asignado correctamente los jugadores\n");
+    }
+
+}
+
+
+
+
+
+
+
 // Inicializar semilla aleatoria, esto permitirá que cada vez que se corra
 // el programa, los resultados sean diferentes
 void inicializar_aleatoriedad(){
