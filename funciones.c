@@ -42,7 +42,7 @@ typedef struct{
 // Declarar los datos de las casillas
 typedef struct {
     char nombre_casilla[40];     // Nombre de la casilla
-    char tipo[5]; // "P" para propiedad, "C" para carta
+    char tipo; // "P" para propiedad, "C" para carta, "J" para carcel
     union {
         TipoPropiedad *propiedad;    
         int cantidad_impuesto;
@@ -548,9 +548,6 @@ void testear_funciones() {
     presioneEnter();
 }
 
-
-
-
 //REGLAS
 void mostrar_reglas() {
     printf("Reglas del juego:\n");
@@ -579,9 +576,9 @@ void guardar_partida(partidaGlobal *partida, const char *filename) {
     // Guardar datos del tablero
     for (int i = 0; i < 40; i++) 
     {
-        TipoCasilla *casilla = partida->tablero->casillas[i];
-        fprintf(file, "%s,%s,", casilla->nombre_casilla, casilla->tipo);
-        if (strcmp(casilla->tipo, "P") == 0) {
+        TipoCasilla *casilla = partida->tablero[i];
+        fprintf(file, "%s,%c,", casilla->nombre_casilla, casilla->tipo);
+        if (casilla->tipo == 'P') {
             TipoPropiedad *propiedad = casilla->propiedad;
             fprintf(file, "%s,%d,%s,%d,%d,%s,%d\n",
                     propiedad->nombre,
@@ -591,7 +588,7 @@ void guardar_partida(partidaGlobal *partida, const char *filename) {
                     propiedad->renta,
                     propiedad->sector,
                     propiedad->hipotecado);
-        } else if (strcmp(casilla->tipo, "C") == 0) {
+        } else if (casilla->tipo == 'C') {
             fprintf(file, "\n");
         } else {
             fprintf(file, "%d\n", casilla->cantidad_impuesto);
@@ -610,6 +607,10 @@ void guardar_partida(partidaGlobal *partida, const char *filename) {
     fclose(file);
 }
 
+void verificar_bancarrota(TipoJugador *jugador){
+    
+}
+
 // Función para mostrar el menú inicial
 void mostrarMenuInicial() {
 
@@ -623,3 +624,4 @@ void mostrarMenuInicial() {
     printf("4. Salir del juego\n");
     printf("Seleccione una opción: ");
 }
+
