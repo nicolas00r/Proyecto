@@ -50,12 +50,8 @@ typedef struct {
     };
 }TipoCasilla;
 
-typedef struct {
-     TipoCasilla *casillas[40]; // Arreglo de casillas del tablero
-}TipoTablero;
-
 struct partidaGlobal{
-    TipoTablero *tablero;
+    TipoCasilla *tablero[40]; // Arreglo de casillas del tablero
     List *jugadores;
     List *turnos;
     Queue* fortuna;
@@ -137,12 +133,6 @@ void asignar_jugadores(partidaGlobal *partida, int num_jugadores) {
     }
 
 }
-
-
-
-
-
-
 
 // Inicializar semilla aleatoria, esto permitirá que cada vez que se corra
 // el programa, los resultados sean diferentes
