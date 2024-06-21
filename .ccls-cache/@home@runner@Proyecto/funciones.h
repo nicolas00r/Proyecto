@@ -8,6 +8,8 @@ typedef struct partidaGlobal partidaGlobal;
 // Declaraciones de funciones
 void presioneEnter();
 void limpiar_pantalla();
+int solicitar_jugadores();
+void asignar_jugadores(partidaGlobal *partida, int num_jugadores);
 void inicializar_aleatoriedad();
 int tirar_dados();
 TipoPropiedad* inicializar_propiedades();
