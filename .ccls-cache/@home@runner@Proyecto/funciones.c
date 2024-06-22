@@ -17,7 +17,6 @@ struct TipoJugador{
     char nombre_jugador[40];       // Nombre del jugador
     int posicion;                  // Posicion del jugador
     List *propiedades;    
-    List *cartas;
 };
 
 struct TipoPropiedad{
@@ -48,7 +47,7 @@ typedef struct {
 }TipoCasilla;
 
 struct partidaGlobal{
-    TipoCasilla *tablero[40]; // Arreglo de casillas del tablero
+    TipoCasilla **tablero; // Arreglo de casillas del tablero
     List *jugadores;
     List *turnos;
     Queue* fortuna;
@@ -114,8 +113,7 @@ void asignar_jugadores(partidaGlobal *partida, int num_jugadores) {
         jugador->penalizacion = 0;
         jugador->posicion = 0;
         jugador->propiedades = list_create();
-        jugador->cartas = list_create();
-
+        
         // Agregar el jugador a la lista de jugadores de la partida
         list_pushBack(partida->jugadores, jugador);
 
@@ -137,12 +135,11 @@ void inicializar_aleatoriedad(){
     srand(time(NULL));
 }
 
-// Función para tirar los dados
-int tirar_dados(){
-    int dado1 = (rand() % 6) + 1; // Genera un número aleatorio entre 1 y 6
-    int dado2 = (rand() % 6) + 1; // Genera un número aleatorio entre 1 y 6
+// Función para tirar un dado
+int tirar_dado(){
+    int dado = (rand() % 6) + 1; // Genera un número aleatorio entre 1 y 6
 
-    return dado1 + dado2;
+    return dado;
 }
 
 // INICIACIÓN DEL JUEGO
@@ -154,13 +151,13 @@ TipoPropiedad *inicializar_propiedades() {
     {"TORPEDERAS", true, NULL, 600, 40, 0, 500, "PLAYA ANCHA", false, 1},
     {"ARCA COMUNAL", false, NULL, 0, 0, 0, 0, "CARTAS", false, 2},
     {"SEDE ALIMENTOS PUCV", true, NULL, 800, 65, 0, 500, "PLAYA ANCHA", false, 3},
-    {"IMPUESTOS (PAGAR $2000)", false, NULL, 0, 0, 0, 0, "PAGAR", false, 4},
+    {"IMPUESTOS (PAGAR $2000)", false, NULL, 2000, 0, 0, 0, "PAGAR", false, 4},
     {"ESTACIÓN PUERTO", false, NULL, 2000, 250, 0, 0, "METRO", false, 5},
     {"PARQUE ITALIA", true, NULL, 1000, 120, 0, 500, "VALPARAÍSO", false, 6},
     {"FORTUNA", false, NULL, 0, 0, 0, 0, "CARTAS", false, 7},
     {"IBC PUCV", true, NULL, 1100, 150, 0, 500, "VALPARAÍSO", false, 8},
     {"AV. PEDRO MONT", true, NULL, 1200, 160, 0, 500, "VALPARAÍSO", false, 9},
-    {"CARCEL", false, NULL, 0, 0, 0, 0, "CARCEL", false, 10},
+    {"CARCEL", false, NULL, 0, 0, 0, 0, "NEUTRO", false, 10},
     {"LAGUNA VERDE", true, NULL, 1400, 200, 0, 1000, "CURAUMA", false, 11},
     {"CAMPUS CURAUMA PUCV", true, NULL, 1500, 235, 0, 1000, "CURAUMA", false, 12},
     {"ESVAL (AGUA)", false, NULL, 2000, 50, 0, 0, "COMPAÑIAS", false, 13},
@@ -178,7 +175,7 @@ TipoPropiedad *inicializar_propiedades() {
     {"ESTACIÓN LIMACHE", false, NULL, 2000, 250, 0, 0, "METRO", false, 25},
     {"OLMUE", true, NULL, 2600, 440, 0, 1500, "INTERIOR II", false, 26},
     {"QUILLOTA", true, NULL, 2600, 440, 0, 1500, "INTERIOR II", false, 27},
-    {"VAYA A CARCEL", false, NULL, 0, 0, 0, 0, "NEUTRO", false, 28},
+    {"VAYA A CARCEL", false, NULL, 0, 0, 0, 0, "CARCEL", false, 28},
     {"FACU. AGRONOMÍA PUCV", true, NULL, 2800, 480, 0, 1500, "INTERIOR II", false, 29},
     {"MUELLE VERGARA", true, NULL, 3000, 520, 0, 2000, "VIÑA DEL MAR", false, 30},
     {"SEDE SAUSALITO PUCV", true, NULL, 3200, 560, 0, 2000, "VIÑA DEL MAR", false, 31},
@@ -187,7 +184,7 @@ TipoPropiedad *inicializar_propiedades() {
     {"ESTACIÓN MIRAMAR", false, NULL, 2000, 250, 0, 0, "METRO", false, 34},
     {"RENACA", true, NULL, 3500, 700, 0, 2000, "NORTE VIÑA", false, 35},
     {"FORTUNA", false, NULL, 0, 0, 0, 0, "CARTAS", false, 36},
-    {"MC DONALD (PAGAR $1000)", false, NULL, 0, 0, 0, 0, "PAGAR", false, 37},
+    {"MC DONALD (PAGAR $1000)", false, NULL, 1000, 0, 0, 0, "PAGAR", false, 37},
     {"DUNAS DE CONCON", true, NULL, 4000, 1000, 0, 2000, "NORTE VIÑA", false, 38},
     {"CHILQUINTA (LUZ)", false, NULL, 2000, 50, 0, 0, "COMPAÑIAS", false, 39}};
 
@@ -211,8 +208,6 @@ TipoPropiedad *buscar_propiedad_por_nombre(TipoPropiedad *propiedades,
   }
   return NULL; // Si no se encuentra la propiedad
 }
-
-
 
 //FUNCIONES PARA LA HIPOTECA DE PROPIEDADES
 void hipotecar_propiedad(TipoJugador *jugador, TipoPropiedad *propiedad)
@@ -281,12 +276,64 @@ void recuperar_propiedad_hipotecada(TipoJugador *jugador, TipoPropiedad *propied
     } 
 }
 
+bool verificarHipotecas(List *propiedades, int deuda){
+    int recaudacion = 0;
+    TipoPropiedad *propiedad = (TipoPropiedad *)list_first(propiedades);
+    while(list_next(propiedades) != NULL){
+        if(propiedad->hipotecado == false) 
+            recaudacion += (propiedad->precio / 2);
+    }
 
+    if(recaudacion < deuda){
+        printf("No es posible pagar tu deuda\n");
+        return true;
+    }
+    return false;
+}
 
+void menuHipotecas(TipoJugador *jugador, int deuda){
+    printf("Bienvenido al menú de hipotecas\n");
+
+    TipoPropiedad *propiedad = (TipoPropiedad *)list_first(jugador->propiedades);
+    while(jugador->dinero >= deuda){
+        printf("Debes hipotecar, no tienes dinero suficiente para tu deuda\n");
+        hipotecar_propiedad(jugador, propiedad);
+        propiedad = (TipoPropiedad *)next_circular(jugador->propiedades);
+    }
+}
+
+bool verificar_propiedades_bancaRota(TipoJugador *jugador, int deuda){
+    if(list_size(jugador->propiedades) > 0){
+        if(verificarHipotecas(jugador->propiedades, deuda)){
+            return true;
+        } else{
+            menuHipotecas(jugador, deuda);
+            return false;
+        }
+    } else return true;
+}
+
+void eliminarJugador(TipoJugador *jugador, partidaGlobal *partida){
+    TipoPropiedad *propiedad = (TipoPropiedad *)list_first(jugador->propiedades);
+    while(propiedad != NULL){
+        propiedad->propietario = NULL;
+        propiedad = (TipoPropiedad *)list_next(jugador->propiedades);
+    }
+    list_popCurrent(partida->turnos);
+}
+
+void verificar_bancaRota(TipoJugador *jugador, int dinero_a_pagar, partidaGlobal *partida){
+    if(jugador->dinero - dinero_a_pagar < 0){
+        if(verificar_propiedades_bancaRota(jugador, dinero_a_pagar)){
+            printf("Perdiste, estas en bancarrota\n");
+            eliminarJugador(jugador, partida);
+        }
+    }
+}
 
 // FUNCIONES DE COMPRA Y VENTA DE PROPIEDADES
 
-void comprar_propiedad(TipoJugador *jugador, TipoPropiedad *propiedad) {
+void comprar_propiedad(TipoJugador *jugador, TipoPropiedad *propiedad, partidaGlobal *partida) {
   // Verificar que la propiedad no tiene dueño
   if (propiedad->propietario == NULL) {
     // Verificar que el jugador tiene suficiente dinero para comprar la
@@ -319,8 +366,12 @@ void comprar_propiedad(TipoJugador *jugador, TipoPropiedad *propiedad) {
     }
   } else {
     // La propiedad ya tiene un dueño
-    printf("La propiedad %s ya tiene un dueño y no puede ser comprada.\n",
-           propiedad->nombre);
+    printf("La propiedad %s tiene un dueño, debes pagar renta.\n", propiedad->nombre);
+    verificar_bancaRota(jugador, propiedad->renta, partida);
+    if(jugador != NULL){
+        jugador->dinero -= propiedad->renta;
+        propiedad->propietario->dinero += propiedad->renta;
+    }
   }
   presioneEnter();
 }
@@ -440,55 +491,153 @@ void vender_casas(TipoJugador *jugador, TipoPropiedad *propiedad) {
     presioneEnter();
 }
 
-TipoCasilla* inicializarTablero(TipoPropiedad propiedades[NUM_PROPIEDADES]) {
-    TipoCasilla* tablero = malloc(NUM_PROPIEDADES * sizeof(TipoCasilla));
-    if (tablero == NULL) {
+void inicializarTablero(partidaGlobal *partida, TipoPropiedad propiedades[NUM_PROPIEDADES]) {
+    partida->tablero = malloc(NUM_PROPIEDADES * sizeof(TipoCasilla));
+    if (partida->tablero == NULL) {
         fprintf(stderr, "Error: No se pudo asignar memoria para el tablero.\n");
-        return NULL;
+        return;
     }
 
     for (int i = 0; i < NUM_PROPIEDADES; i++) {
-        TipoCasilla casilla;
-        strcpy(casilla.nombre_casilla, propiedades[i].nombre);
+        TipoCasilla *casilla = (TipoCasilla *)malloc(sizeof(TipoCasilla));
+        strcpy(casilla->nombre_casilla, propiedades[i].nombre);
 
         if (strcmp(propiedades[i].sector, "CARTAS") == 0) {
-            casilla.tipo = 'C';
+            casilla->tipo = 'C';
             //casilla.carta = NULL;  // Inicializar con un puntero a carta, ajustar según tu implementación
         } else if (strcmp(propiedades[i].sector, "PAGAR") == 0) {
-            casilla.tipo = 'I';
-            casilla.cantidad_impuesto = propiedades[i].precio;  // Ajustar si es necesario
+            casilla->tipo = 'I';
+            casilla->cantidad_impuesto = propiedades[i].precio;  // Ajustar si es necesario
         } else if (strcmp(propiedades[i].sector, "NEUTRO") == 0) {
-            casilla.tipo = 'N';
+            casilla->tipo = 'N';
         } else if (strcmp(propiedades[i].sector, "SALIDA") == 0) {
-            casilla.tipo = 'E';  // Tipo "E" para salida
+            casilla->tipo = 'E';  // Tipo "E" para salida
         } else if (strcmp(propiedades[i].sector, "METRO") == 0) {
-            casilla.tipo = 'M';  // Tipo "M" para metro
-            casilla.propiedad = &propiedades[i];
+            casilla->tipo = 'M';  // Tipo "M" para metro
+            casilla->propiedad = &propiedades[i];
         } else if (strcmp(propiedades[i].sector, "CARCEL") == 0) {
-            casilla.tipo = 'J';  // Tipo "J" para cárcel
+            casilla->tipo = 'J';  // Tipo "J" para cárcel
         } else if (strcmp(propiedades[i].sector, "COMPAÑIAS") == 0) {
-            casilla.tipo = 'S';  // Tipo "S" para servicio
-            casilla.propiedad = &propiedades[i];
+            casilla->tipo = 'S';  // Tipo "S" para servicio
+            casilla->propiedad = &propiedades[i];
         } else {
-            casilla.tipo = 'P';  // Tipo "P" para propiedad
-            casilla.propiedad = &propiedades[i];
+            casilla->tipo = 'P';  // Tipo "P" para propiedad
+            casilla->propiedad = &propiedades[i];
         }
 
         int index = propiedades[i].coordenadaX; // Coordenada ya enumerada de 0 a 39
-        tablero[index] = casilla;
+        partida->tablero[index] = casilla;
     }
 
-    return tablero;
 }
 
 
 // TESTEO DEL JUEGO FUNCIONES
 //  Función exclusiva para programadores para probar comprar_propiedad y
 //  comprar_casas
-void testear_funciones() {
-    
-    
+void inicializarListasYColas(partidaGlobal *partida){
+    partida->jugadores = list_create();
+    partida->turnos = list_create();
+    partida->fortuna = queue_create();
+    partida->arca_comunal = queue_create();
+    TipoPropiedad *propiedades = inicializar_propiedades();
+    inicializarTablero(partida, propiedades);
 
+}
+
+void moverJugador(TipoJugador *jugador, int avance){
+    int nuevaPosicion = (jugador->posicion + avance) % 40;
+        if (nuevaPosicion < jugador->posicion) {  // Pasó por la casilla de salida
+            jugador->dinero += 2000;
+            printf("El jugador %s pasó por la salida y recibió $2000. Dinero actual: $%d\n", jugador->nombre_jugador, jugador->dinero);
+        }
+        jugador->posicion = nuevaPosicion;
+        printf("El jugador %s se movió a la casilla %d.\n", jugador->nombre_jugador, jugador->posicion);
+    }
+
+void casoPropiedad(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
+    comprar_propiedad(jugador, casilla->propiedad, partida);
+}
+
+void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
+
+}
+
+void casoPagar(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
+
+}
+
+void casoMetro(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
+
+}
+
+void casoCarcel(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
+
+}
+
+void casoServicio(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
+
+}
+void ejecutarAccionCasilla(TipoJugador *jugador, TipoCasilla *casilla, partidaGlobal *partida){
+    if(casilla->tipo == 'P') casoPropiedad(jugador, partida, casilla);
+    /*else if(casilla->tipo == 'C') casoCarta(jugador, partida, casilla);
+    else if(casilla->tipo == 'I') casoPagar(jugador, partida, casilla);
+    else if(casilla->tipo == 'M')  casoMetro(jugador, partida, casilla);
+    else if(casilla->tipo == 'J')  casoCarcel(jugador, partida, casilla);
+    else if(casilla->tipo == 'S')  casoServicio(jugador, partida, casilla);*/
+
+    //verificar_bancaRota(jugador_actual, dinero_a_pagar);
+}
+
+
+void turnoJugador(TipoJugador* jugador, partidaGlobal *partida){
+    int dado1 = 0;//tirar_dado();
+    int dado2 = 1;//tirar_dado();
+    int totalDados = dado1 + dado2;
+
+    printf("El jugador %s ha lanzado los dados: %d y %d (Total: %d)\n", jugador->nombre_jugador, dado1, dado2, totalDados);
+
+    moverJugador(jugador, totalDados);
+
+    TipoCasilla *casillaActual = partida->tablero[jugador->posicion];
+
+    ejecutarAccionCasilla(jugador, casillaActual, partida);
+
+    /*// Actualizar el estado del jugador (por ejemplo, verificar si está en la cárcel)
+    actualizarEstadoJugador(jugador);
+
+    // Verificar si el jugador está en bancarrota
+    if (verificarBancarrota(jugador)) {
+        printf("El jugador %s está en bancarrota.\n", jugador->nombre_jugador);
+    }*/
+}
+void testear_funciones() {
+    partidaGlobal *partida = (partidaGlobal*)malloc(sizeof(partidaGlobal));
+    if(partida == NULL){
+        printf("Error al inicializar la partida\n");
+        return;
+    }
+
+    inicializarListasYColas(partida);
+    int num_jugadores = solicitar_jugadores();
+    asignar_jugadores(partida, num_jugadores);
+
+    for (void* jugador = list_first(partida->jugadores); jugador != NULL; jugador = list_next(partida->jugadores)) {
+        list_pushBack(partida->turnos, jugador);
+    }
+
+    inicializar_aleatoriedad();
+    TipoJugador* jugador_actual = (TipoJugador*)list_first(partida->turnos);
+
+    while(true)
+    {
+        turnoJugador(jugador_actual, partida);
+        printf("Dinero: %d\n", jugador_actual->dinero);
+        presioneEnter();
+        jugador_actual = next_circular(partida->turnos);
+        
+    }
+    /*
     // Crear jugadores de prueba
     TipoJugador jugador1 = {5000, 0, "Manuel", 0, NULL, NULL}; // Inicializar las listas con NULL o funciones de creación de listas
     TipoJugador jugador2 = {5000, 0, "No Manuel", 0, NULL, NULL};
@@ -553,7 +702,7 @@ void testear_funciones() {
            buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS")->casas,
            buscar_propiedad_por_nombre(propiedades, "PUCV SEDE ALIMENTOS")->renta);
     printf("Jugador 1: %s, Dinero: %d\n", jugador1.nombre_jugador, jugador1.dinero);
-    printf("Jugador 2: %s, Dinero: %d\n", jugador2.nombre_jugador, jugador2.dinero);
+    printf("Jugador 2: %s, Dinero: %d\n", jugador2.nombre_jugador, jugador2.dinero); 
 
     // Liberar memoria de las listas de propiedades (si aplica)
     list_clean(jugador1.propiedades);
@@ -561,7 +710,7 @@ void testear_funciones() {
 
     // Reinicializar propiedades
     reinicializar_propiedades(propiedades);
-
+    */
     presioneEnter();
 }
 
@@ -623,11 +772,6 @@ void guardar_partida(partidaGlobal *partida, const char *filename) {
 
     fclose(file);
 }
-
-void verificar_bancarrota(TipoJugador *jugador){
-    
-}
-
 // Función para mostrar el menú inicial
 void mostrarMenuInicial() {
 
@@ -642,3 +786,90 @@ void mostrarMenuInicial() {
     printf("Seleccione una opción: ");
 }
 
+/*void inicializarListasYColas(partidaGlobal *partida){
+    partida->jugadores = list_create();
+    partida->turnos = list_create();
+    partida->fortuna = queue_create();
+    partida->arca_comunal = queue_create();
+    TipoPropiedad *propiedades = inicializar_propiedades();
+    inicializarTablero(partida, propiedades);
+
+}*/
+/*
+void moverJugador(TipoJugador *jugador, int avance){
+    int nuevaPosicion = (jugador->posicion + avance) % 40;
+        if (nuevaPosicion < jugador->posicion) {  // Pasó por la casilla de salida
+            jugador->dinero += 2000;
+            printf("El jugador %s pasó por la salida y recibió $2000. Dinero actual: $%d\n", jugador->nombre_jugador, jugador->dinero);
+        }
+        jugador->posicion = nuevaPosicion;
+        printf("El jugador %s se movió a la casilla %d.\n", jugador->nombre_jugador, jugador->posicion);
+}
+
+    
+void turnoJugador(TipoJugador* jugador, partidaGlobal *partida){
+        // Lanzar los dados
+    int dado1 = tirar_dado();
+    int dado2 = tirar_dado();
+    int totalDados = dado1 + dado2;
+
+    printf("El jugador %s ha lanzado los dados: %d y %d (Total: %d)\n", jugador->nombre_jugador, dado1, dado2, totalDados);
+
+    // Mover al jugador en el tablero
+    moverJugador(jugador, totalDados);
+
+    // Obtener la casilla actual del jugador
+    TipoCasilla *casillaActual = partida->tablero[jugador->posicion];
+
+    // Ejecutar la acción de la casilla
+    ejecutarAccionCasilla(jugador, casillaActual, partida);
+
+    // Actualizar el estado del jugador (por ejemplo, verificar si está en la cárcel)
+    actualizarEstadoJugador(jugador);
+
+    // Verificar si el jugador está en bancarrota
+    if (verificarBancarrota(jugador)) {
+        printf("El jugador %s está en bancarrota.\n", jugador->nombre_jugador);
+    }
+}
+*/
+    
+/*void iniciarPartida(){
+
+    partidaGlobal *partida = (partidaGlobal*)malloc(sizeof(partidaGlobal));
+    if(partida == NULL){
+        printf("Error al inicializar la partida\n");
+        return;
+    }
+
+    inicializarListasYColas(partida);
+    int num_jugadores = solicitar_jugadores();
+    asignar_jugadores(partida, num_jugadores);
+
+    for (void* jugador = list_first(partida->jugadores); jugador != NULL; jugador = list_next(partida->jugadores)) {
+        list_pushBack(partida->turnos, jugador);
+    }
+
+    inicializar_aleatoriedad();
+    
+    TipoJugador* jugador_actual = (TipoJugador*)list_first(partida->turnos);
+    
+    while(true){
+        // Ejecutar el turno del jugador
+        turnoJugador(jugador_actual, partida);
+
+        // Mostrar el estado del jugador
+        mostrarEstadoJugador(jugador_actual);
+
+        jugador_actual = next_circular(partida->turnos);
+
+        // Verificar si hay un ganador
+        TipoJugador* ganador = verificarGanador(partida->jugadores);
+        if (ganador != NULL) {
+           printf("¡El jugador %s es el ganador del juego!\n", ganador->nombre_jugador);
+            break;
+        }
+    }
+
+    //liberarMemoria(partida);    
+}*/

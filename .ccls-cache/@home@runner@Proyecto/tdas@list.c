@@ -191,7 +191,12 @@ void *list_popCurrent(List *L) {
   }
   void *data = L->current->data;
   free(L->current);
-  L->current = temp->next;
+
+  if(temp->next == NULL){
+    L->current = L->head;
+  } else{
+    L->current = temp->next;
+  }
   L->size--;
   return data;
 }
