@@ -10,10 +10,15 @@
 #define FILAS 11
 #define COLUMNAS 11
 #define NUM_CARTAS 12
+<<<<<<< HEAD
 
 // STRUCTS
 
 // Struct para cada jugador
+=======
+//STRUCTS
+// Declarar los datos de los jugadores
+>>>>>>> c0831b7b1a3f6bd3474acd157b51c83fddf7ff5c
 struct TipoJugador{
     int dinero;                    // Dinero del jugador
     int penalizacion;              // Penalizacion de la carcel hacia al jugador
@@ -201,6 +206,91 @@ TipoPropiedad *inicializar_propiedades() {
   return propiedades;
 }
 
+<<<<<<< HEAD
+=======
+TipoCarta *fortuna()
+{
+    static TipoCarta fortuna[NUM_CARTAS] = {
+    {"AVANCE HASTA LA CASILLA DE SALIDA, COBRE $200", 200, 0, -1},
+    {"AVANCE A DUNAS DE CONCON", 0, 25, -1},
+    {"EL BANCO PAGA DIVIDENDOS DE $500", 500, -1, -1},
+    {"AVANCE A PUCV ESCUELA ECONOMÍA", 0, 12, -1},
+    {"VAYA DIRECTAMENTE A LA CÁRCEL", 0, -1, 3},
+    {"USTED HA SIDO ELEGIDO PRESIDENTE DEL CENTRO DE ALUMNOS, PAGUE $100", -100, -1, -1},
+    {"ENHORABUENA, HAN CARGADO LA BAES! RECIBA $1500.", 1500, -1, -1},
+    {"AVANCE A ESTACIÓN MIRAMAR", 0, 23, -1},
+    {"AVANCE A ESTACIÓN LIMACHE",0, 16, -1},
+    {"AVANCE A ESTACIÓN PUERTO",0, 2, -1},
+    {"AVANCE A ESTACIÓN BARÓN",0, 9, -1},
+    {"SALGA DE LA CÁRCEL GRATIS", 0, -1, 0}
+    };
+    return fortuna;
+}
+
+TipoCarta *arca_comunal()
+{
+    static TipoCarta arca_comunal[NUM_CARTAS] = {
+    {"AVANCE HASTA LA CASILLA DE SALIDA. COBRE $200", 0, -1, -1},
+    {"HOSPITALIZACIÓN. PAGUE $1000.", -1000, -1, -1},
+    {"CUOTA DEL SEGURO DE VIDA VENCE. COBRE $100.", 1000, -1, -1},
+    {"EL BANCO TE PAGA DIVIDENDOS DE $500.", 500, -1, -1},
+    {"HAS GANADO EL SEGUNDO PREMIO EN UN CONCURSO DE BELLEZA. COBRE $300.", 300, -1, -1},
+    {"RECIBA $250 POR SERVICIOS.", 250, -1, -1},
+    {"ERROR BANCARIO A TU FAVOR. COBRE $2000.", 2000, -1, -1},
+    {"PAGUE UNA MULTA DE $500.", -500, -1, -1},
+    {"PAGUE LA MATRÍCULA DE LA PUCV. PAGUE $1500.", -1500, -1 , -1},
+    {"VAYA DIRECTAMENTE A LA CÁRCEL", 0, -1, 3},
+    {"SALGA DE LA CÁRCEL GRATIS", 0, -1, 0},
+    {"EL METRO SE QUEDA DETENIDO EN ESTACION VALENCIA Y LLEGAS TARDE AL TRABAJO, PAGUE 500", -500, -1, 0}
+    };
+    return arca_comunal;
+}
+
+void randomizar_cartas(TipoCarta *cartas, int size)
+{
+    for (int pos_original = 0; pos_original < size; pos_original++) 
+    {
+        int nueva_pos = rand() % size;
+        TipoCarta aux = cartas[pos_original];
+        cartas[pos_original] = cartas[nueva_pos];
+        cartas[nueva_pos] = aux;
+    }
+}
+
+TipoCarta* crear_copia_cartas(TipoCarta *cartas, int size)
+{
+    TipoCarta *cartas_copia = malloc(sizeof(TipoCarta) * size);
+    for (int i = 0; i < size; i++)
+        cartas_copia[i] = cartas[i];
+    return cartas_copia;
+}
+
+void arreglo_a_cola(TipoCarta *cartas, int size, Queue *cola)
+{
+    for(int i = 0; i < size; i++)
+        queue_insert(cola, &cartas[i]);
+}
+
+Queue* inicializar_fortuna()
+{
+    TipoCarta *cartas_originales = fortuna();
+    TipoCarta *cartas_copia = crear_copia_cartas(cartas_originales, NUM_CARTAS);
+    randomizar_cartas(cartas_copia, NUM_CARTAS);
+    Queue *fortuna = queue_create(fortuna);
+    arreglo_a_cola(cartas_copia, NUM_CARTAS, fortuna);
+    return fortuna;
+}
+
+Queue* inicializar_arca_comunal()
+{
+    TipoCarta *cartas_originales = arca_comunal();
+    TipoCarta *cartas_copia = crear_copia_cartas(cartas_originales, NUM_CARTAS);
+    randomizar_cartas(cartas_copia, NUM_CARTAS);
+    Queue *arca_comunal = queue_create(arca_comunal);
+    arreglo_a_cola(cartas_copia, NUM_CARTAS, arca_comunal);
+    return arca_comunal;
+}
+>>>>>>> c0831b7b1a3f6bd3474acd157b51c83fddf7ff5c
 
 void reinicializar_propiedades(TipoPropiedad* propiedades) {
     for (int i = 0; i < NUM_PROPIEDADES; i++) { // Asume que tienes una constante NUM_PROPIEDADES
