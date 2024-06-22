@@ -9,6 +9,7 @@
 #define NUM_PROPIEDADES 40
 #define FILAS 11
 #define COLUMNAS 11
+#define NUM_CARTAS 12
 //STRUCTS
 // Declarar los datos de los jugadores
 struct TipoJugador{
@@ -34,7 +35,9 @@ struct TipoPropiedad{
 
 typedef struct{
     char descripcion[200]; //Descripción de la carta
-    void (*efecto)(TipoJugador* jugador); // Función que define el efecto de la carta en el jugador
+    int cambio_dinero;
+    int cambio_posicion;
+    int cambio_penalizacion;
 }TipoCarta;
 
 // Declarar los datos de las casillas
@@ -189,6 +192,44 @@ TipoPropiedad *inicializar_propiedades() {
     {"CHILQUINTA (LUZ)", false, NULL, 2000, 50, 0, 0, "COMPAÑIAS", false, 39}};
 
   return propiedades;
+}
+
+TipoCarta *inicializar_fortuna()
+{
+    static TipoCarta fortuna[NUM_CARTAS] = {
+    {"AVANCE HASTA LA CASILLA DE SALIDA, COBRE $200", 200, 0, -1},
+    {"AVANCE A DUNAS DE CONCON", 0, 25, -1},
+    {"EL BANCO PAGA DIVIDENDOS DE $500", 500, -1, -1},
+    {"AVANCE A PUCV ESCUELA ECONOMÍA", 0, 12, -1},
+    {"VAYA DIRECTAMENTE A LA CÁRCEL", 0, -1, 3},
+    {"USTED HA SIDO ELEGIDO PRESIDENTE DEL CENTRO DE ALUMNOS, PAGUE $100", -100, -1, -1},
+    {"ENHORABUENA, HAN CARGADO LA BAES! RECIBA $1500.", 1500, -1, -1},
+    {"AVANCE A ESTACIÓN MIRAMAR", 0, 23, -1},
+    {"AVANCE A ESTACIÓN LIMACHE",0, 16, -1},
+    {"AVANCE A ESTACIÓN PUERTO",0, 2, -1},
+    {"AVANCE A ESTACIÓN BARÓN",0, 9, -1},
+    {"SALGA DE LA CÁRCEL GRATIS", 0, -1, 0}
+    };
+    return fortuna;
+}
+
+TipoCarta *inicializar_arca_comunal()
+{
+    static TipoCarta arca_comunal[NUM_CARTAS] = {
+    {"AVANCE HASTA LA CASILLA DE SALIDA. COBRE $200", 0, -1, -1},
+    {"HOSPITALIZACIÓN. PAGUE $1000.", -1000, -1, -1},
+    {"CUOTA DEL SEGURO DE VIDA VENCE. COBRE $100.", 1000, -1, -1},
+    {"EL BANCO TE PAGA DIVIDENDOS DE $500.", 500, -1, -1},
+    {"HAS GANADO EL SEGUNDO PREMIO EN UN CONCURSO DE BELLEZA. COBRE $300.", 300, -1, -1},
+    {"RECIBA $250 POR SERVICIOS.", 250, -1, -1},
+    {"ERROR BANCARIO A TU FAVOR. COBRE $2000.", 2000, -1, -1},
+    {"PAGUE UNA MULTA DE $500.", -500, -1, -1},
+    {"PAGUE LA MATRÍCULA DE LA PUCV. PAGUE $1500.", -1500, -1 , -1},
+    {"VAYA DIRECTAMENTE A LA CÁRCEL", 0, -1, 3},
+    {"SALGA DE LA CÁRCEL GRATIS", 0, -1, 0},
+    {"EL METRO SE QUEDA DETENIDO EN ESTACION VALENCIA Y LLEGAS TARDE AL TRABAJO, PAGUE 500", -500, -1, 0}
+    };
+    return arca_comunal;
 }
 
 void reinicializar_propiedades(TipoPropiedad* propiedades) {
