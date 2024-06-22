@@ -194,7 +194,7 @@ TipoPropiedad *inicializar_propiedades() {
   return propiedades;
 }
 
-TipoCarta *inicializar_fortuna()
+TipoCarta *fortuna()
 {
     static TipoCarta fortuna[NUM_CARTAS] = {
     {"AVANCE HASTA LA CASILLA DE SALIDA, COBRE $200", 200, 0, -1},
@@ -213,7 +213,7 @@ TipoCarta *inicializar_fortuna()
     return fortuna;
 }
 
-TipoCarta *inicializar_arca_comunal()
+TipoCarta *arca_comunal()
 {
     static TipoCarta arca_comunal[NUM_CARTAS] = {
     {"AVANCE HASTA LA CASILLA DE SALIDA. COBRE $200", 0, -1, -1},
@@ -232,6 +232,51 @@ TipoCarta *inicializar_arca_comunal()
     return arca_comunal;
 }
 
+void randomizar_cartas(TipoCarta *cartas, int size)
+{
+    for (int pos_original = 0; pos_original < size; pos_original++) 
+    {
+        int nueva_pos = rand() % size;
+        TipoCarta aux = cartas[pos_original];
+        cartas[pos_original] = cartas[nueva_pos];
+        cartas[nueva_pos] = aux;
+    }
+}
+
+TipoCarta* crear_copia_cartas(TipoCarta *cartas, int size)
+{
+    TipoCarta *cartas_copia = malloc(sizeof(TipoCarta) * size);
+    for (int i = 0; i < size; i++)
+        cartas_copia[i] = cartas[i];
+    return cartas_copia;
+}
+
+void arreglo_a_cola(TipoCarta *cartas, int size, Queue *cola)
+{
+    for(int i = 0; i < size; i++)
+        queue_insert(cola, &cartas[i]);
+}
+
+Queue* inicializar_fortuna()
+{
+    TipoCarta *cartas_originales = fortuna();
+    TipoCarta *cartas_copia = crear_copia_cartas(cartas_originales, NUM_CARTAS);
+    randomizar_cartas(cartas_copia, NUM_CARTAS);
+    Queue *fortuna = queue_create(fortuna);
+    arreglo_a_cola(cartas_copia, NUM_CARTAS, fortuna);
+    return fortuna;
+}
+
+Queue* inicializar_arca_comunal()
+{
+    TipoCarta *cartas_originales = arca_comunal();
+    TipoCarta *cartas_copia = crear_copia_cartas(cartas_originales, NUM_CARTAS);
+    randomizar_cartas(cartas_copia, NUM_CARTAS);
+    Queue *arca_comunal = queue_create(arca_comunal);
+    arreglo_a_cola(cartas_copia, NUM_CARTAS, arca_comunal);
+    return arca_comunal;
+}
+
 void reinicializar_propiedades(TipoPropiedad* propiedades) {
     for (int i = 0; i < NUM_PROPIEDADES; i++) { // Asume que tienes una constante NUM_PROPIEDADES
         propiedades[i].propietario = NULL;
@@ -239,6 +284,7 @@ void reinicializar_propiedades(TipoPropiedad* propiedades) {
         propiedades[i].hipotecado = false;
     }
 }
+
 
 TipoPropiedad *buscar_propiedad_por_nombre(TipoPropiedad *propiedades,
                                            const char *nombre) {
