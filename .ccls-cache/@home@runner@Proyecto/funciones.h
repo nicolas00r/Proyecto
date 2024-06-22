@@ -17,9 +17,9 @@ TipoPropiedad* buscar_propiedad_por_nombre(TipoPropiedad* propiedades, const cha
 void reinicializar_propiedades(TipoPropiedad* propiedades);
 void comprar_propiedad(TipoJugador* jugador, TipoPropiedad* propiedad, partidaGlobal* partida);
 void comprar_casas(TipoJugador* jugador, TipoPropiedad* propiedad);
-void testear_funciones();
 void mostrar_reglas();
 void guardar_partida(partidaGlobal *partida, const char *filename);
 void mostrarMenuInicial();
+void iniciarPartida();
 
 #endif // FUNCIONES_H

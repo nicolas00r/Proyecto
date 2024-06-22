@@ -136,7 +136,7 @@ Queue* inicializar_fortuna()
     TipoCarta *cartas_originales = fortuna();
     TipoCarta *cartas_copia = crear_copia_cartas(cartas_originales, NUM_CARTAS);
     randomizar_cartas(cartas_copia, NUM_CARTAS);
-    Queue *fortuna = queue_create(fortuna);
+    Queue *fortuna = queue_create();
     arreglo_a_cola(cartas_copia, NUM_CARTAS, fortuna);
     return fortuna;
 }
@@ -146,7 +146,7 @@ Queue* inicializar_arca_comunal()
     TipoCarta *cartas_originales = arca_comunal();
     TipoCarta *cartas_copia = crear_copia_cartas(cartas_originales, NUM_CARTAS);
     randomizar_cartas(cartas_copia, NUM_CARTAS);
-    Queue *arca_comunal = queue_create(arca_comunal);
+    Queue *arca_comunal = queue_create();
     arreglo_a_cola(cartas_copia, NUM_CARTAS, arca_comunal);
     return arca_comunal;
 }
@@ -591,8 +591,8 @@ void vender_casas(TipoJugador *jugador, TipoPropiedad *propiedad) {
 void inicializarListasYColas(partidaGlobal *partida){
     partida->jugadores = list_create();
     partida->turnos = list_create();
-    partida->fortuna = queue_create();
-    partida->arca_comunal = queue_create();
+    partida->fortuna = inicializar_fortuna();
+    partida->arca_comunal = inicializar_arca_comunal();
     TipoPropiedad *propiedades = inicializar_propiedades();
     inicializarTablero(partida, propiedades);
 }
@@ -719,13 +719,15 @@ void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casill
     {
         carta_sacada = queue_remove(partida->fortuna);
         queue_insert(partida->fortuna, carta_sacada);
+        printf("¡CARTA DE LA FORTUNA!\n");
     }
     else
     {
         carta_sacada = queue_remove(partida->arca_comunal);
         queue_insert(partida->arca_comunal, carta_sacada);
+        printf("¡CARTA DE LA ARCA COMÚNAL!\n");
     }
-    printf("%s\n", carta_sacada->descripcion);
+    printf("Carta sacada: %s\n", carta_sacada->descripcion);
     
     jugador->dinero += carta_sacada->cambio_dinero;
 
@@ -800,12 +802,10 @@ void casoCarcel(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casil
 
 void ejecutarAccionCasilla(TipoJugador *jugador, TipoCasilla *casilla, partidaGlobal *partida){
     if(casilla->tipo == 'P') casoPropiedad(jugador, casilla->propiedad, partida);
-    //else if(casilla->tipo == 'C') casoCarta(jugador, partida, casilla);
+    else if(casilla->tipo == 'C') casoCarta(jugador, partida, casilla);
     else if(casilla->tipo == 'I') casoPagar(jugador, partida, casilla);
     else if(casilla->tipo == 'M' || casilla->tipo == 'S')  casoNoPropiedad(jugador, casilla->propiedad, partida);
     else if(casilla->tipo == 'J')  casoCarcel(jugador, partida, casilla);
-
-    //verificar_bancaRota(jugador_actual, dinero_a_pagar);
 }
 
 
@@ -840,34 +840,11 @@ void turnoJugador(TipoJugador* jugador, partidaGlobal *partida){
     mostrar_estado_jugador(jugador, partida);
 }
 
-void testear_funciones() {
-    partidaGlobal *partida = (partidaGlobal*)malloc(sizeof(partidaGlobal));
-    if(partida == NULL){
-        printf("Error al inicializar la partida\n");
-        return;
+TipoJugador *verificarGanador(List *jugadores){
+    if(list_size(jugadores) != 1){
+        return NULL;
     }
-
-    inicializarListasYColas(partida);
-    int num_jugadores = solicitar_jugadores();
-    asignar_jugadores(partida, num_jugadores);
-
-    for (void* jugador = list_first(partida->jugadores); jugador != NULL; jugador = list_next(partida->jugadores)) {
-        list_pushBack(partida->turnos, jugador);
-    }
-
-    inicializar_aleatoriedad();
-    TipoJugador* jugador_actual = (TipoJugador*)list_first(partida->turnos);
-
-    while(true)
-    {
-        turnoJugador(jugador_actual, partida);
-        printf("Dinero: %d\n", jugador_actual->dinero);
-        presioneEnter();
-        jugador_actual = next_circular(partida->turnos);
-
-    }
-
-    presioneEnter();
+    return list_first(jugadores);
 }
 
 //REGLAS
@@ -901,56 +878,7 @@ void mostrarMenuInicial() {
     printf("Seleccione una opción: ");
 }
 
-/*void inicializarListasYColas(partidaGlobal *partida){
-    partida->jugadores = list_create();
-    partida->turnos = list_create();
-    partida->fortuna = queue_create();
-    partida->arca_comunal = queue_create();
-    TipoPropiedad *propiedades = inicializar_propiedades();
-    inicializarTablero(partida, propiedades);
-
-}*/
-/*
-void moverJugador(TipoJugador *jugador, int avance){
-    int nuevaPosicion = (jugador->posicion + avance) % 40;
-        if (nuevaPosicion < jugador->posicion) {  // Pasó por la casilla de salida
-            jugador->dinero += 2000;
-            printf("El jugador %s pasó por la salida y recibió $2000. Dinero actual: $%d\n", jugador->nombre_jugador, jugador->dinero);
-        }
-        jugador->posicion = nuevaPosicion;
-        printf("El jugador %s se movió a la casilla %d.\n", jugador->nombre_jugador, jugador->posicion);
-}
-
-
-void turnoJugador(TipoJugador* jugador, partidaGlobal *partida){
-        // Lanzar los dados
-    int dado1 = tirar_dado();
-    int dado2 = tirar_dado();
-    int totalDados = dado1 + dado2;
-
-    printf("El jugador %s ha lanzado los dados: %d y %d (Total: %d)\n", jugador->nombre_jugador, dado1, dado2, totalDados);
-
-    // Mover al jugador en el tablero
-    moverJugador(jugador, totalDados);
-
-    // Obtener la casilla actual del jugador
-    TipoCasilla *casillaActual = partida->tablero[jugador->posicion];
-
-    // Ejecutar la acción de la casilla
-    ejecutarAccionCasilla(jugador, casillaActual, partida);
-
-    // Actualizar el estado del jugador (por ejemplo, verificar si está en la cárcel)
-    actualizarEstadoJugador(jugador);
-
-    // Verificar si el jugador está en bancarrota
-    if (verificarBancarrota(jugador)) {
-        printf("El jugador %s está en bancarrota.\n", jugador->nombre_jugador);
-    }
-}
-*/
-
-/*void iniciarPartida(){
-
+void iniciarPartida(){
     partidaGlobal *partida = (partidaGlobal*)malloc(sizeof(partidaGlobal));
     if(partida == NULL){
         printf("Error al inicializar la partida\n");
@@ -966,25 +894,20 @@ void turnoJugador(TipoJugador* jugador, partidaGlobal *partida){
     }
 
     inicializar_aleatoriedad();
-
     TipoJugador* jugador_actual = (TipoJugador*)list_first(partida->turnos);
 
-    while(true){
-        // Ejecutar el turno del jugador
+    while(true)
+    {
         turnoJugador(jugador_actual, partida);
-
-        // Mostrar el estado del jugador
-        mostrarEstadoJugador(jugador_actual);
-
+        printf("Presione enter para continuar\n");
+        presioneEnter();
         jugador_actual = next_circular(partida->turnos);
 
-        // Verificar si hay un ganador
-        TipoJugador* ganador = verificarGanador(partida->jugadores);
+        TipoJugador* ganador = verificarGanador(partida->turnos);
         if (ganador != NULL) {
            printf("¡El jugador %s es el ganador del juego!\n", ganador->nombre_jugador);
             break;
         }
     }
-
-    //liberarMemoria(partida);    
-}*/
+    //liberarMemoria
+}

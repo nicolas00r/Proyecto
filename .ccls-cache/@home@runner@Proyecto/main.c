@@ -15,7 +15,7 @@ int main() {
                 // Lógica para iniciar una nueva partida
                 limpiar_pantalla();
                 printf("Iniciando nueva partida...\n");
-                                
+                iniciarPartida();
 
                 TipoPropiedad* propiedades = inicializar_propiedades();
 
@@ -39,12 +39,6 @@ int main() {
 
                 // Lógica para salir del juego
                 break;
-
-            case 666:
-                limpiar_pantalla();
-                testear_funciones();
-                //OPCION PROGRAMADOR
-                
             default:
                 limpiar_pantalla();
                 printf("Opción no válida. Por favor, seleccione una opción válida.\n");
