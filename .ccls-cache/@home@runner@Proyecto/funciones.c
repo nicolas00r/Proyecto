@@ -71,17 +71,17 @@ typedef partidaGlobal partidaGlobal;
 TipoCarta *fortuna()
 {
     static TipoCarta fortuna[NUM_CARTAS] = {
-    {"AVANCE HASTA LA CASILLA DE SALIDA, COBRE $200", 200, 0, -1},
-    {"AVANCE A DUNAS DE CONCON", 0, 25, -1},
+    {"AVANCE HASTA LA CASILLA DE SALIDA, COBRE $2000", 0, 0, -1},
+    {"AVANCE A DUNAS DE CONCON", 0, 38, -1},
     {"EL BANCO PAGA DIVIDENDOS DE $500", 500, -1, -1},
-    {"AVANCE A PUCV ESCUELA ECONOMÍA", 0, 12, -1},
-    {"VAYA DIRECTAMENTE A LA CÁRCEL", 0, -1, 3},
+    {"AVANCE A ESCUELA ECONOMÍA PUCV", 0, 19, -1},
+    {"VAYA DIRECTAMENTE A LA CÁRCEL", 0, 10, 3},
     {"USTED HA SIDO ELEGIDO PRESIDENTE DEL CENTRO DE ALUMNOS, PAGUE $100", -100, -1, -1},
     {"ENHORABUENA, HAN CARGADO LA BAES! RECIBA $1500.", 1500, -1, -1},
-    {"AVANCE A ESTACIÓN MIRAMAR", 0, 23, -1},
-    {"AVANCE A ESTACIÓN LIMACHE",0, 16, -1},
-    {"AVANCE A ESTACIÓN PUERTO",0, 2, -1},
-    {"AVANCE A ESTACIÓN BARÓN",0, 9, -1},
+    {"AVANCE A ESTACIÓN MIRAMAR", 0, 34, -1},
+    {"AVANCE A ESTACIÓN LIMACHE",0, 25, -1},
+    {"AVANCE A ESTACIÓN PUERTO",0, 5, -1},
+    {"AVANCE A ESTACIÓN BARÓN",0, 15, -1},
     {"SALGA DE LA CÁRCEL GRATIS", 0, -1, 0}
     };
     return fortuna;
@@ -90,27 +90,27 @@ TipoCarta *fortuna()
 TipoCarta *arca_comunal()
 {
     static TipoCarta arca_comunal[NUM_CARTAS] = {
-    {"AVANCE HASTA LA CASILLA DE SALIDA. COBRE $200", 0, -1, -1},
+    {"AVANCE HASTA LA CASILLA DE SALIDA. COBRE $200", 0, 0, -1},
     {"HOSPITALIZACIÓN. PAGUE $1000.", -1000, -1, -1},
-    {"CUOTA DEL SEGURO DE VIDA VENCE. COBRE $100.", 1000, -1, -1},
+    {"CUOTA DEL SEGURO DE VIDA VENCE. COBRE $1000.", 1000, -1, -1},
     {"EL BANCO TE PAGA DIVIDENDOS DE $500.", 500, -1, -1},
     {"HAS GANADO EL SEGUNDO PREMIO EN UN CONCURSO DE BELLEZA. COBRE $300.", 300, -1, -1},
     {"RECIBA $250 POR SERVICIOS.", 250, -1, -1},
     {"ERROR BANCARIO A TU FAVOR. COBRE $2000.", 2000, -1, -1},
     {"PAGUE UNA MULTA DE $500.", -500, -1, -1},
     {"PAGUE LA MATRÍCULA DE LA PUCV. PAGUE $1500.", -1500, -1 , -1},
-    {"VAYA DIRECTAMENTE A LA CÁRCEL", 0, -1, 3},
+    {"VAYA DIRECTAMENTE A LA CÁRCEL", 0, 10, 3},
     {"SALGA DE LA CÁRCEL GRATIS", 0, -1, 0},
-    {"EL METRO SE QUEDA DETENIDO EN ESTACION VALENCIA Y LLEGAS TARDE AL TRABAJO, PAGUE 500", -500, -1, 0}
+    {"EL METRO SE QUEDA DETENIDO EN ESTACION VALENCIA Y LLEGAS TARDE AL TRABAJO, PAGUE 500", -500, -1, -1}
     };
     return arca_comunal;
 }
 
 void randomizar_cartas(TipoCarta *cartas, int size)
 {
-    for (int pos_original = 0; pos_original < size; pos_original++) 
+    for (int pos_original = size - 1; pos_original > 0; pos_original--) 
     {
-        int nueva_pos = rand() % size;
+        int nueva_pos = rand() % (pos_original + 1);
         TipoCarta aux = cartas[pos_original];
         cartas[pos_original] = cartas[nueva_pos];
         cartas[nueva_pos] = aux;
@@ -712,8 +712,28 @@ void casoPropiedad(TipoJugador *jugador, TipoPropiedad* propiedad, partidaGlobal
       presioneEnter();
 }
 
-void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
+void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla)
+{
+    TipoCarta *carta_sacada = malloc(sizeof(TipoCarta));
+    if(strcmp(casilla->nombre_casilla, "FORTUNA") == 0)
+    {
+        carta_sacada = queue_remove(partida->fortuna);
+        queue_insert(partida->fortuna, carta_sacada);
+    }
+    else
+    {
+        carta_sacada = queue_remove(partida->arca_comunal);
+        queue_insert(partida->arca_comunal, carta_sacada);
+    }
+    printf("%s\n", carta_sacada->descripcion);
+    
+    jugador->dinero += carta_sacada->cambio_dinero;
 
+    if(carta_sacada->cambio_posicion != -1)
+        jugador->posicion = carta_sacada->cambio_posicion;
+    if(carta_sacada->cambio_penalizacion != -1)
+        jugador->penalizacion = carta_sacada->cambio_penalizacion;
+    free(carta_sacada);
 }
 
 void casoPagar(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
