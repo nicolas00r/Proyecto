@@ -50,8 +50,6 @@ typedef struct {
     char tipo;                   // "P" para propiedad, "C" para carta, "J" para carcel
                                  // "S" para servicio "E" para salida, "M" para metro. 
     TipoPropiedad *propiedad;    // Propiedad que se encuentra en la casilla
-    int cantidad_impuesto;       // Cantidad de impuesto que se debe pagar en la casilla
-
 }TipoCasilla;
 
 // Struct de la partida
@@ -234,19 +232,22 @@ void inicializarTablero(partidaGlobal *partida, TipoPropiedad propiedades[NUM_PR
 
         if (strcmp(propiedades[i].sector, "CARTAS") == 0) {
             casilla->tipo = 'C';
-            //casilla.carta = NULL;  // Inicializar con un puntero a carta, ajustar según tu implementación
+            casilla->propiedad = &propiedades[i];
         } else if (strcmp(propiedades[i].sector, "PAGAR") == 0) {
             casilla->tipo = 'I';
-            casilla->cantidad_impuesto = propiedades[i].precio;  // Ajustar si es necesario
+            casilla->propiedad = &propiedades[i];
         } else if (strcmp(propiedades[i].sector, "NEUTRO") == 0) {
             casilla->tipo = 'N';
+            casilla->propiedad = &propiedades[i];
         } else if (strcmp(propiedades[i].sector, "SALIDA") == 0) {
             casilla->tipo = 'E';  // Tipo "E" para salida
+            casilla->propiedad = &propiedades[i];
         } else if (strcmp(propiedades[i].sector, "METRO") == 0) {
             casilla->tipo = 'M';  // Tipo "M" para metro
             casilla->propiedad = &propiedades[i];
         } else if (strcmp(propiedades[i].sector, "CARCEL") == 0) {
             casilla->tipo = 'J';  // Tipo "J" para cárcel
+            casilla->propiedad = &propiedades[i];
         } else if (strcmp(propiedades[i].sector, "COMPAÑIAS") == 0) {
             casilla->tipo = 'S';  // Tipo "S" para servicio
             casilla->propiedad = &propiedades[i];
@@ -596,6 +597,19 @@ void inicializarListasYColas(partidaGlobal *partida){
     inicializarTablero(partida, propiedades);
 }
 
+void mostrarTipo(char tipo){
+    printf("Tipo: ");
+
+    if(tipo == 'P') printf("Propiedad\n");
+    else if(tipo == 'S') printf("Servicio\n");
+    else if(tipo == 'J') printf("Carcel\n");
+    else if(tipo == 'M') printf("Metro\n");
+    else if(tipo == 'E') printf("Salida\n");
+    else if(tipo == 'N') printf("Neutro\n");
+    else if(tipo == 'I') printf("Impuesto\n");
+    else if(tipo == 'C') printf("Carta\n");
+}
+
 void mostrar_estado_jugador(TipoJugador *jugador, partidaGlobal *partida){
     printf("\n╔══════════════════════════════════════════════════╗\n");
     printf("║               ESTADO DEL JUGADOR                 ║\n");
@@ -606,6 +620,11 @@ void mostrar_estado_jugador(TipoJugador *jugador, partidaGlobal *partida){
     printf("Turnos de penalización en cárcel: %d\n", jugador->penalizacion);
     printf("Posición en el tablero: %d\n", jugador->posicion);
     printf("Te encuentras en: %s\n", partida->tablero[jugador->posicion]->nombre_casilla);
+    mostrarTipo(partida->tablero[jugador->posicion]->tipo);
+    printf("Propietario: ");
+    if(partida->tablero[jugador->posicion]->propiedad->propietario != NULL)
+        printf("%s\n", partida->tablero[jugador->posicion]->propiedad->propietario->nombre_jugador);
+    else printf("-\n");
     printf("════════════════════════════════════════════════════\n\n");
 }
 
@@ -613,11 +632,37 @@ void moverJugador(TipoJugador *jugador, int avance){
     int nuevaPosicion = (jugador->posicion + avance) % 40;
         if (nuevaPosicion < jugador->posicion) {  // Pasó por la casilla de salida
             jugador->dinero += 2000;
-            printf("Pasaste por la salida y recibiste $2000!!. Dinero actual: $%d!!\n", jugador->dinero);
+            printf("Pasaste por la salida y recibiste $2000!. Dinero actual: $%d\n", jugador->dinero);
         }
         jugador->posicion = nuevaPosicion;
-        printf("Te moviste a la casilla %d!!\n", jugador->posicion);
-    }
+        printf("¡Te moviste a la casilla %d!\n", jugador->posicion);
+}
+
+void menu_de_propiedades(TipoJugador *jugador, TipoPropiedad *propiedad){
+    printf("Haz caido en tu propiedad\n");
+    int opcion;
+
+    do{
+        printf("¿Qué acción deseas realizar?\n");
+        printf("1. Comprar casas\n");
+        printf("2. Vender casas\n");
+        printf("3. Continuar\n");
+        scanf("%d", &opcion);
+        switch(opcion){
+            case 1:
+                comprar_casas(jugador, propiedad);
+                break;
+            case 2:
+                vender_casas(jugador, propiedad);
+                break;
+            case 3:
+                return;
+            default:
+                printf("Opción ingresada no es válida\n");
+                break;
+        }
+    } while(opcion != 3);
+}
 
 void casoPropiedad(TipoJugador *jugador, TipoPropiedad* propiedad, partidaGlobal *partida){
     // Verificar que la propiedad no tiene dueño
@@ -654,8 +699,7 @@ void casoPropiedad(TipoJugador *jugador, TipoPropiedad* propiedad, partidaGlobal
       } else {
         // La propiedad ya tiene un dueño
         if(strcmp(propiedad->propietario->nombre_jugador,jugador->nombre_jugador) == 0){
-            comprar_casas(jugador, propiedad);
-            vender_casas(jugador, propiedad);
+            menu_de_propiedades(jugador, propiedad);
         } else {
             printf("La propiedad %s tiene un dueño, debes pagar renta.\n", propiedad->nombre);
             verificar_bancaRota(jugador, propiedad->renta, partida);
@@ -673,27 +717,73 @@ void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casill
 }
 
 void casoPagar(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
-
+    printf("Haz caido en una casilla de impuestos\n");
+    int impuesto = casilla->propiedad->precio;
+    verificar_bancaRota(jugador, impuesto, partida);
+    if(jugador != NULL) jugador->dinero -= impuesto;
 }
 
-void casoMetro(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
+void casoNoPropiedad(TipoJugador *jugador, TipoPropiedad* propiedad, partidaGlobal *partida){
+    // Verificar que la propiedad no tiene dueño
+      if (propiedad->propietario == NULL) {
+        // Verificar que el jugador tiene suficiente dinero para comprar la
+        // propiedad
+        if (jugador->dinero >= propiedad->precio) {
+          char respuesta;
+          printf("¿Quieres comprar %s por %d? (s/n): ", propiedad->nombre,
+                 propiedad->precio);
+          scanf(" %c", &respuesta);
 
+          if (respuesta == 's' || respuesta == 'S') {
+            // Reducir el dinero del jugador en el precio de la propiedad
+            jugador->dinero -= propiedad->precio;
+
+            // Asignar la propiedad al jugador
+            propiedad->propietario = jugador;
+
+            // Agregar la propiedad a la lista de propiedades del jugador
+            list_pushFront(jugador->propiedades, propiedad);
+
+            printf("Felicidades %s, has comprado la propiedad %s por %d!\n",
+                   jugador->nombre_jugador, propiedad->nombre, propiedad->precio);
+
+          } else {
+            printf("Haz decidido no comprar la propiedad %s.\n", propiedad->nombre);
+          }
+        } else {
+          // El jugador no tiene suficiente dinero para comprar la propiedad
+          printf("%s, no tienes suficiente dinero para comprar la propiedad %s.\n",
+                 jugador->nombre_jugador, propiedad->nombre);
+        }
+      } else {
+        // La propiedad ya tiene un dueño
+        if(strcmp(propiedad->propietario->nombre_jugador,jugador->nombre_jugador) == 0){
+            printf("Esta propiedad es tuya\n");
+        } else {
+            printf("La propiedad %s tiene un dueño, debes pagar renta.\n", propiedad->nombre);
+            verificar_bancaRota(jugador, propiedad->renta, partida);
+            if(jugador != NULL){
+                jugador->dinero -= propiedad->renta;
+                propiedad->propietario->dinero += propiedad->renta;
+            }
+        }
+      }
+      presioneEnter();
 }
 
 void casoCarcel(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
-
+    printf("Haz sido detenido, vas a la carcel\n");
+    jugador->posicion = 10;
+    jugador->penalizacion = 3;
 }
 
-void casoServicio(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
 
-}
 void ejecutarAccionCasilla(TipoJugador *jugador, TipoCasilla *casilla, partidaGlobal *partida){
     if(casilla->tipo == 'P') casoPropiedad(jugador, casilla->propiedad, partida);
-    /*else if(casilla->tipo == 'C') casoCarta(jugador, partida, casilla);
+    //else if(casilla->tipo == 'C') casoCarta(jugador, partida, casilla);
     else if(casilla->tipo == 'I') casoPagar(jugador, partida, casilla);
-    else if(casilla->tipo == 'M')  casoMetro(jugador, partida, casilla);
+    else if(casilla->tipo == 'M' || casilla->tipo == 'S')  casoNoPropiedad(jugador, casilla->propiedad, partida);
     else if(casilla->tipo == 'J')  casoCarcel(jugador, partida, casilla);
-    else if(casilla->tipo == 'S')  casoServicio(jugador, partida, casilla);*/
 
     //verificar_bancaRota(jugador_actual, dinero_a_pagar);
 }
@@ -703,7 +793,13 @@ void turnoJugador(TipoJugador* jugador, partidaGlobal *partida){
 
     limpiar_pantalla();
     printf("%s ES TU TURNO!\n", jugador->nombre_jugador);
-    mostrar_estado_jugador(jugador, partida);
+
+    if(jugador->penalizacion > 0){
+        printf("Estas en la cárcel, tienes %d turnos de penalización restantes\n", jugador->penalizacion);
+        jugador->penalizacion --;
+        return;
+    }
+    
     printf("Presiona enter para lanzar los dados!\n");
     presioneEnter();
 
@@ -711,12 +807,14 @@ void turnoJugador(TipoJugador* jugador, partidaGlobal *partida){
     int dado2 = tirar_dado();
     int totalDados = dado1 + dado2;
 
-    printf("Haz lanzado los dados: %d y %d (Total: %d)!!\n", dado1, dado2, totalDados);
+    printf("¡Haz lanzado los dados: %d y %d (Total: %d)!\n", dado1, dado2, totalDados);
 
     moverJugador(jugador, totalDados);
 
     TipoCasilla *casillaActual = partida->tablero[jugador->posicion];
 
+    mostrar_estado_jugador(jugador, partida);
+    
     ejecutarAccionCasilla(jugador, casillaActual, partida);
 
     mostrar_estado_jugador(jugador, partida);
@@ -769,47 +867,6 @@ void mostrar_reglas() {
     return;
 }
 
-//Funcion para guardar partida
-void guardar_partida(partidaGlobal *partida, const char *filename) {
-    FILE *file = fopen(filename, "w");
-    if (file == NULL) {
-        printf("Error al abrir el archivo para guardar la partida.\n");
-        return;
-    }
-
-    // Guardar datos del tablero
-    for (int i = 0; i < 40; i++) 
-    {
-        TipoCasilla *casilla = partida->tablero[i];
-        fprintf(file, "%s,%c,", casilla->nombre_casilla, casilla->tipo);
-        if (casilla->tipo == 'P') {
-            TipoPropiedad *propiedad = casilla->propiedad;
-            fprintf(file, "%s,%d,%s,%d,%d,%s,%d\n",
-                    propiedad->nombre,
-                    propiedad->esPropiedad,
-                    propiedad->propietario->nombre_jugador,
-                    propiedad->precio,
-                    propiedad->renta,
-                    propiedad->sector,
-                    propiedad->hipotecado);
-        } else if (casilla->tipo == 'C') {
-            fprintf(file, "\n");
-        } else {
-            fprintf(file, "%d\n", casilla->cantidad_impuesto);
-        }
-    }
-
-    //Guardar datos de los jugadores
-    List *jugadores = partida->jugadores;
-    TipoJugador *jugador = list_first(jugadores);
-    while(jugador != NULL)
-    {
-        fprintf(file, "%d,%d,%s,%d\n", jugador->dinero, jugador->penalizacion, jugador->nombre_jugador, jugador->posicion);
-        jugador = list_next(jugadores);
-    }
-
-    fclose(file);
-}
 // Función para mostrar el menú inicial
 void mostrarMenuInicial() {
 
