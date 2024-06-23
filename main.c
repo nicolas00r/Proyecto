@@ -4,14 +4,14 @@
 #include "funciones.h"
 
 int main() {
-    int opcion;
+    char opcion;
 
     // Loop del menú inicial
     do {
         mostrarMenuInicial();
-        scanf("%d", &opcion);
+        scanf(" %c", &opcion);
         switch(opcion) {
-            case 1:
+            case '1':
                 // Lógica para iniciar una nueva partida
                 limpiar_pantalla();
                 printf("Iniciando nueva partida...\n");
@@ -20,20 +20,20 @@ int main() {
                 TipoCasilla* propiedades = inicializar_casillas();
 
                 break;
-            case 2:
+            case '2':
                 // Lógica para cargar una partida guardada
                 limpiar_pantalla();
                 printf("Cargando partida...\n");
 
                 break;
-            case 3:
+            case '3':
                 limpiar_pantalla();
                 printf("Mostrando reglas del juego...\n\n");
                 // Lógica para mostrar las reglas del juego
                 mostrar_reglas();
                 limpiar_pantalla();
                 break;
-            case 4:
+            case '4':
                 limpiar_pantalla();
                 printf("Saliendo del juego...\n");
 
@@ -43,6 +43,6 @@ int main() {
                 limpiar_pantalla();
                 printf("Opción no válida. Por favor, seleccione una opción válida.\n");
         }
-    } while(opcion != 4); // Salir del loop si se selecciona la opción 4 (Salir del juego)
+    } while(opcion != '4'); // Salir del loop si se selecciona la opción 4 (Salir del juego)
     return 0;
 }

@@ -662,28 +662,28 @@ void moverJugador(TipoJugador *jugador, int avance){
 // Función para el menu de decisión sobre propiedades
 void menu_de_propiedades(TipoJugador *jugador, TipoCasilla *propiedad){
     printf("Haz caido en tu propiedad\n");
-    int opcion;
+    char opcion;
 
     do{
         printf("¿Qué acción deseas realizar?\n");
         printf("1. Comprar casas\n");
         printf("2. Vender casas\n");
         printf("3. Continuar\n");
-        scanf("%d", &opcion);
+        scanf(" %c", &opcion);
         switch(opcion){
-            case 1:
+            case '1':
                 comprar_casas(jugador, propiedad);
                 break;
-            case 2:
+            case '2':
                 vender_casas(jugador, propiedad);
                 break;
-            case 3:
+            case '3':
                 return;
             default:
                 printf("Opción ingresada no es válida\n");
                 break;
         }
-    } while(opcion != 3);
+    } while(opcion != '3');
 }
 
 // Función para manejar cuando un jugador cae en una propiedad
