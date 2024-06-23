@@ -663,7 +663,6 @@ void moverJugador(TipoJugador *jugador, int avance){
 
 // Función para el menu de decisión sobre propiedades
 void menu_de_propiedades(TipoJugador *jugador, TipoCasilla *propiedad){
-    printf("Haz caido en tu propiedad\n");
     char opcion;
 
     do{
@@ -905,42 +904,62 @@ void turnoJugador(TipoJugador* jugador, partidaGlobal *partida){
     limpiar_pantalla();
     printf("%s ES TU TURNO!\n", jugador->nombre_jugador);
 
-    // Se muestra el estado del jugador
-    mostrar_estado_jugador(jugador, partida);
-    
-    // Se comprueba si está en la cárcel
-    if(jugador->penalizacion > 0){
-        printf("Estas en la cárcel, tienes %d turnos de penalización restantes\n", jugador->penalizacion);
-        jugador->penalizacion --;
-        return;
-    }
-
-    // Se lanzan los dados
-    printf("Presiona enter para lanzar los dados!\n");
-    presioneEnter();
-    
-    limpiar_pantalla();
-    
-    int dado1 = tirar_dado();
-    int dado2 = tirar_dado();
-    int totalDados = dado1 + dado2;
-
-    printf("¡Haz lanzado los dados: %d y %d (Total: %d)!\n", dado1, dado2, totalDados);
-
-    // Se mueve al jugador
-    moverJugador(jugador, totalDados);
-
-    // Se obtiene su casilla actual
-    TipoCasilla *casillaActual = partida->tablero[jugador->posicion];
-
-    
-
-    // Se ejecuta la acción de la casilla
-    ejecutarAccionCasilla(jugador, casillaActual, partida);
-
-    // Se muestra el estado del jugador despues de la acción
-    if(jugador != NULL)
+    int cont_dobles = 0;
+    do{
+        // Se muestra el estado del jugador
         mostrar_estado_jugador(jugador, partida);
+        
+        // Se comprueba si está en la cárcel
+        if(jugador->penalizacion > 0){
+            printf("¡OH NO!\n\n");
+            printf("Estas en la cárcel, tienes %d turnos de penalización restantes\n\n", jugador->penalizacion);
+            jugador->penalizacion --;
+            return;
+        }
+        
+        // Se lanzan los dados
+        printf("Presiona enter para lanzar los dados!\n");
+        presioneEnter();
+        
+        limpiar_pantalla();
+    
+        int dado1 = tirar_dado();
+        int dado2 = tirar_dado();
+        int totalDados = dado1 + dado2;
+    
+        printf("¡Haz lanzado los dados: %d y %d (Total: %d)!\n\n", dado1, dado2, totalDados);
+    
+        if(dado1 == dado2){
+            cont_dobles++;
+            printf("Haz obtenido dobles!\n\n");
+    
+            if(cont_dobles != 3) printf("Ganas un turno extra!\n\n");
+            else {
+                printf("¡Oh no!\n\n");
+                printf("¡Haz obtenido tres dobles seguidos! Pierdes tu turno y vas a la cárcel!\n\n");
+                jugador->posicion = 10;
+                jugador->penalizacion = 3;
+                return;
+            }
+        } else cont_dobles = 0;
+    
+        // Se mueve al jugador
+        moverJugador(jugador, totalDados);
+    
+        // Se obtiene su casilla actual
+        TipoCasilla *casillaActual = partida->tablero[jugador->posicion];
+        
+    
+        // Se ejecuta la acción de la casilla
+        ejecutarAccionCasilla(jugador, casillaActual, partida);
+    
+        // Se muestra el estado del jugador despues de la acción
+        if(jugador != NULL)
+            mostrar_estado_jugador(jugador, partida);
+
+        limpiar_pantalla();
+        if(cont_dobles == 0) break;
+    } while(cont_dobles < 3);
 }
 
 // Función para verificar si hay un ganador
