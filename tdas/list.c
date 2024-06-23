@@ -44,6 +44,13 @@ void *list_next(List *L) {
   return L->current->data;
 }
 
+void *list_current(List *L) {
+  if (L == NULL || L->current == NULL) {
+    return NULL; // Lista vacía, no inicializada
+  }
+  return L->current->data;
+}
+
 void *next_circular(List *L) {
   if (L == NULL || L->current == NULL) {
     return NULL; // Lista vacía o no inicializada

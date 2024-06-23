@@ -13,6 +13,9 @@ void *list_first(List *L);
 // puntero a dicho elemento.
 void *list_next(List *L);
 
+// Esta función devuelve el puntero al elemento "current" de la lista
+void *list_current(List *L);
+
 // Función similar a list_next que funciona como una lista circular
 void *next_circular(List *L);
 
