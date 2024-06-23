@@ -69,13 +69,13 @@ TipoCarta *fortuna()
     {"EL BANCO PAGA DIVIDENDOS DE $500", 500, -1, -1},
     {"AVANCE A ESCUELA ECONOMÍA PUCV", 0, 19, -1},
     {"VAYA DIRECTAMENTE A LA CÁRCEL", 0, 10, 3},
-    {"USTED HA SIDO ELEGIDO PRESIDENTE DEL CENTRO DE ALUMNOS, PAGUE $100", -100, -1, -1},
+    {"USTED HA SIDO ELEGIDO PRESIDENTE DEL CENTRO DE ALUMNOS, PAGUE $1000", -1000, -1, -1},
     {"ENHORABUENA, HAN CARGADO LA BAES! RECIBA $1500.", 1500, -1, -1},
     {"AVANCE A ESTACIÓN MIRAMAR", 0, 34, -1},
     {"AVANCE A ESTACIÓN LIMACHE",0, 25, -1},
     {"AVANCE A ESTACIÓN PUERTO",0, 5, -1},
     {"AVANCE A ESTACIÓN BARÓN",0, 15, -1},
-    {"SALGA DE LA CÁRCEL GRATIS", 0, -1, 0}
+    {"PISASTE UN CHARCO Y NECESITAS CALCETINES NUEVOS, PAGUE $1000 ", -1000, -1, -1}
     };
     return fortuna;
 }
@@ -94,7 +94,7 @@ TipoCarta *arca_comunal()
     {"PAGUE UNA MULTA DE $500.", -500, -1, -1},
     {"PAGUE LA MATRÍCULA DE LA PUCV. PAGUE $1500.", -1500, -1 , -1},
     {"VAYA DIRECTAMENTE A LA CÁRCEL", 0, 10, 3},
-    {"SALGA DE LA CÁRCEL GRATIS", 0, -1, 0},
+    {"NECESITAS COMPRAR CAFE. PAGUE $1200", -1200, -1, -1},
     {"EL METRO SE QUEDA DETENIDO EN ESTACION VALENCIA Y LLEGAS TARDE AL TRABAJO, PAGUE 500", -500, -1, -1}
     };
     return arca_comunal;
@@ -469,6 +469,7 @@ void eliminarJugador(TipoJugador *jugador, partidaGlobal *partida){
     }
     // Se elimina el jugador de la lista de jugadores
     list_popCurrent(partida->jugadores);
+    free(jugador);
 }
 
 // Función para verificar si un jugador esta en bancarrota
@@ -758,10 +759,22 @@ void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casill
     printf("Carta sacada: %s\n", carta_sacada->descripcion);
 
     // Se aplican los cambios correspondientes de la carta
+    if(carta_sacada->cambio_dinero < 0)
+        verificar_bancarrota(jugador, carta_sacada->cambio_dinero *(-1), partida);
+
+    if(jugador == NULL) return;
+    
     jugador->dinero += carta_sacada->cambio_dinero;
 
-    if(carta_sacada->cambio_posicion != -1)
+    if(carta_sacada->cambio_posicion != -1){
+        if(carta_sacada->cambio_penalizacion == -1){
+            if(carta_sacada->cambio_posicion < jugador->posicion){
+                printf("Pasaste por la salida, cobra $2000\n");
+                jugador->dinero += 2000;
+            }
+        }
         jugador->posicion = carta_sacada->cambio_posicion;
+    }
     if(carta_sacada->cambio_penalizacion != -1)
         jugador->penalizacion = carta_sacada->cambio_penalizacion;
 }
@@ -881,7 +894,8 @@ void turnoJugador(TipoJugador* jugador, partidaGlobal *partida){
     ejecutarAccionCasilla(jugador, casillaActual, partida);
 
     // Se muestra el estado del jugador despues de la acción
-    mostrar_estado_jugador(jugador, partida);
+    if(jugador != NULL)
+        mostrar_estado_jugador(jugador, partida);
 }
 
 // Función para verificar si hay un ganador
@@ -953,7 +967,8 @@ void iniciarPartida(){
         turnoJugador(jugador_actual, partida);
         printf("Presione enter para continuar\n");
         presioneEnter();
-        jugador_actual = next_circular(partida->jugadores);
+        if(jugador_actual != NULL)
+            jugador_actual = next_circular(partida->jugadores);
 
         TipoJugador* ganador = verificarGanador(partida->jugadores);
         if (ganador != NULL) {
