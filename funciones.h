@@ -1,7 +1,7 @@
 #ifndef FUNCIONES_H
 #define FUNCIONES_H
 
-typedef struct TipoPropiedad TipoPropiedad;
+typedef struct TipoCasilla TipoCasilla;
 typedef struct TipoJugador TipoJugador;
 typedef struct partidaGlobal partidaGlobal;
 
@@ -12,11 +12,9 @@ int solicitar_jugadores();
 void asignar_jugadores(partidaGlobal *partida, int num_jugadores);
 void inicializar_aleatoriedad();
 int tirar_dados();
-TipoPropiedad* inicializar_propiedades();
-TipoPropiedad* buscar_propiedad_por_nombre(TipoPropiedad* propiedades, const char* nombre);
-void reinicializar_propiedades(TipoPropiedad* propiedades);
-void comprar_propiedad(TipoJugador* jugador, TipoPropiedad* propiedad, partidaGlobal* partida);
-void comprar_casas(TipoJugador* jugador, TipoPropiedad* propiedad);
+TipoCasilla* inicializar_casillas();
+void comprar_propiedad(TipoJugador* jugador, TipoCasilla* propiedad, partidaGlobal* partida);
+void comprar_casas(TipoJugador* jugador, TipoCasilla* propiedad);
 void mostrar_reglas();
 void guardar_partida(partidaGlobal *partida, const char *filename);
 void mostrarMenuInicial();

@@ -17,7 +17,7 @@ int main() {
                 printf("Iniciando nueva partida...\n");
                 iniciarPartida();
 
-                TipoPropiedad* propiedades = inicializar_propiedades();
+                TipoCasilla* propiedades = inicializar_casillas();
 
                 break;
             case 2:
