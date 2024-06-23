@@ -36,12 +36,12 @@ struct TipoCasilla{
 }; 
 
 // Struct para cada carta
-typedef struct{
+struct TipoCarta{
     char descripcion[200];         // Descripción de la carta
     int cambio_dinero;             // Cambio de dinero que provoca la carta
     int cambio_posicion;           // Cambio de posicion que provoca la carta
     int cambio_penalizacion;       // Penalización que entrega la carta
-}TipoCarta;
+};
 
 // Struct de la partida
 struct partidaGlobal{
@@ -54,6 +54,7 @@ struct partidaGlobal{
 
 // Definición de structs
 typedef TipoCasilla TipoCasilla;
+typedef TipoCarta TipoCarta;
 typedef TipoJugador TipoJugador;
 typedef partidaGlobal partidaGlobal;
 
