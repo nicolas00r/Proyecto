@@ -687,6 +687,8 @@ void menu_de_propiedades(TipoJugador *jugador, TipoCasilla *propiedad){
         }
     } while(opcion != '3');
 }
+
+// Función para mostrar los detalles de la propiedad
 void imprimirDetallesPropiedad(TipoCasilla* propiedad) {
     printf("\n╔══════════════════════════════════════════════════╗\n");
     printf("║            DETALLES DE LA PROPIEDAD              ║\n");
@@ -777,13 +779,19 @@ void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casill
     printf("Carta sacada: %s\n", carta_sacada->descripcion);
 
     // Se aplican los cambios correspondientes de la carta
+
+    // Si debe pagar dinero, se verifica la bancarrota
     if(carta_sacada->cambio_dinero < 0)
         verificar_bancarrota(jugador, carta_sacada->cambio_dinero *(-1), partida);
 
+    // Si el jugador entro en bancarrota, se finaliza la función
     if(jugador == NULL) return;
-    
+
+    // Si gana dinero, se le otorga
     jugador->dinero += carta_sacada->cambio_dinero;
 
+    // Si se cambía de posición se le entrega dinero si paso por la salida, a excepción
+    // de cuando es enviado directamente a la cárcel
     if(carta_sacada->cambio_posicion != -1){
         if(carta_sacada->cambio_penalizacion == -1){
             if(carta_sacada->cambio_posicion < jugador->posicion){
@@ -791,12 +799,21 @@ void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casill
                 jugador->dinero += 2000;
             }
         }
+        // Se le asigna su nueva posición
         jugador->posicion = carta_sacada->cambio_posicion;
+        // Se obtiene su nueva casilla
         TipoCasilla *nuevaCasillaActual = partida->tablero[jugador->posicion];
-        casoPropiedad(jugador, nuevaCasillaActual, partida);
+
+        // Dependiendo el tipo de casilla se le entrega el menú correspondiente, en caso
+        // de que esta se pueda comprar, como una propiedad o una estación del metro
+        if(nuevaCasillaActual->tipo == 'P')
+            casoPropiedad(jugador, nuevaCasillaActual, partida);
+        else if(nuevaCasillaActual->tipo == 'M')
+            casoNoPropiedad(jugador, nuevaCasillaActual, partida);
         return;
         
     }
+    // Si le aplica penalización de cárcel, se le asigna
     if(carta_sacada->cambio_penalizacion != -1)
         jugador->penalizacion = carta_sacada->cambio_penalizacion;
 }
