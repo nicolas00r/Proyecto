@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include <stdbool.h>
+#include <math.h>
 #include "tdas/list.h"
 #include "tdas/queue.h" 
 // Definir numero de casillas y numero de cartas
@@ -715,7 +716,7 @@ void imprimirDetallesMetro(TipoCasilla* propiedad) {
     printf("Nombre: %s\n", propiedad->nombre);
     printf("Precio: $%d\n", propiedad->precio);
     printf("Renta base: $%d\n", propiedad->renta);
-    printf("*El valor de la renta aumenta según la cantidad de metros que controlas$%d*\n\n", propiedad->precio_casa);
+    printf("*El valor de la renta se duplica según la cantidad de metros que controlas$%d*\n\n", propiedad->precio_casa);
 }
 
 void imprimirDetallesServicio(TipoCasilla* propiedad) {
@@ -781,56 +782,58 @@ void casoPropiedad(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *
 }
 // Función para manejar cuando un jugador cae en una 
 // casilla metro
-void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *partida){
+void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *partida) {
     // Verificar que la propiedad no tiene dueño
-      if (propiedad->propietario == NULL) {
-        // Verificar que el jugador tiene suficiente dinero para comprar la
-        // propiedad
+    if (propiedad->propietario == NULL) {
+        // Verificar que el jugador tiene suficiente dinero para comprar la propiedad
         if (jugador->dinero >= propiedad->precio) {
-          char respuesta;
-          printf("\nDinero Actual: %d", jugador->dinero);
-          imprimirDetallesMetro(propiedad);
-          printf("¿Quieres comprar %s por %d? (s/n): ", propiedad->nombre,
-                 propiedad->precio);
-          scanf(" %c", &respuesta);
+            char respuesta;
+            printf("\nDinero Actual: %d", jugador->dinero);
+            // imprimirDetallesMetro(propiedad);  // Asumiendo que esta función está definida
+            printf("¿Quieres comprar %s por %d? (s/n): ", propiedad->nombre, propiedad->precio);
+            scanf(" %c", &respuesta);
 
-          if (respuesta == 's' || respuesta == 'S') {
-            // Reducir el dinero del jugador en el precio de la propiedad
-            jugador->dinero -= propiedad->precio;
+            if (respuesta == 's' || respuesta == 'S') {
+                // Reducir el dinero del jugador en el precio de la propiedad
+                jugador->dinero -= propiedad->precio;
 
-            // Asignar la propiedad al jugador
-            propiedad->propietario = jugador;
+                // Asignar la propiedad al jugador
+                propiedad->propietario = jugador;
 
-            // Agregar la propiedad a la lista de propiedades del jugador
-            list_pushFront(jugador->propiedades, propiedad);
-            limpiar_pantalla();
-            printf("Felicidades %s, has comprado  %s por %d!\n",
-                   jugador->nombre_jugador, propiedad->nombre, propiedad->precio);
-                   jugador->estaciones_metro += 1;
-                   jugador->estaciones_metro *= jugador->estaciones_metro;
+                // Agregar la propiedad a la lista de propiedades del jugador
+                // list_pushFront(jugador->propiedades, propiedad);  // Asumiendo que esta función está definida
+                // limpiar_pantalla();  // Asumiendo que esta función está definida
+                printf("Felicidades %s, has comprado %s por %d!\n", jugador->nombre_jugador, propiedad->nombre, propiedad->precio);
 
-          } else {
-            printf("Haz decidido no comprar  %s.\n", propiedad->nombre);
-          }
+                // Incrementar el número de estaciones de metro del jugador
+                jugador->estaciones_metro++;
+
+            } else {
+                printf("Haz decidido no comprar %s.\n", propiedad->nombre);
+            }
         } else {
-          // El jugador no tiene suficiente dinero para comprar la propiedad
-          printf("%s, no tienes suficiente dinero para comprar %s.\n",
-                 jugador->nombre_jugador, propiedad->nombre);
+            // El jugador no tiene suficiente dinero para comprar la propiedad
+            printf("%s, no tienes suficiente dinero para comprar %s.\n", jugador->nombre_jugador, propiedad->nombre);
         }
-      } else {
+    } else {
         // La propiedad ya tiene un dueño
-        if(strcmp(propiedad->propietario->nombre_jugador,jugador->nombre_jugador) == 0){
+        if (strcmp(propiedad->propietario->nombre_jugador, jugador->nombre_jugador) == 0) {
             printf("Esta estación es tuya\n");
         } else {
-            printf("%s tiene un dueño, debes pagar renta de: %d.\n", propiedad->nombre, ((propiedad->renta)*(propiedad->propietario->estaciones_metro)));
-            verificar_bancarrota(jugador, propiedad->renta, partida);
-            if(jugador != NULL){
-                jugador->dinero -= (propiedad->renta)*(propiedad->propietario->estaciones_metro);
-                propiedad->propietario->dinero += propiedad->renta;
+            // Calcular la renta según la fórmula especificada
+            double renta = propiedad->renta * pow(2.25, (propiedad->propietario->estaciones_metro - 1));        
+            renta = round(renta / 10) * 10;  // Redondear al décimo más cercano
+            int renta_final = (int)renta;
+
+            printf("%s tiene un dueño, debes pagar renta de: %d.\n", propiedad->nombre, renta_final);
+            verificar_bancarrota(jugador, renta_final, partida);  // Asumiendo que esta función está definida
+            if (jugador != NULL) {
+                jugador->dinero -= renta_final;
+                propiedad->propietario->dinero += renta_final;
             }
         }
-      }
-      presioneEnter();
+    }
+    // presioneEnter();  // Asumiendo que esta función está definida
 }
 
 void casoServicio(TipoJugador* jugador, TipoCasilla* propiedad, partidaGlobal* partida, int dados) {
