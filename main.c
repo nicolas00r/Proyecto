@@ -10,6 +10,7 @@ int main() {
     do {
         mostrarMenuInicial();
         scanf(" %c", &opcion);
+        getchar();
         switch(opcion) {
             case '1':
                 // Lógica para iniciar una nueva partida
