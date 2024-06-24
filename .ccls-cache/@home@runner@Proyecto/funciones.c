@@ -1004,50 +1004,11 @@ void mostrarMenuDeTurno(){
     printf("1. Construir o vender casas\n");
     printf("2. Manejar hipotecas de las propiedades\n");
     printf("3. Intercambiar con otros jugadores\n");
-    printf("4. Ver el mapa\n");
-    printf("5. Finalizar turno\n");
-    printf("6. Declararte en bancarrota\n");
+    printf("4. Finalizar turno\n");
+    printf("5. Declararte en bancarrota\n");
 }
 
-void visualizarMapa(partidaGlobal *partida) { //BETA
-    limpiar_pantalla();
-    printf("╔══════════════════════════════════════════════════╗\n");
-    printf("║                 MAPA DEL JUEGO                   ║\n");
-    printf("╚══════════════════════════════════════════════════╝\n");
 
-    TipoCasilla **tablero = partida->tablero;
-    List *jugadores = partida->jugadores;
-
-    // Recorremos el tablero
-    for (int i = 0; i < NUM_CASILLAS; i++) {
-        TipoCasilla *casilla = tablero[i];
-        bool jugadores_en_casilla = false;
-
-        
-
-        // Verificar si hay jugadores en esta casilla
-        TipoJugador *current = list_first(jugadores);
-        while (current != NULL) {
-            if (current->posicion == i) {
-                
-                // Imprimimos la información de la casilla
-                if (jugadores_en_casilla == false) printf("\nEn %s (%d):\n", casilla->nombre, current->posicion);
-                // Imprimir nombre del jugador y posición
-                printf("- %s\n", current->nombre_jugador);
-                jugadores_en_casilla = true;
-            }
-            current = list_next(jugadores);
-        }
-
-        // Si no hay jugadores en esta casilla, mostrar mensaje
-
-    }
-
-    printf("════════════════════════════════════════════════════\n");
-    printf("\nPresione enter para continuar... \n");
-    presioneEnter();
-    limpiar_pantalla();
-}
 
 // Función para manejar el turno de cada jugador
 void turnoJugador(TipoJugador** jugador, partidaGlobal *partida){
@@ -1124,21 +1085,18 @@ void turnoJugador(TipoJugador** jugador, partidaGlobal *partida){
                 case '3':
                     // Lógica para intercambiar
                     break;
-                case '5':
+                case '4':
                     printf("\nAcabando turno ...\n\n");
                     break;
-                case '6':
+                case '5':
                     eliminarJugador(jugador, partida);
                     return;
-                case '4' :
-                    //Lógica para visualizar donde se encuentran todos los jugadores
-                    visualizarMapa(partida);
-                    break;
+
                 default:
                     printf("\nOpción inválida. Por favor, selecciona una opción válida.\n\n");
                     break;
             }
-        } while(opcion != '5' && opcion != '6');
+        } while(opcion != '4' && opcion != '5');
         
         
         if(cont_dobles == 0) break;
