@@ -177,11 +177,11 @@ Queue* inicializar_arca_comunal()
 TipoCasilla *inicializar_casillas() {
   // Crear un array estático de TipoCasilla con todas las casillas iniciales
   static TipoCasilla casillas[NUM_CASILLAS] = {
-    {"SALIDA (COBRE $2000)", 'E', NULL, 0, 0, 0, 0, "SALIDA", false, 0},
+    {"SALIDA", 'E', NULL, 0, 0, 0, 0, "SALIDA", false, 0},
     {"TORPEDERAS", 'P', NULL, 600, 40, 0, 500, "PLAYA ANCHA", false, 1},
     {"ARCA COMUNAL", 'C', NULL, 0, 0, 0, 0, "CARTAS", false, 2},
     {"SEDE ALIMENTOS PUCV", 'P', NULL, 800, 65, 0, 500, "PLAYA ANCHA", false, 3},
-    {"IMPUESTOS (PAGAR $2000)", 'I', NULL, 2000, 0, 0, 0, "PAGAR", false, 4},
+    {"SERVICIOS IMPUESTOS INTERNOS", 'I', NULL, 2000, 0, 0, 0, "PAGAR", false, 4},
     {"ESTACIÓN PUERTO", 'M', NULL, 2000, 250, 0, 0, "METRO", false, 5},
     {"PARQUE ITALIA", 'P', NULL, 1000, 120, 0, 500, "VALPARAÍSO", false, 6},
     {"FORTUNA", 'C', NULL, 0, 0, 0, 0, "CARTAS", false, 7},
@@ -190,7 +190,7 @@ TipoCasilla *inicializar_casillas() {
     {"CARCEL", 'N', NULL, 0, 0, 0, 0, "NEUTRO", false, 10},
     {"LAGUNA VERDE", 'P', NULL, 1400, 200, 0, 1000, "CURAUMA", false, 11},
     {"CAMPUS CURAUMA PUCV", 'P', NULL, 1500, 235, 0, 1000, "CURAUMA", false, 12},
-    {"ESVAL (AGUA)", 'S', NULL, 1500, 50, 0, 0, "COMPAÑIAS", false, 13},
+    {"ESVAL (COMPANIA AGUA)", 'S', NULL, 1500, 50, 0, 0, "COMPAÑIAS", false, 13},
     {"LAGO PEÑUELAS", 'P', NULL, 1650, 250, 0, 1000, "CURAUMA", false, 14},
     {"ESTACIÓN BARÓN", 'M', NULL, 2000, 250, 0, 0, "METRO", false, 15},
     {"MUELLE BARÓN", 'P', NULL, 1800, 280, 0, 1000, "COSTA VALPO", false, 16},
@@ -205,7 +205,7 @@ TipoCasilla *inicializar_casillas() {
     {"ESTACIÓN LIMACHE", 'M', NULL, 2000, 250, 0, 0, "METRO", false, 25},
     {"OLMUE", 'P', NULL, 2600, 440, 0, 1500, "INTERIOR II", false, 26},
     {"QUILLOTA", 'P', NULL, 2600, 440, 0, 1500, "INTERIOR II", false, 27},
-    {"CHILQUINTA (LUZ)", 'S', NULL, 1500, 50, 0, 0, "COMPAÑIAS", false, 28},
+    {"CHILQUINTA (COMPANIA LUZ)", 'S', NULL, 1500, 50, 0, 0, "COMPAÑIAS", false, 28},
     {"FACU. AGRONOMÍA PUCV", 'P', NULL, 2800, 480, 0, 1500, "INTERIOR II", false, 29},
     {"VAYA A CARCEL", 'J', NULL, 0, 0, 0, 0, "CARCEL", false, 30},
     {"MUELLE VERGARA", 'P', NULL, 3000, 520, 0, 2000, "VIÑA DEL MAR", false, 31},
@@ -215,7 +215,7 @@ TipoCasilla *inicializar_casillas() {
     {"ESTACIÓN MIRAMAR", 'M', NULL, 2000, 250, 0, 0, "METRO", false, 35},
     {"RENACA", 'P', NULL, 3500, 700, 0, 2000, "NORTE VIÑA", false, 36},
     {"FORTUNA", 'C', NULL, 0, 0, 0, 0, "CARTAS", false, 37},
-    {"MC DONALD (PAGAR $1000)", 'I', NULL, 1000, 0, 0, 0, "PAGAR", false, 38},
+    {"MC DONALD", 'I', NULL, 1000, 0, 0, 0, "PAGAR", false, 38},
     {"DUNAS DE CONCON", 'P', NULL, 4000, 1000, 0, 2000, "NORTE VIÑA", false, 39}};
     
 
@@ -770,7 +770,7 @@ void imprimirDetallesMetro(TipoCasilla* propiedad) {
     printf("Nombre: %s\n", propiedad->nombre);
     printf("Precio: $%d\n", propiedad->precio);
     printf("Renta base: $%d\n", propiedad->renta);
-    printf("*El valor de la renta se duplica según la cantidad de metros que controlas$%d*\n\n", propiedad->precio_casa);
+    printf("*El valor de la renta se duplica según la cantidad de metros que controlas*\n\n", propiedad->precio_casa);
 }
 
 // Función para manejar cuando un jugador cae en una 
@@ -964,6 +964,7 @@ void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casill
 void casoImpuestos(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
     printf("\nHaz caido en una casilla de pago\n");
     printf("\n%s\n", casilla->nombre);
+    printf("Dinero a pagar: %d\n", casilla->precio);
     // Se obtiene el impuesto del costo de la casilla
     // ya que así se manejan ese tipo de casillas
     int impuesto = casilla->precio;
@@ -1003,8 +1004,49 @@ void mostrarMenuDeTurno(){
     printf("1. Construir o vender casas\n");
     printf("2. Manejar hipotecas de las propiedades\n");
     printf("3. Intercambiar con otros jugadores\n");
-    printf("4. Finalizar turno\n");
-    printf("5. Declararte en bancarrota\n");
+    printf("4. Ver el mapa\n");
+    printf("5. Finalizar turno\n");
+    printf("6. Declararte en bancarrota\n");
+}
+
+void visualizarMapa(partidaGlobal *partida) { //BETA
+    limpiar_pantalla();
+    printf("╔══════════════════════════════════════════════════╗\n");
+    printf("║                 MAPA DEL JUEGO                   ║\n");
+    printf("╚══════════════════════════════════════════════════╝\n");
+
+    TipoCasilla **tablero = partida->tablero;
+    List *jugadores = partida->jugadores;
+
+    // Recorremos el tablero
+    for (int i = 0; i < NUM_CASILLAS; i++) {
+        TipoCasilla *casilla = tablero[i];
+        bool jugadores_en_casilla = false;
+
+        
+
+        // Verificar si hay jugadores en esta casilla
+        TipoJugador *current = list_first(jugadores);
+        while (current != NULL) {
+            if (current->posicion == i) {
+                
+                // Imprimimos la información de la casilla
+                if (jugadores_en_casilla == false) printf("\nEn %s (%d):\n", casilla->nombre, current->posicion);
+                // Imprimir nombre del jugador y posición
+                printf("- %s\n", current->nombre_jugador);
+                jugadores_en_casilla = true;
+            }
+            current = list_next(jugadores);
+        }
+
+        // Si no hay jugadores en esta casilla, mostrar mensaje
+
+    }
+
+    printf("════════════════════════════════════════════════════\n");
+    printf("\nPresione enter para continuar... \n");
+    presioneEnter();
+    limpiar_pantalla();
 }
 
 // Función para manejar el turno de cada jugador
@@ -1061,17 +1103,14 @@ void turnoJugador(TipoJugador** jugador, partidaGlobal *partida){
         // Se ejecuta la acción de la casilla
         ejecutarAccionCasilla(*jugador, casillaActual, partida, totalDados);
         
-        // Se muestra el estado del jugador despues de la acción
-        mostrar_estado_jugador(*jugador, partida);
 
         
-        if(cont_dobles == 0) break;
-        presioneEnter();
-        limpiar_pantalla();
         
         char opcion;
 
         do{
+            limpiar_pantalla();
+            mostrar_estado_jugador(*jugador, partida);
             mostrarMenuDeTurno();
             scanf(" %c", &opcion);
             getchar();
@@ -1085,17 +1124,21 @@ void turnoJugador(TipoJugador** jugador, partidaGlobal *partida){
                 case '3':
                     // Lógica para intercambiar
                     break;
-                case '4':
+                case '5':
                     printf("\nAcabando turno ...\n\n");
                     break;
-                case '5':
+                case '6':
                     eliminarJugador(jugador, partida);
                     return;
+                case '4' :
+                    //Lógica para visualizar donde se encuentran todos los jugadores
+                    visualizarMapa(partida);
+                    break;
                 default:
                     printf("\nOpción inválida. Por favor, selecciona una opción válida.\n\n");
                     break;
             }
-        } while(opcion != '4' && opcion != '5');
+        } while(opcion != '5' && opcion != '6');
         
         
         if(cont_dobles == 0) break;
