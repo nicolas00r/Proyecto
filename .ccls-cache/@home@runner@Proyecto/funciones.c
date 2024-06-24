@@ -188,7 +188,7 @@ TipoCasilla *inicializar_casillas() {
     {"CARCEL", 'N', NULL, 0, 0, 0, 0, "NEUTRO", false, 10},
     {"LAGUNA VERDE", 'P', NULL, 1400, 200, 0, 1000, "CURAUMA", false, 11},
     {"CAMPUS CURAUMA PUCV", 'P', NULL, 1500, 235, 0, 1000, "CURAUMA", false, 12},
-    {"ESVAL (AGUA)", 'S', NULL, 2000, 50, 0, 0, "COMPAÑIAS", false, 13},
+    {"ESVAL (AGUA)", 'S', NULL, 1500, 50, 0, 0, "COMPAÑIAS", false, 13},
     {"LAGO PEÑUELAS", 'P', NULL, 1650, 250, 0, 1000, "CURAUMA", false, 14},
     {"ESTACIÓN BARÓN", 'M', NULL, 2000, 250, 0, 0, "METRO", false, 15},
     {"MUELLE BARÓN", 'P', NULL, 1800, 280, 0, 1000, "COSTA VALPO", false, 16},
@@ -717,6 +717,16 @@ void imprimirDetallesMetro(TipoCasilla* propiedad) {
     printf("*El valor de la renta aumenta según la cantidad de metros que controlas$%d*\n\n", propiedad->precio_casa);
 }
 
+void imprimirDetallesServicio(TipoCasilla* propiedad) {
+    printf("\n╔══════════════════════════════════════════════════╗\n");
+    printf("║            DETALLES DE EL SERVICIO               ║\n");
+    printf("╚══════════════════════════════════════════════════╝\n");
+    printf("Nombre: %s\n", propiedad->nombre);
+    printf("Precio: $%d\n", propiedad->precio);
+    printf("Renta 1 Servicio: 10 veces el número del dado\n");
+    printf("Renta 2 Servicios: 25 veces el número del dado\n\n", propiedad->precio_casa);
+}
+
 // Función para manejar cuando un jugador cae en una propiedad
 void casoPropiedad(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *partida){
     // Verificar que la propiedad no tiene dueño
@@ -822,6 +832,59 @@ void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *part
       presioneEnter();
 }
 
+void casoServicio(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *partida, int dados){
+    // Verificar que la propiedad no tiene dueño
+      if (propiedad->propietario == NULL) {
+        // Verificar que el jugador tiene suficiente dinero para comprar la
+        // propiedad
+        if (jugador->dinero >= propiedad->precio) {
+          char respuesta;
+          printf("\nDinero Actual: %d", jugador->dinero);
+          imprimirDetallesServicio(propiedad);
+          printf("¿Quieres comprar %s por %d? (s/n): ", propiedad->nombre,
+                 propiedad->precio);
+          scanf(" %c", &respuesta);
+
+          if (respuesta == 's' || respuesta == 'S') {
+            // Reducir el dinero del jugador en el precio de la propiedad
+            jugador->dinero -= propiedad->precio;
+
+            // Asignar la propiedad al jugador
+            propiedad->propietario = jugador;
+
+            // Agregar la propiedad a la lista de propiedades del jugador
+            list_pushFront(jugador->propiedades, propiedad);
+            limpiar_pantalla();
+            printf("Felicidades %s, has comprado  %s por %d!\n",
+                   jugador->nombre_jugador, propiedad->nombre, propiedad->precio);
+                   jugador->estaciones_metro += 1;
+                   jugador->estaciones_metro *= jugador->estaciones_metro;
+
+          } else {
+            printf("Haz decidido no comprar  %s.\n", propiedad->nombre);
+          }
+        } else {
+          // El jugador no tiene suficiente dinero para comprar la propiedad
+          printf("%s, no tienes suficiente dinero para comprar %s.\n",
+                 jugador->nombre_jugador, propiedad->nombre);
+        }
+      } else {
+        // La propiedad ya tiene un dueño
+        if(strcmp(propiedad->propietario->nombre_jugador,jugador->nombre_jugador) == 0){
+            printf("Esta propiedad es tuya\n");
+        } else {
+            printf("%s tiene un dueño, debes pagar renta de: %d.\n", propiedad->nombre, ((propiedad->renta)*(propiedad->propietario->estaciones_metro)));
+            verificar_bancarrota(jugador, propiedad->renta, partida);
+            if(jugador != NULL){
+                jugador->dinero -= (propiedad->renta)*(propiedad->propietario->estaciones_metro);
+                propiedad->propietario->dinero += propiedad->renta;
+            }
+        }
+      }
+      presioneEnter();
+}
+
+
 // Función para manejar cuando un jugador cae en un retiro de carta
 void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla)
 {
@@ -876,8 +939,7 @@ void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casill
         else if(nuevaCasillaActual->tipo == 'M')
             casoMetro(jugador, nuevaCasillaActual, partida);
         return;
-        
-            casoMetroOServicio(jugador, nuevaCasillaActual, partida);        
+               
     }
     // Si le aplica penalización de cárcel, se le asigna
     if(carta_sacada->cambio_penalizacion != -1)
@@ -907,13 +969,13 @@ void casoCarcel(TipoJugador *jugador, partidaGlobal *partida){
 }
 
 // Función para ejecutar la acción de cada casilla correspondiente
-void ejecutarAccionCasilla(TipoJugador *jugador, TipoCasilla *casilla, partidaGlobal *partida){
+void ejecutarAccionCasilla(TipoJugador *jugador, TipoCasilla *casilla, partidaGlobal *partida, int dados){
     // Dependiendo del tipo de casilla se aplica un caso diferente
     if(casilla->tipo == 'P') casoPropiedad(jugador, casilla, partida);
     else if(casilla->tipo == 'C') casoCarta(jugador, partida, casilla);
     else if(casilla->tipo == 'I') casoImpuestos(jugador, partida, casilla);
     else if(casilla->tipo == 'M')  casoMetro(jugador, casilla, partida);
-    //else if(casilla->tipo == 'S')  casoServicio(jugador, casilla, partida);
+    else if(casilla->tipo == 'S')  casoServicio(jugador, casilla, partida, dados);
 
     else if(casilla->tipo == 'J')  casoCarcel(jugador, partida);
 
@@ -983,7 +1045,7 @@ void turnoJugador(TipoJugador** jugador, partidaGlobal *partida){
         TipoCasilla *casillaActual = partida->tablero[(*jugador)->posicion];
         
         // Se ejecuta la acción de la casilla
-        ejecutarAccionCasilla(*jugador, casillaActual, partida);
+        ejecutarAccionCasilla(*jugador, casillaActual, partida, totalDados);
         
         // Se muestra el estado del jugador despues de la acción
         mostrar_estado_jugador(*jugador, partida);
