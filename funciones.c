@@ -709,25 +709,7 @@ void imprimirDetallesPropiedad(TipoCasilla* propiedad) {
     printf("Posición: %d\n\n", propiedad->coordenadaX);
 }
 
-void imprimirDetallesMetro(TipoCasilla* propiedad) {
-    printf("\n╔══════════════════════════════════════════════════╗\n");
-    printf("║            DETALLES DE LA ESTACIÓN               ║\n");
-    printf("╚══════════════════════════════════════════════════╝\n");
-    printf("Nombre: %s\n", propiedad->nombre);
-    printf("Precio: $%d\n", propiedad->precio);
-    printf("Renta base: $%d\n", propiedad->renta);
-    printf("*El valor de la renta se duplica según la cantidad de metros que controlas$%d*\n\n", propiedad->precio_casa);
-}
 
-void imprimirDetallesServicio(TipoCasilla* propiedad) {
-    printf("\n╔══════════════════════════════════════════════════╗\n");
-    printf("║            DETALLES DE EL SERVICIO               ║\n");
-    printf("╚══════════════════════════════════════════════════╝\n");
-    printf("Nombre: %s\n", propiedad->nombre);
-    printf("Precio: $%d\n", propiedad->precio);
-    printf("Renta 1 Servicio: 60 veces la suma de los dados\n");
-    printf("Renta 2 Servicios: 150 veces la suma de los dados\n\n");
-}
 
 // Función para manejar cuando un jugador cae en una propiedad
 void casoPropiedad(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *partida){
@@ -780,6 +762,17 @@ void casoPropiedad(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *
         }
       }
 }
+
+void imprimirDetallesMetro(TipoCasilla* propiedad) {
+    printf("\n╔══════════════════════════════════════════════════╗\n");
+    printf("║            DETALLES DE LA ESTACIÓN               ║\n");
+    printf("╚══════════════════════════════════════════════════╝\n");
+    printf("Nombre: %s\n", propiedad->nombre);
+    printf("Precio: $%d\n", propiedad->precio);
+    printf("Renta base: $%d\n", propiedad->renta);
+    printf("*El valor de la renta se duplica según la cantidad de metros que controlas$%d*\n\n", propiedad->precio_casa);
+}
+
 // Función para manejar cuando un jugador cae en una 
 // casilla metro
 void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *partida) {
@@ -789,7 +782,7 @@ void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *part
         if (jugador->dinero >= propiedad->precio) {
             char respuesta;
             printf("\nDinero Actual: %d", jugador->dinero);
-            // imprimirDetallesMetro(propiedad);  // Asumiendo que esta función está definida
+            imprimirDetallesMetro(propiedad);  // Asumiendo que esta función está definida
             printf("¿Quieres comprar %s por %d? (s/n): ", propiedad->nombre, propiedad->precio);
             scanf(" %c", &respuesta);
 
@@ -801,7 +794,7 @@ void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *part
                 propiedad->propietario = jugador;
 
                 // Agregar la propiedad a la lista de propiedades del jugador
-                // list_pushFront(jugador->propiedades, propiedad);  // Asumiendo que esta función está definida
+                list_pushFront(jugador->propiedades, propiedad);  // Asumiendo que esta función está definida
                 // limpiar_pantalla();  // Asumiendo que esta función está definida
                 printf("Felicidades %s, has comprado %s por %d!\n", jugador->nombre_jugador, propiedad->nombre, propiedad->precio);
 
@@ -833,8 +826,19 @@ void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *part
             }
         }
     }
-    // presioneEnter();  // Asumiendo que esta función está definida
+     presioneEnter();  // Asumiendo que esta función está definida
 }
+
+void imprimirDetallesServicio(TipoCasilla* propiedad) {
+    printf("\n╔══════════════════════════════════════════════════╗\n");
+    printf("║            DETALLES DE EL SERVICIO               ║\n");
+    printf("╚══════════════════════════════════════════════════╝\n");
+    printf("Nombre: %s\n", propiedad->nombre);
+    printf("Precio: $%d\n", propiedad->precio);
+    printf("Renta 1 Servicio: 60 veces la suma de los dados\n");
+    printf("Renta 2 Servicios: 150 veces la suma de los dados\n\n");
+}
+
 
 void casoServicio(TipoJugador* jugador, TipoCasilla* propiedad, partidaGlobal* partida, int dados) {
     // Verificar que la propiedad no tiene dueño
@@ -1064,7 +1068,7 @@ void turnoJugador(TipoJugador** jugador, partidaGlobal *partida){
         if(cont_dobles == 0) break;
         presioneEnter();
         limpiar_pantalla();
-        printf("¡TURNO ADICIONAL!\n");
+        
         char opcion;
 
         do{
@@ -1098,6 +1102,7 @@ void turnoJugador(TipoJugador** jugador, partidaGlobal *partida){
         printf("Presiona enter para ir a tu siguiente turno\n");
         presioneEnter();
         limpiar_pantalla();
+        printf("¡TURNO ADICIONAL!\n");
     } while(cont_dobles < 3);
 }
 
