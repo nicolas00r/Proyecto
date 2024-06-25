@@ -17,15 +17,13 @@ int main() {
                 limpiar_pantalla();
                 printf("Iniciando nueva partida...\n");
                 iniciarPartida();
-
-                TipoCasilla* propiedades = inicializar_casillas();
-
                 break;
             case '2':
-                // Lógica para cargar una partida guardada
                 limpiar_pantalla();
-                printf("Cargando partida...\n");
-
+                printf("Esta función no esta implementada en el programa\n");
+                printf("Presiona enter para continuar\n");
+                presioneEnter();
+                limpiar_pantalla();
                 break;
             case '3':
                 limpiar_pantalla();
@@ -37,12 +35,13 @@ int main() {
             case '4':
                 limpiar_pantalla();
                 printf("Saliendo del juego...\n");
-
-                // Lógica para salir del juego
                 break;
             default:
                 limpiar_pantalla();
                 printf("Opción no válida. Por favor, seleccione una opción válida.\n");
+                printf("Presione enter para continuar\n");
+                presioneEnter();
+                limpiar_pantalla();
         }
     } while(opcion != '4'); // Salir del loop si se selecciona la opción 4 (Salir del juego)
     return 0;

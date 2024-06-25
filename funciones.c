@@ -675,33 +675,6 @@ void moverJugador(TipoJugador *jugador, int avance){
         printf("¡Te moviste a la casilla %d!\n", jugador->posicion);
 }
 
-// Función para el menu de decisión sobre propiedades
-void menu_de_propiedades(TipoJugador *jugador, TipoCasilla *propiedad){
-    char opcion;
-
-    do{
-        printf("¿Qué acción deseas realizar?\n");
-        printf("1. Comprar casas\n");
-        printf("2. Vender casas\n");
-        printf("3. Continuar\n");
-        scanf(" %c", &opcion);
-        getchar();
-        switch(opcion){
-            case '1':
-                comprar_casas(jugador, propiedad);
-                break;
-            case '2':
-                vender_casas(jugador, propiedad);
-                break;
-            case '3':
-                return;
-            default:
-                printf("Opción ingresada no es válida\n");
-                break;
-        }
-    } while(opcion != '3');
-}
-
 // Función para mostrar los detalles de la propiedad
 void imprimirDetallesPropiedad(TipoCasilla* propiedad) {
     printf("\n╔══════════════════════════════════════════════════╗\n");
@@ -717,8 +690,6 @@ void imprimirDetallesPropiedad(TipoCasilla* propiedad) {
     }
     printf("Posición: %d\n\n", propiedad->num_casilla);
 }
-
-
 
 // Función para manejar cuando un jugador cae en una propiedad
 void casoPropiedad(TipoJugador *jugador, TipoCasilla* propiedad, PartidaGlobal *partida){
@@ -758,7 +729,7 @@ void casoPropiedad(TipoJugador *jugador, TipoCasilla* propiedad, PartidaGlobal *
       } else {
         // La propiedad ya tiene un dueño
         if(strcmp(propiedad->propietario->nombre_jugador,jugador->nombre_jugador) == 0){
-            menu_de_propiedades(jugador, propiedad);
+            printf("Esta propiedad es tuya\n");
         } else {
             
             printf("\nLa propiedad %s tiene un dueño, debes pagar una renta de: $%d.\n", propiedad->nombre, propiedad->renta);
@@ -772,6 +743,7 @@ void casoPropiedad(TipoJugador *jugador, TipoCasilla* propiedad, PartidaGlobal *
       }
 }
 
+// Función que enseña los detalles de una estación de metro
 void imprimirDetallesMetro(TipoCasilla* propiedad) {
     printf("\n╔══════════════════════════════════════════════════╗\n");
     printf("║            DETALLES DE LA ESTACIÓN               ║\n");
@@ -782,8 +754,7 @@ void imprimirDetallesMetro(TipoCasilla* propiedad) {
     printf("*El valor de la renta se duplica según la cantidad de metros que controlas*\n\n");
 }
 
-// Función para manejar cuando un jugador cae en una 
-// casilla metro
+// Función para manejar cuando un jugador cae en una casilla de metro
 void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, PartidaGlobal *partida) {
     // Verificar que la propiedad no tiene dueño
     if (propiedad->propietario == NULL) {
@@ -838,6 +809,7 @@ void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, PartidaGlobal *part
      presioneEnter();  // Asumiendo que esta función está definida
 }
 
+// Función que enseña los detales de una propiedad de servicio
 void imprimirDetallesServicio(TipoCasilla* propiedad) {
     printf("\n╔══════════════════════════════════════════════════╗\n");
     printf("║            DETALLES DE EL SERVICIO               ║\n");
@@ -848,7 +820,7 @@ void imprimirDetallesServicio(TipoCasilla* propiedad) {
     printf("Renta 2 Servicios: 150 veces la suma de los dados\n\n");
 }
 
-
+// Función para cuando un jugador cae en una casilla de servicio
 void casoServicio(TipoJugador* jugador, TipoCasilla* propiedad, PartidaGlobal* partida, int dados) {
     // Verificar que la propiedad no tiene dueño
     if (propiedad->propietario == NULL) {
@@ -989,7 +961,6 @@ void casoImpuestos(TipoJugador *jugador, PartidaGlobal *partida, TipoCasilla *ca
 }
 
 
-
 // Función para manejar cuando el jugador cae en una casilla
 // que lo envia directo a la carcel
 void casoCarcel(TipoJugador *jugador, PartidaGlobal *partida){
@@ -1006,7 +977,6 @@ void ejecutarAccionCasilla(TipoJugador *jugador, TipoCasilla *casilla, PartidaGl
     else if(casilla->tipo == 'I') casoImpuestos(jugador, partida, casilla);
     else if(casilla->tipo == 'M')  casoMetro(jugador, casilla, partida);
     else if(casilla->tipo == 'S')  casoServicio(jugador, casilla, partida, dados);
-
     else if(casilla->tipo == 'J')  casoCarcel(jugador, partida);
 
     printf("\nPresiona enter para continuar...\n");
@@ -1014,6 +984,7 @@ void ejecutarAccionCasilla(TipoJugador *jugador, TipoCasilla *casilla, PartidaGl
     limpiar_pantalla();
 }
 
+// Función que muestra el menú de cada turno de jugador
 void mostrarMenuDeTurno(){
     printf("¿Qué acción deseas realizar?\n\n");
     printf("1. Construir o vender casas\n");
@@ -1022,8 +993,6 @@ void mostrarMenuDeTurno(){
     printf("4. Finalizar turno\n");
     printf("5. Declararte en bancarrota\n");
 }
-
-
 
 // Función para manejar el turno de cada jugador
 void turnoJugador(TipoJugador** jugador, PartidaGlobal *partida){
@@ -1160,6 +1129,13 @@ void mostrarMenuInicial() {
     printf("Seleccione una opción: ");
 }
 
+void liberarMemoria(PartidaGlobal *partida){
+    list_clean(partida->jugadores);
+    queue_clean(partida->fortuna);
+    queue_clean(partida->arca_comunal);
+    free(partida);
+}
+
 // Función que inicia la partida
 void iniciarPartida(){
 
@@ -1203,5 +1179,5 @@ void iniciarPartida(){
             break;
         }
     }
-    //liberarMemoria
+    liberarMemoria(partida);
 }
