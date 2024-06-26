@@ -347,7 +347,7 @@ void hipotecar_propiedad(TipoJugador *jugador, TipoCasilla *propiedad)
             // Se determina el valor de la hipoteca
             int valor_hipoteca = (propiedad->precio / 2) + ((propiedad->precio_casa * propiedad->casas) /2);
             
-            printf("¿Quieres hipotecar la propiedad %s por %d? (s/n): ", propiedad->nombre, valor_hipoteca);
+            printf("¿\nQuieres hipotecar la propiedad %s por %d? (s/n): ", propiedad->nombre, valor_hipoteca);
             char respuesta;
             scanf(" %c", &respuesta);
             getchar();
@@ -356,24 +356,24 @@ void hipotecar_propiedad(TipoJugador *jugador, TipoCasilla *propiedad)
             {
                 propiedad->hipotecado = true;
                 jugador->dinero += valor_hipoteca;
-                printf("Felicidades %s, has hipotecado la propiedad %s y has recibido %d!\n", jugador->nombre_jugador, propiedad->nombre, valor_hipoteca);
+                printf("\nFelicidades %s, has hipotecado la propiedad %s y has recibido %d!\n", jugador->nombre_jugador, propiedad->nombre, valor_hipoteca);
 
-                printf("Recuerda que no podrás cobrar renta por %s mientras esté hipotecada.\n", propiedad->nombre);
+                printf("\nRecuerda que no podrás cobrar renta por %s mientras esté hipotecada.\n\n", propiedad->nombre);
             }
             else // Si la respuesta es negativa se cancela la hipoteca
             {
-                printf("Haz decidido no hipotecar la propiedad %s.\n", propiedad->nombre);
+                printf("\nHaz decidido no hipotecar la propiedad %s.\n\n", propiedad->nombre);
                 return;
             }
         }
         else // Si la propiedad ya esta hipotecada, se da un aviso
         {
-            printf("La propiedad %s ya está hipotecada.\n", propiedad->nombre);
+            printf("\nLa propiedad %s ya está hipotecada.\n\n", propiedad->nombre);
         }
     }
     else // Si la propiedad no es del jugador, se da un aviso
     {
-        printf("La propiedad %s no está a tu nombre.\n", propiedad->nombre);
+        printf("\nLa propiedad %s no está a tu nombre.\n\n", propiedad->nombre);
     }
 }
 
@@ -386,7 +386,7 @@ void recuperar_propiedad_hipotecada(TipoJugador *jugador, TipoCasilla *propiedad
         int precio_venta = ((propiedad->precio / 2) + ((propiedad->precio_casa * propiedad->casas) /2)) + (precio_venta * 0.1);
         
         // Preguntar al jugador si desea recuperar la propiedad
-        printf("¿Quieres recuperar la propiedad %s por %d? (s/n): ", propiedad->nombre, precio_venta);
+        printf("\n¿Quieres recuperar la propiedad %s por %d? (s/n): ", propiedad->nombre, precio_venta);
         char respuesta;
         scanf(" %c", &respuesta);
         getchar();
@@ -397,18 +397,18 @@ void recuperar_propiedad_hipotecada(TipoJugador *jugador, TipoCasilla *propiedad
                 jugador->dinero -= precio_venta;
                 propiedad->hipotecado = false;
 
-                printf("%s, has recuperado la propiedad %s por %d!\n",
+                printf("\n%s, has recuperado la propiedad %s por %d!\n\n",
                        jugador->nombre_jugador, propiedad->nombre, precio_venta);
             } else {
-                printf("%s, no tienes suficiente dinero para recuperar la propiedad %s.\n",
+                printf("\n%s, no tienes suficiente dinero para recuperar la propiedad %s.\n\n",
                        jugador->nombre_jugador, propiedad->nombre);
             }
         } else { // Si la respuesta es negativa se cancela la recuperación
-            printf("No se ha recuperado la propiedad %s.\n", propiedad->nombre);
+            printf("\nNo se ha recuperado la propiedad %s.\n\n", propiedad->nombre);
         }
 
     } else {
-        printf("Esta propiedad no esta hipotecada, o no es tuya.\n");
+        printf("\nEsta propiedad no esta hipotecada, o no es tuya.\n\n");
     } 
 }
 
@@ -502,6 +502,11 @@ void verificar_bancarrota(TipoJugador *jugador, int dinero_a_pagar, PartidaGloba
 
 // Función para comprar casas en una propiedad
 void comprar_casas(TipoJugador *jugador, TipoCasilla *propiedad) {
+    // Se verifica que sea una propiedad en la cual se puedan comprar casas
+    if(propiedad->tipo != 'P'){
+        printf("No se pueden comprar casas para este tipo de propiedad\n");
+        return;
+    }
     // Verificar que la propiedad tiene dueño y que el jugador es el propietario
     if (propiedad->propietario == jugador) {
         // Verificar que la propiedad no está hipotecada
@@ -562,6 +567,11 @@ void comprar_casas(TipoJugador *jugador, TipoCasilla *propiedad) {
 
 // Función para vender casa
 void vender_casas(TipoJugador *jugador, TipoCasilla *propiedad) {
+    // Se verifica que sea una propiedad en la cual se puedan vender casas
+    if(propiedad->tipo != 'P'){
+        printf("No se pueden vender casas para este tipo de propiedad\n");
+        return;
+    }
     // Verificar que la propiedad tiene dueño y que el jugador es el propietario
     if (propiedad->propietario == jugador) {
         // Verificar que la propiedad tiene casas para vender
@@ -881,7 +891,7 @@ void casoServicio(TipoJugador* jugador, TipoCasilla* propiedad, PartidaGlobal* p
 
 
 // Función para manejar cuando un jugador cae en un retiro de carta
-void casoCarta(TipoJugador *jugador, PartidaGlobal *partida, TipoCasilla *casilla)
+void casoCarta(TipoJugador *jugador, PartidaGlobal *partida, TipoCasilla *casilla, int dados)
 {
     TipoCarta *carta_sacada;
     // Si es casilla de la fortuna, se retira una carta de fortuna
@@ -933,14 +943,8 @@ void casoCarta(TipoJugador *jugador, PartidaGlobal *partida, TipoCasilla *casill
             casoPropiedad(jugador, nuevaCasillaActual, partida);
         else if(nuevaCasillaActual->tipo == 'M')
             casoMetro(jugador, nuevaCasillaActual, partida);
-        // **********************
-        // AÑADIR CASO DE SI ES SERVICIO
-        // *****************
-        // ###########################
-        // ############################
-        // #######################
-        return;
-               
+        else if(nuevaCasillaActual->tipo == 'S')
+            casoServicio(jugador, nuevaCasillaActual, partida, dados);               
     }
     // Si le aplica penalización de cárcel, se le asigna
     if(carta_sacada->cambio_penalizacion != -1)
@@ -973,7 +977,7 @@ void casoCarcel(TipoJugador *jugador, PartidaGlobal *partida){
 void ejecutarAccionCasilla(TipoJugador *jugador, TipoCasilla *casilla, PartidaGlobal *partida, int dados){
     // Dependiendo del tipo de casilla se aplica un caso diferente
     if(casilla->tipo == 'P') casoPropiedad(jugador, casilla, partida);
-    else if(casilla->tipo == 'C') casoCarta(jugador, partida, casilla);
+    else if(casilla->tipo == 'C') casoCarta(jugador, partida, casilla, dados);
     else if(casilla->tipo == 'I') casoImpuestos(jugador, partida, casilla);
     else if(casilla->tipo == 'M')  casoMetro(jugador, casilla, partida);
     else if(casilla->tipo == 'S')  casoServicio(jugador, casilla, partida, dados);
@@ -987,11 +991,92 @@ void ejecutarAccionCasilla(TipoJugador *jugador, TipoCasilla *casilla, PartidaGl
 // Función que muestra el menú de cada turno de jugador
 void mostrarMenuDeTurno(){
     printf("¿Qué acción deseas realizar?\n\n");
-    printf("1. Construir o vender casas\n");
-    printf("2. Manejar hipotecas de las propiedades\n");
-    printf("3. Intercambiar con otros jugadores\n");
-    printf("4. Finalizar turno\n");
-    printf("5. Declararte en bancarrota\n");
+    printf("1. Modificar campos de tus propiedades\n");
+    printf("2. Intercambiar con otros jugadores\n");
+    printf("3. Finalizar turno\n");
+    printf("4. Declararte en bancarrota\n");
+}
+
+void mostrar_opciones_menu_propiedades(TipoCasilla *propiedad){
+    limpiar_pantalla();
+    imprimirDetallesPropiedad(propiedad);
+    printf("¿Qué deseas hacer?\n");
+    printf("1. Comprar casas\n");
+    printf("2. Vender casas\n");
+    printf("3. Hipotecar propiedades\n");
+    printf("4. Deshipotecar propiedades\n");
+    printf("5. Salir de este menú\n");
+}
+
+TipoCasilla *elegir_propiedad(TipoJugador *jugador){
+    if(!list_isEmpty(jugador->propiedades)){
+        char respuesta;
+        TipoCasilla *propiedad_elegida = list_first(jugador->propiedades);
+        while(true){
+            imprimirDetallesPropiedad(propiedad_elegida);
+            printf("¿Deseas elegir esta propiedad? (s/n): ");
+            scanf(" %c", &respuesta);
+            
+            if (respuesta == 's' || respuesta == 'S') {
+                return propiedad_elegida;
+            } else {
+                limpiar_pantalla();
+                printf("¿Deseas continuar en este menú? (s/n): ");
+                scanf(" %c", &respuesta);
+
+                if (respuesta == 's' || respuesta == 'S')
+                    propiedad_elegida = next_circular(jugador->propiedades);
+                else return NULL;
+            }
+        }
+    } else printf("No posees ninguna propiedad\n");
+    return NULL;
+}
+
+void menu_de_propiedades(TipoJugador *jugador){
+    limpiar_pantalla();
+    printf("Bienvenido al menú de propiedades\n\n");
+
+    char opcion;
+    do{
+        printf("¿Con qué propiedad deseas trabajar?\n");
+        TipoCasilla *propiedad = elegir_propiedad(jugador);
+        if(propiedad == NULL){
+            printf("No modificaste ninguna propiedad\n");
+            return;
+        }
+        mostrar_opciones_menu_propiedades(propiedad);
+        scanf(" %c", &opcion);
+
+        switch(opcion){
+            case '1':
+                comprar_casas(jugador, propiedad);
+                break;
+            case '2':
+                vender_casas(jugador, propiedad);
+                break;
+            case '3':
+                hipotecar_propiedad(jugador, propiedad);
+                break;
+            case '4':
+                recuperar_propiedad_hipotecada(jugador, propiedad);
+                break;
+            case '5':
+                printf("Saliendo...\n");
+                break;
+            default:
+                printf("Opción escogida no es válida, porfavor intentelo nuevamente\n");
+                break;
+        }
+
+        if(opcion != '5'){
+            printf("¿Deseas continuar en este menú? (s/n): ");
+            scanf(" %c", &opcion);
+
+            if(opcion == 'n' || opcion == 'N') return;
+        }
+        limpiar_pantalla();
+    } while(opcion != '5');
 }
 
 // Función para manejar el turno de cada jugador
@@ -1058,26 +1143,22 @@ void turnoJugador(TipoJugador** jugador, PartidaGlobal *partida){
             getchar();
             switch(opcion){
                 case '1':
-                    // Lógica para construir o vender
+                    menu_de_propiedades(*jugador);
                     break;
                 case '2':
-                    // Lógica para manejar hipotecas
-                    break;
-                case '3':
                     // Lógica para intercambiar
                     break;
-                case '4':
+                case '3':
                     printf("\nAcabando turno ...\n\n");
                     break;
-                case '5':
+                case '4':
                     eliminarJugador(jugador, partida);
                     return;
-
                 default:
                     printf("\nOpción inválida. Por favor, selecciona una opción válida.\n\n");
                     break;
             }
-        } while(opcion != '4' && opcion != '5');
+        } while(opcion != '3' && opcion != '4');
         
         
         if(cont_dobles == 0) break;
