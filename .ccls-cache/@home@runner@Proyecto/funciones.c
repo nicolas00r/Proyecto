@@ -19,9 +19,17 @@ struct TipoJugador{
     int penalizacion;              // Penalizacion de la carcel hacia al jugador
     char nombre_jugador[40];       // Nombre del jugador
     int posicion;                  // Posicion del jugador
-    int estaciones_metro;          // Multiplicador valor metro
-    int servicios;                 // Cantidad de servicios Controlados por este jugador 
     List *propiedades;             // Lista de las propiedades del jugador
+    int cant_metros;                // Cantidad de propiedades de tipo Metro
+    int cant_servicios;             // Cantidad de propiedades del tipo Servicio
+    int playa_ancha;               // Cantidad de propiedades del sector "Playa Ancha"
+    int valparaiso;                // Cantidad de propiedades del sector "Valparaiso"
+    int curauma;                   // Cantidad de propiedades del sector "Curauma"
+    int costa_valpo;               // Cantidad de propiedades del sector "Costa Valpo"
+    int interior;                  // Cantidad de propiedades del sector "Interior"
+    int interiorII;                // Cantidad de propiedades del sector "Interior II"
+    int vina_del_mar;              // Cantidad de propiedades del sector "Viña del Mar"
+    int norte_vina;                // Cantidad de propiedades del sector "Norte Viña"
 };
 
 // Struct para cada casilla
@@ -34,8 +42,9 @@ struct TipoCasilla{
     int casas;                     // Cantidad de casas de la propiedad 
     int precio_casa;               // Precio de cada casa
     char sector[50];               // Sector de la propiedad
+    int cant_por_sector;           // Cantidad de propiedades del sector
     bool hipotecado;               // Comprobar si la propiedad esta hipotecada
-    int coordenadaX;               // Coordenada X de la propiedad
+    int num_casilla;               // numero de casilla en el tablero
 }; 
 
 // Struct para cada carta
@@ -47,7 +56,7 @@ struct TipoCarta{
 };
 
 // Struct de la partida
-struct partidaGlobal{
+struct PartidaGlobal{
     TipoCasilla **tablero; // Arreglo de casillas del tablero
     List *jugadores;       // Lista de jugadores de la partida, utilizada
                            // para controlar los turnos de manera circular
@@ -59,7 +68,7 @@ struct partidaGlobal{
 typedef TipoCasilla TipoCasilla;
 typedef TipoCarta TipoCarta;
 typedef TipoJugador TipoJugador;
-typedef partidaGlobal partidaGlobal;
+typedef PartidaGlobal PartidaGlobal;
 
 // INICIACIÓN DEL JUEGO
 
@@ -177,53 +186,53 @@ Queue* inicializar_arca_comunal()
 TipoCasilla *inicializar_casillas() {
   // Crear un array estático de TipoCasilla con todas las casillas iniciales
   static TipoCasilla casillas[NUM_CASILLAS] = {
-    {"SALIDA", 'E', NULL, 0, 0, 0, 0, "SALIDA", false, 0},
-    {"TORPEDERAS", 'P', NULL, 600, 40, 0, 500, "PLAYA ANCHA", false, 1},
-    {"ARCA COMUNAL", 'C', NULL, 0, 0, 0, 0, "CARTAS", false, 2},
-    {"SEDE ALIMENTOS PUCV", 'P', NULL, 800, 65, 0, 500, "PLAYA ANCHA", false, 3},
-    {"SERVICIOS IMPUESTOS INTERNOS", 'I', NULL, 2000, 0, 0, 0, "PAGAR", false, 4},
-    {"ESTACIÓN PUERTO", 'M', NULL, 2000, 250, 0, 0, "METRO", false, 5},
-    {"PARQUE ITALIA", 'P', NULL, 1000, 120, 0, 500, "VALPARAÍSO", false, 6},
-    {"FORTUNA", 'C', NULL, 0, 0, 0, 0, "CARTAS", false, 7},
-    {"IBC PUCV", 'P', NULL, 1100, 150, 0, 500, "VALPARAÍSO", false, 8},
-    {"AV. PEDRO MONT", 'P', NULL, 1200, 160, 0, 500, "VALPARAÍSO", false, 9},
-    {"CARCEL", 'N', NULL, 0, 0, 0, 0, "NEUTRO", false, 10},
-    {"LAGUNA VERDE", 'P', NULL, 1400, 200, 0, 1000, "CURAUMA", false, 11},
-    {"CAMPUS CURAUMA PUCV", 'P', NULL, 1500, 235, 0, 1000, "CURAUMA", false, 12},
-    {"ESVAL (COMPANIA AGUA)", 'S', NULL, 1500, 50, 0, 0, "COMPAÑIAS", false, 13},
-    {"LAGO PEÑUELAS", 'P', NULL, 1650, 250, 0, 1000, "CURAUMA", false, 14},
-    {"ESTACIÓN BARÓN", 'M', NULL, 2000, 250, 0, 0, "METRO", false, 15},
-    {"MUELLE BARÓN", 'P', NULL, 1800, 280, 0, 1000, "COSTA VALPO", false, 16},
-    {"CALETA PORTALES", 'P', NULL, 1900, 290, 0, 1000, "COSTA VALPO", false, 17},
-    {"ARCA COMUNAL", 'C', NULL, 0, 0, 0, 0, "CARTAS", false, 18},
-    {"ESCUELA ECONOMÍA PUCV", 'P', NULL, 2000, 320, 0, 1000, "COSTA VALPO", false, 19},
-    {"RELOJ DE FLORES", 'N', NULL, 0, 0, 0, 0, "NEUTRO", false, 20},
-    {"SEDE MECÁNICA PUCV", 'P', NULL, 2200, 375, 0, 1500, "INTERIOR", false, 21},
-    {"QUILPUE", 'P', NULL, 2400, 400, 0, 1500, "INTERIOR", false, 22},
-    {"FORTUNA", 'C', NULL, 0, 0, 0, 0, "CARTAS", false, 23},
-    {"VILLA ALEMANA", 'P', NULL, 2400, 400, 0, 1500, "INTERIOR", false, 24},
-    {"ESTACIÓN LIMACHE", 'M', NULL, 2000, 250, 0, 0, "METRO", false, 25},
-    {"OLMUE", 'P', NULL, 2600, 440, 0, 1500, "INTERIOR II", false, 26},
-    {"QUILLOTA", 'P', NULL, 2600, 440, 0, 1500, "INTERIOR II", false, 27},
-    {"CHILQUINTA (COMPANIA LUZ)", 'S', NULL, 1500, 50, 0, 0, "COMPAÑIAS", false, 28},
-    {"FACU. AGRONOMÍA PUCV", 'P', NULL, 2800, 480, 0, 1500, "INTERIOR II", false, 29},
-    {"VAYA A CARCEL", 'J', NULL, 0, 0, 0, 0, "CARCEL", false, 30},
-    {"MUELLE VERGARA", 'P', NULL, 3000, 520, 0, 2000, "VIÑA DEL MAR", false, 31},
-    {"SEDE SAUSALITO PUCV", 'P', NULL, 3200, 560, 0, 2000, "VIÑA DEL MAR", false, 32},
-    {"ARCA COMUNAL", 'C', NULL, 0, 0, 0, 0, "CARTAS", false, 33},
-    {"15 NORTE", 'P', NULL, 3200, 560, 0, 2000, "VIÑA DEL MAR", false, 34},
-    {"ESTACIÓN MIRAMAR", 'M', NULL, 2000, 250, 0, 0, "METRO", false, 35},
-    {"RENACA", 'P', NULL, 3500, 700, 0, 2000, "NORTE VIÑA", false, 36},
-    {"FORTUNA", 'C', NULL, 0, 0, 0, 0, "CARTAS", false, 37},
-    {"MC DONALD", 'I', NULL, 1000, 0, 0, 0, "PAGAR", false, 38},
-    {"DUNAS DE CONCON", 'P', NULL, 4000, 1000, 0, 2000, "NORTE VIÑA", false, 39}};
+    {"SALIDA", 'E', NULL, 0, 0, 0, 0, "SALIDA", -1, false, 0},
+    {"TORPEDERAS", 'P', NULL, 600, 40, 0, 500, "PLAYA ANCHA", 2, false, 1},
+    {"ARCA COMUNAL", 'C', NULL, 0, 0, 0, 0, "CARTAS", -1, false, 2},
+    {"SEDE ALIMENTOS PUCV", 'P', NULL, 800, 65, 0, 500, "PLAYA ANCHA", 2, false, 3},
+    {"SERVICIOS IMPUESTOS INTERNOS", 'I', NULL, 2000, 0, 0, 0, "PAGAR", -1, false, 4},
+    {"ESTACIÓN PUERTO", 'M', NULL, 2000, 250, 0, 0, "METRO", -1, false, 5},
+    {"PARQUE ITALIA", 'P', NULL, 1000, 120, 0, 500, "VALPARAÍSO", 3, false, 6},
+    {"FORTUNA", 'C', NULL, 0, 0, 0, 0, "CARTAS", -1, false, 7},
+    {"IBC PUCV", 'P', NULL, 1100, 150, 0, 500, "VALPARAÍSO", 3, false, 8},
+    {"AV. PEDRO MONT", 'P', NULL, 1200, 160, 0, 500, "VALPARAÍSO", 3, false, 9},
+    {"CARCEL", 'N', NULL, 0, 0, 0, 0, "NEUTRO", -1,false, 10},
+    {"LAGUNA VERDE", 'P', NULL, 1400, 200, 0, 1000, "CURAUMA", 3, false, 11},
+    {"CAMPUS CURAUMA PUCV", 'P', NULL, 1500, 235, 0, 1000, "CURAUMA", 3, false, 12},
+    {"ESVAL (COMPANIA AGUA)", 'S', NULL, 1500, 50, 0, 0, "COMPAÑIAS", -1, false, 13},
+    {"LAGO PEÑUELAS", 'P', NULL, 1650, 250, 0, 1000, "CURAUMA", 3, false, 14},
+    {"ESTACIÓN BARÓN", 'M', NULL, 2000, 250, 0, 0, "METRO", -1, false, 15},
+    {"MUELLE BARÓN", 'P', NULL, 1800, 280, 0, 1000, "COSTA VALPO", 3, false, 16},
+    {"CALETA PORTALES", 'P', NULL, 1900, 290, 0, 1000, "COSTA VALPO", 3, false, 17},
+    {"ARCA COMUNAL", 'C', NULL, 0, 0, 0, 0, "CARTAS", -1, false, 18},
+    {"ESCUELA ECONOMÍA PUCV", 'P', NULL, 2000, 320, 0, 1000, "COSTA VALPO", 3, false, 19},
+    {"RELOJ DE FLORES", 'N', NULL, 0, 0, 0, 0, "NEUTRO", -1, false, 20},
+    {"SEDE MECÁNICA PUCV", 'P', NULL, 2200, 375, 0, 1500, "INTERIOR", 3, false, 21},
+    {"QUILPUE", 'P', NULL, 2400, 400, 0, 1500, "INTERIOR", 3, false, 22},
+    {"FORTUNA", 'C', NULL, 0, 0, 0, 0, "CARTAS", -1, false, 23},
+    {"VILLA ALEMANA", 'P', NULL, 2400, 400, 0, 1500, "INTERIOR", 3, false, 24},
+    {"ESTACIÓN LIMACHE", 'M', NULL, 2000, 250, 0, 0, "METRO", -1, false, 25},
+    {"OLMUE", 'P', NULL, 2600, 440, 0, 1500, "INTERIOR II", 3, false, 26},
+    {"QUILLOTA", 'P', NULL, 2600, 440, 0, 1500, "INTERIOR II", 3, false, 27},
+    {"CHILQUINTA (COMPANIA LUZ)", 'S', NULL, 1500, 50, 0, 0, "COMPAÑIAS", -1, false, 28},
+    {"FACU. AGRONOMÍA PUCV", 'P', NULL, 2800, 480, 0, 1500, "INTERIOR II", 3, false, 29},
+    {"VAYA A CARCEL", 'J', NULL, 0, 0, 0, 0, "CARCEL", -1, false, 30},
+    {"MUELLE VERGARA", 'P', NULL, 3000, 520, 0, 2000, "VIÑA DEL MAR", 3, false, 31},
+    {"SEDE SAUSALITO PUCV", 'P', NULL, 3200, 560, 0, 2000, "VIÑA DEL MAR", 3, false, 32},
+    {"ARCA COMUNAL", 'C', NULL, 0, 0, 0, 0, "CARTAS", -1, false, 33},
+    {"15 NORTE", 'P', NULL, 3200, 560, 0, 2000, "VIÑA DEL MAR", 3, false, 34},
+    {"ESTACIÓN MIRAMAR", 'M', NULL, 2000, 250, 0, 0, "METRO", -1, false, 35},
+    {"RENACA", 'P', NULL, 3500, 700, 0, 2000, "NORTE VIÑA", 2, false, 36},
+    {"FORTUNA", 'C', NULL, 0, 0, 0, 0, "CARTAS", -1, false, 37},
+    {"MC DONALD", 'I', NULL, 1000, 0, 0, 0, "PAGAR", -1, false, 38},
+    {"DUNAS DE CONCON", 'P', NULL, 4000, 1000, 0, 2000, "NORTE VIÑA", 2, false, 39}};
     
 
   return casillas;
 }
 
 // Función para inicializar el tablero
-void inicializarTablero(partidaGlobal *partida, TipoCasilla casillas[NUM_CASILLAS]) {
+void inicializarTablero(PartidaGlobal *partida, TipoCasilla casillas[NUM_CASILLAS]) {
     // Se reserva memoria para el tablero
     partida->tablero = malloc(NUM_CASILLAS * sizeof(TipoCasilla *));
     if (partida->tablero == NULL) {
@@ -237,7 +246,7 @@ void inicializarTablero(partidaGlobal *partida, TipoCasilla casillas[NUM_CASILLA
         TipoCasilla *casilla = (TipoCasilla *)malloc(sizeof(TipoCasilla));
         // Se copia el contenido de la casilla en el puntero
         casilla = &casillas[i];
-        partida->tablero[casilla->coordenadaX] = casilla;
+        partida->tablero[casilla->num_casilla] = casilla;
     }
 }
 
@@ -266,6 +275,9 @@ int tirar_dado(){
 //Funcion para solicitar la cantidad de jugadores
 int solicitar_jugadores()
 {
+    printf("\n╔══════════════════════════════════════════════════╗\n");
+    printf("║               SELECCIÓN DE JUGADORES             ║\n");
+    printf("╚══════════════════════════════════════════════════╝\n\n");
     // Creación de variable que contiene los jugadores
     int num_jugadores;
     do {
@@ -273,13 +285,13 @@ int solicitar_jugadores()
         scanf("%d", &num_jugadores); // Se leen los jugadores
         while (getchar() != '\n'); // Limpiar el buffer de entrada  
         if (num_jugadores < 2 || num_jugadores > 4)
-            printf("El número de jugadores debe estar entre 2 y 4.\n");
+            printf("!El número de jugadores debe estar entre 2 y 4!\n\n");
     } while (num_jugadores < 2 || num_jugadores > 4);
     return num_jugadores; // Se retorna la cantidad de jugadores
 }
 
 // Función para asignar los jugadores de la partida
-void asignar_jugadores(partidaGlobal *partida, int num_jugadores) {
+void asignar_jugadores(PartidaGlobal *partida, int num_jugadores) {
     // Inicializar la lista de jugadores si aún no está inicializada
     if (partida->jugadores == NULL) {
         partida->jugadores = list_create();
@@ -338,7 +350,7 @@ void hipotecar_propiedad(TipoJugador *jugador, TipoCasilla *propiedad)
             // Se determina el valor de la hipoteca
             int valor_hipoteca = (propiedad->precio / 2) + ((propiedad->precio_casa * propiedad->casas) /2);
             
-            printf("¿Quieres hipotecar la propiedad %s por %d? (s/n): ", propiedad->nombre, valor_hipoteca);
+            printf("¿\nQuieres hipotecar la propiedad %s por %d? (s/n): ", propiedad->nombre, valor_hipoteca);
             char respuesta;
             scanf(" %c", &respuesta);
             getchar();
@@ -347,24 +359,24 @@ void hipotecar_propiedad(TipoJugador *jugador, TipoCasilla *propiedad)
             {
                 propiedad->hipotecado = true;
                 jugador->dinero += valor_hipoteca;
-                printf("Felicidades %s, has hipotecado la propiedad %s y has recibido %d!\n", jugador->nombre_jugador, propiedad->nombre, valor_hipoteca);
+                printf("\nFelicidades %s, has hipotecado la propiedad %s y has recibido %d!\n", jugador->nombre_jugador, propiedad->nombre, valor_hipoteca);
 
-                printf("Recuerda que no podrás cobrar renta por %s mientras esté hipotecada.\n", propiedad->nombre);
+                printf("\nRecuerda que no podrás cobrar renta por %s mientras esté hipotecada.\n\n", propiedad->nombre);
             }
             else // Si la respuesta es negativa se cancela la hipoteca
             {
-                printf("Haz decidido no hipotecar la propiedad %s.\n", propiedad->nombre);
+                printf("\nHaz decidido no hipotecar la propiedad %s.\n\n", propiedad->nombre);
                 return;
             }
         }
         else // Si la propiedad ya esta hipotecada, se da un aviso
         {
-            printf("La propiedad %s ya está hipotecada.\n", propiedad->nombre);
+            printf("\nLa propiedad %s ya está hipotecada.\n\n", propiedad->nombre);
         }
     }
     else // Si la propiedad no es del jugador, se da un aviso
     {
-        printf("La propiedad %s no está a tu nombre.\n", propiedad->nombre);
+        printf("\nLa propiedad %s no está a tu nombre.\n\n", propiedad->nombre);
     }
 }
 
@@ -374,10 +386,11 @@ void recuperar_propiedad_hipotecada(TipoJugador *jugador, TipoCasilla *propiedad
     // Se comprueba que este hipotecada y que sea del jugador
     if (propiedad->hipotecado && propiedad->propietario == jugador) {
         // Se determina el precio de la recuperación
-        int precio_venta = ((propiedad->precio / 2) + ((propiedad->precio_casa * propiedad->casas) /2)) + (precio_venta * 0.1);
+        int precio_venta = (propiedad->precio / 2) + (propiedad->precio * 0.1) +((propiedad->precio_casa * propiedad->casas) / 2);
+        
         
         // Preguntar al jugador si desea recuperar la propiedad
-        printf("¿Quieres recuperar la propiedad %s por %d? (s/n): ", propiedad->nombre, precio_venta);
+        printf("\n¿Quieres recuperar la propiedad %s por %d? (s/n): ", propiedad->nombre, precio_venta);
         char respuesta;
         scanf(" %c", &respuesta);
         getchar();
@@ -388,18 +401,18 @@ void recuperar_propiedad_hipotecada(TipoJugador *jugador, TipoCasilla *propiedad
                 jugador->dinero -= precio_venta;
                 propiedad->hipotecado = false;
 
-                printf("%s, has recuperado la propiedad %s por %d!\n",
+                printf("\n%s, has recuperado la propiedad %s por %d!\n\n",
                        jugador->nombre_jugador, propiedad->nombre, precio_venta);
             } else {
-                printf("%s, no tienes suficiente dinero para recuperar la propiedad %s.\n",
+                printf("\n%s, no tienes suficiente dinero para recuperar la propiedad %s.\n\n",
                        jugador->nombre_jugador, propiedad->nombre);
             }
         } else { // Si la respuesta es negativa se cancela la recuperación
-            printf("No se ha recuperado la propiedad %s.\n", propiedad->nombre);
+            printf("\nNo se ha recuperado la propiedad %s.\n\n", propiedad->nombre);
         }
 
     } else {
-        printf("Esta propiedad no esta hipotecada, o no es tuya.\n");
+        printf("\nEsta propiedad no esta hipotecada, o no es tuya.\n\n");
     } 
 }
 
@@ -463,7 +476,7 @@ bool verificar_propiedades_bancarrota(TipoJugador *jugador, int deuda){
 }
 
 // Función para eliminar un jugador de la partida
-void eliminarJugador(TipoJugador **jugador, partidaGlobal *partida){
+void eliminarJugador(TipoJugador **jugador, PartidaGlobal *partida){
     // Se recorre la lista de propiedades del jugador
     printf("\n%s haz sido eliminado, estas en bancarrota.\n\n", (*jugador)->nombre_jugador);
     TipoCasilla *propiedad = list_first((*jugador)->propiedades);
@@ -480,7 +493,7 @@ void eliminarJugador(TipoJugador **jugador, partidaGlobal *partida){
 }
 
 // Función para verificar si un jugador esta en bancarrota
-void verificar_bancarrota(TipoJugador *jugador, int dinero_a_pagar, partidaGlobal *partida){
+void verificar_bancarrota(TipoJugador *jugador, int dinero_a_pagar, PartidaGlobal *partida){
     // Se verifica si el jugador no tiene dinero para pagar su deuda
     if(jugador->dinero - dinero_a_pagar < 0){
         // Se verifica si puede pagar su deuda hipotecando
@@ -491,8 +504,56 @@ void verificar_bancarrota(TipoJugador *jugador, int dinero_a_pagar, partidaGloba
     }
 }
 
+bool es_propietario_de_sector(TipoJugador *jugador, TipoCasilla *propiedad){
+    if(strcmp("PLAYA ANCHA", propiedad->sector) == 0){ 
+        if(jugador->playa_ancha == propiedad->cant_por_sector) 
+            return true;
+    }
+    else if(strcmp("VALPARAÍSO", propiedad->sector) == 0){ 
+        if(jugador->playa_ancha == propiedad->cant_por_sector) 
+            return true;
+    } 
+    else if(strcmp("CURAUMA", propiedad->sector) == 0){ 
+        if(jugador->playa_ancha == propiedad->cant_por_sector) 
+            return true;
+    } 
+    else if(strcmp("COSTA VALPO", propiedad->sector) == 0){ 
+        if(jugador->playa_ancha == propiedad->cant_por_sector) 
+            return true;
+    }
+    else if(strcmp("INTERIOR", propiedad->sector) == 0){ 
+        if(jugador->playa_ancha == propiedad->cant_por_sector) 
+            return true;
+    }
+    else if(strcmp("INTERIOR II", propiedad->sector) == 0){ 
+        if(jugador->playa_ancha == propiedad->cant_por_sector) 
+            return true;
+    } 
+    else if(strcmp("VIÑA DEL MAR", propiedad->sector) == 0){ 
+        if(jugador->playa_ancha == propiedad->cant_por_sector) 
+            return true;
+    }
+    else if(strcmp("NORTE VIÑA", propiedad->sector) == 0){ 
+        if(jugador->playa_ancha == propiedad->cant_por_sector) 
+            return true;
+    }
+    return false;
+}
+
 // Función para comprar casas en una propiedad
 void comprar_casas(TipoJugador *jugador, TipoCasilla *propiedad) {
+    // Se verifica que sea una propiedad en la cual se puedan comprar casas
+    if(propiedad->tipo != 'P'){
+        printf("No se pueden comprar casas para este tipo de propiedad\n");
+        return;
+    }
+
+    // Se verifica que el jugador posea todo el sector para poder comprar/vender casas
+    if(!es_propietario_de_sector(jugador, propiedad)){
+        printf("No eres propietario del sector, no puedes administrar las casas\n");
+        return;
+    }
+    
     // Verificar que la propiedad tiene dueño y que el jugador es el propietario
     if (propiedad->propietario == jugador) {
         // Verificar que la propiedad no está hipotecada
@@ -553,6 +614,18 @@ void comprar_casas(TipoJugador *jugador, TipoCasilla *propiedad) {
 
 // Función para vender casa
 void vender_casas(TipoJugador *jugador, TipoCasilla *propiedad) {
+    // Se verifica que sea una propiedad en la cual se puedan vender casas
+    if(propiedad->tipo != 'P'){
+        printf("No se pueden vender casas para este tipo de propiedad\n");
+        return;
+    }
+
+    // Se verifica que el jugador posea todo el sector para poder comprar/vender casas
+    if(!es_propietario_de_sector(jugador, propiedad)){
+        printf("No eres propietario del sector, no puedes administrar las casas\n");
+        return;
+    }
+    
     // Verificar que la propiedad tiene dueño y que el jugador es el propietario
     if (propiedad->propietario == jugador) {
         // Verificar que la propiedad tiene casas para vender
@@ -607,7 +680,7 @@ void vender_casas(TipoJugador *jugador, TipoCasilla *propiedad) {
 }
 
 // Función para inicializar los campos necesarios para la partida
-void inicializarCamposNecesarios(partidaGlobal *partida){
+void inicializarCamposNecesarios(PartidaGlobal *partida){
     // Se crea la lista de jugadores
     partida->jugadores = list_create();         
     // Se inicializa la cola de Fortuna
@@ -636,7 +709,7 @@ void mostrarTipo(char tipo){
 }
 
 // Función para mostrar el estado del jugador
-void mostrar_estado_jugador(TipoJugador *jugador, partidaGlobal *partida){
+void mostrar_estado_jugador(TipoJugador *jugador, PartidaGlobal *partida){
     printf("╔══════════════════════════════════════════════════╗\n");
     printf("║               ESTADO DEL JUGADOR                 ║\n");
     printf("╚══════════════════════════════════════════════════╝\n");
@@ -666,33 +739,6 @@ void moverJugador(TipoJugador *jugador, int avance){
         printf("¡Te moviste a la casilla %d!\n", jugador->posicion);
 }
 
-// Función para el menu de decisión sobre propiedades
-void menu_de_propiedades(TipoJugador *jugador, TipoCasilla *propiedad){
-    char opcion;
-
-    do{
-        printf("¿Qué acción deseas realizar?\n");
-        printf("1. Comprar casas\n");
-        printf("2. Vender casas\n");
-        printf("3. Continuar\n");
-        scanf(" %c", &opcion);
-        getchar();
-        switch(opcion){
-            case '1':
-                comprar_casas(jugador, propiedad);
-                break;
-            case '2':
-                vender_casas(jugador, propiedad);
-                break;
-            case '3':
-                return;
-            default:
-                printf("Opción ingresada no es válida\n");
-                break;
-        }
-    } while(opcion != '3');
-}
-
 // Función para mostrar los detalles de la propiedad
 void imprimirDetallesPropiedad(TipoCasilla* propiedad) {
     printf("\n╔══════════════════════════════════════════════════╗\n");
@@ -706,19 +752,121 @@ void imprimirDetallesPropiedad(TipoCasilla* propiedad) {
         printf("Precio por casa: $%d\n", propiedad->precio_casa);
         printf("Numero de casas: %d\n", propiedad->casas);
     }
-    printf("Posición: %d\n\n", propiedad->coordenadaX);
+    printf("Posición: %d\n\n", propiedad->num_casilla);
 }
 
+// Función para aumentar la cantidad de propiedades de un sector de un jugador
+void aumentar_sector_propietario(TipoJugador *jugador, TipoCasilla *propiedad){
+    char *sector = propiedad->sector;
 
+    if(strcmp("PLAYA ANCHA", sector) == 0) jugador->playa_ancha++;
+    else if(strcmp("VALPARAÍSO", sector) == 0) jugador->valparaiso++;
+    else if(strcmp("CURAUMA", sector) == 0) jugador->curauma++;
+    else if(strcmp("COSTA VALPO", sector) == 0) jugador->costa_valpo++;
+    else if(strcmp("INTERIOR", sector) == 0) jugador->interior++;
+    else if(strcmp("INTERIOR II", sector) == 0) jugador->interiorII++;
+    else if(strcmp("VIÑA DEL MAR", sector) == 0) jugador->vina_del_mar++;
+    else if(strcmp("NORTE VIÑA", sector) == 0) jugador->norte_vina++;
+}
+
+void rellenar_lista_turnos_subasta(List *turnos_subasta, List *jugadores){
+    TipoJugador *jugador = list_current(jugadores);
+    char *aux = jugador->nombre_jugador;
+
+    list_pushBack(turnos_subasta, jugador);
+    jugador = next_circular(jugadores);
+    while(strcmp(aux, jugador->nombre_jugador) != 0){
+        list_pushBack(turnos_subasta, jugador);
+        jugador = next_circular(jugadores);
+    }
+}
+
+void mostrarDetalles(TipoCasilla *propiedad){
+    if(propiedad->tipo == 'P') imprimirDetallesPropiedad(propiedad);
+    else if(propiedad->tipo == 'M') imprimirDetallesMetro(propiedad);
+    else if(propiedad->tipo == 'S') imprimirDetallesServicio(propiedad);
+}
+
+void subasta_de_propiedades(TipoCasilla *propiedad, PartidaGlobal *partida){
+    printf("BIENVENIDOS A LA SUBASTA\n");
+    printf("Propiedad a subastar en esta ocasión: \n");
+
+    mostrarDetalles(propiedad);
+    printf("\nPresiona enter para comenzar la subasta\n");
+    presioneEnter();
+    
+    int dinero_aux;
+    int dinero_ofrecido = 100;
+    char opcion; 
+    
+    List* turnos_subasta = list_create();
+    rellenar_lista_turnos_subasta(turnos_subasta, partida->jugadores);
+    TipoJugador *jugador_de_turno = list_first(turnos_subasta);
+    
+    while(list_size(turnos_subasta) > 1){
+        limpiar_pantalla();
+        mostrarDetalles(propiedad);
+        printf("Dinero ofrecido: %d\n", dinero_ofrecido);
+        
+        printf("Turno de %s\n", jugador_de_turno->nombre_jugador);
+        printf("Dinero actual: %d\n", jugador_de_turno->dinero);
+        
+        if(jugador_de_turno->dinero < dinero_ofrecido){
+            printf("No tienes dinero suficiente para ofrecer\n");
+            list_popCurrent(turnos_subasta);
+            continue;
+        }
+        
+        printf("¿%s deseas pujar por la propiedad? (s/n)\n", jugador_de_turno->nombre_jugador);
+        scanf(" %c", &opcion);
+        getchar();
+        
+        if(opcion == 's' || opcion == 'S'){
+            while(true){
+                printf("¿Cuánto dinero deseas ofrecer?\n");
+                scanf(" %d", &dinero_aux);
+    
+                if(dinero_aux <= dinero_ofrecido || dinero_aux > jugador_de_turno->dinero){
+                    printf("No puedes ofrecer esa cantidad de dinero\n");
+                    printf("¿Deseas volver a intentarlo? (s/n)\n");
+                    scanf(" %c", &opcion);
+                    getchar();
+                    
+                    if(opcion == 'n' || opcion == 'N'){
+                        list_popCurrent(turnos_subasta);
+                        jugador_de_turno = list_current(turnos_subasta);
+                        break;
+                    }
+                } else {
+                    dinero_ofrecido = dinero_aux;
+                    jugador_de_turno = next_circular(turnos_subasta);
+                    break;
+                }
+            }            
+        } else{
+            list_popCurrent(turnos_subasta);
+            jugador_de_turno = list_current(turnos_subasta);
+        }
+    }
+
+    TipoJugador *ganador = list_first(turnos_subasta);
+    list_clean(turnos_subasta);
+    printf("\n¡FELICIDADES %s HAS GANADO LA SUBASTA!\n\n", ganador->nombre_jugador);
+    ganador->dinero -= dinero_ofrecido;
+    propiedad->propietario = ganador;
+    aumentar_sector_propietario(ganador, propiedad);
+    list_pushFront(ganador->propiedades, propiedad);
+    mostrarDetalles(propiedad);
+}
 
 // Función para manejar cuando un jugador cae en una propiedad
-void casoPropiedad(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *partida){
+void casoPropiedad(TipoJugador *jugador, TipoCasilla* propiedad, PartidaGlobal *partida){
     // Verificar que la propiedad no tiene dueño
     if (propiedad->propietario == NULL) {
         // Verificar que el jugador tiene suficiente dinero para comprar la
         // propiedad
         printf("\nDinero Actual: %d\n", jugador->dinero);
-        imprimirDetallesPropiedad(propiedad);  
+        mostrarDetalles(propiedad);  
         if (jugador->dinero >= propiedad->precio) {
           char respuesta;
           printf("¿Quieres comprar %s por %d? (s/n): ", propiedad->nombre,
@@ -733,13 +881,20 @@ void casoPropiedad(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *
             // Asignar la propiedad al jugador
             propiedad->propietario = jugador;
 
+            // Aumentar la cantidad de propiedades de ese sector del usuario
+            aumentar_sector_propietario(jugador, propiedad);
+              
             // Agregar la propiedad a la lista de propiedades del jugador
             list_pushFront(jugador->propiedades, propiedad);
             printf("\nFelicidades %s, has comprado la propiedad %s por %d!\n",
                    jugador->nombre_jugador, propiedad->nombre, propiedad->precio);
 
           } else {
-            printf("\nHaz decidido no comprar la propiedad %s.\n", propiedad->nombre);
+            printf("\nHaz decidido no comprar la propiedad %s, por lo cual pasará a subasta\n", propiedad->nombre);
+            printf("\nPresiona enter para continuar a la subasta...\n");
+            presioneEnter();
+            limpiar_pantalla();
+            subasta_de_propiedades(propiedad, partida);
           }
         } else {
           // El jugador no tiene suficiente dinero para comprar la propiedad
@@ -749,7 +904,7 @@ void casoPropiedad(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *
       } else {
         // La propiedad ya tiene un dueño
         if(strcmp(propiedad->propietario->nombre_jugador,jugador->nombre_jugador) == 0){
-            menu_de_propiedades(jugador, propiedad);
+            printf("Esta propiedad es tuya\n");
         } else {
             
             printf("\nLa propiedad %s tiene un dueño, debes pagar una renta de: $%d.\n", propiedad->nombre, propiedad->renta);
@@ -763,6 +918,7 @@ void casoPropiedad(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *
       }
 }
 
+// Función que enseña los detalles de una estación de metro
 void imprimirDetallesMetro(TipoCasilla* propiedad) {
     printf("\n╔══════════════════════════════════════════════════╗\n");
     printf("║            DETALLES DE LA ESTACIÓN               ║\n");
@@ -770,21 +926,21 @@ void imprimirDetallesMetro(TipoCasilla* propiedad) {
     printf("Nombre: %s\n", propiedad->nombre);
     printf("Precio: $%d\n", propiedad->precio);
     printf("Renta base: $%d\n", propiedad->renta);
-    printf("*El valor de la renta se duplica según la cantidad de metros que controlas*\n\n", propiedad->precio_casa);
+    printf("*El valor de la renta se duplica según la cantidad de metros que controlas*\n\n");
 }
 
-// Función para manejar cuando un jugador cae en una 
-// casilla metro
-void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *partida) {
+// Función para manejar cuando un jugador cae en una casilla de metro
+void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, PartidaGlobal *partida) {
     // Verificar que la propiedad no tiene dueño
     if (propiedad->propietario == NULL) {
         // Verificar que el jugador tiene suficiente dinero para comprar la propiedad
         if (jugador->dinero >= propiedad->precio) {
             char respuesta;
             printf("\nDinero Actual: %d", jugador->dinero);
-            imprimirDetallesMetro(propiedad);  // Asumiendo que esta función está definida
+            mostrarDetalles(propiedad);  // Asumiendo que esta función está definida
             printf("¿Quieres comprar %s por %d? (s/n): ", propiedad->nombre, propiedad->precio);
             scanf(" %c", &respuesta);
+            getchar();
 
             if (respuesta == 's' || respuesta == 'S') {
                 // Reducir el dinero del jugador en el precio de la propiedad
@@ -799,10 +955,14 @@ void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *part
                 printf("Felicidades %s, has comprado %s por %d!\n", jugador->nombre_jugador, propiedad->nombre, propiedad->precio);
 
                 // Incrementar el número de estaciones de metro del jugador
-                jugador->estaciones_metro++;
+                jugador->cant_metros++;
 
             } else {
-                printf("Haz decidido no comprar %s.\n", propiedad->nombre);
+                printf("\nHaz decidido no comprar la propiedad %s, por lo cual pasará a subasta\n", propiedad->nombre);
+                printf("\nPresiona enter para continuar a la subasta...\n");
+                presioneEnter();
+                limpiar_pantalla();
+                subasta_de_propiedades(propiedad, partida);
             }
         } else {
             // El jugador no tiene suficiente dinero para comprar la propiedad
@@ -814,7 +974,7 @@ void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *part
             printf("Esta estación es tuya\n");
         } else {
             // Calcular la renta según la fórmula especificada
-            double renta = propiedad->renta * pow(2.25, (propiedad->propietario->estaciones_metro - 1));        
+            double renta = propiedad->renta * pow(2.25, (propiedad->propietario->cant_metros - 1));        
             renta = round(renta / 10) * 10;  // Redondear al décimo más cercano
             int renta_final = (int)renta;
 
@@ -829,6 +989,7 @@ void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, partidaGlobal *part
      presioneEnter();  // Asumiendo que esta función está definida
 }
 
+// Función que enseña los detales de una propiedad de servicio
 void imprimirDetallesServicio(TipoCasilla* propiedad) {
     printf("\n╔══════════════════════════════════════════════════╗\n");
     printf("║            DETALLES DE EL SERVICIO               ║\n");
@@ -839,17 +1000,18 @@ void imprimirDetallesServicio(TipoCasilla* propiedad) {
     printf("Renta 2 Servicios: 150 veces la suma de los dados\n\n");
 }
 
-
-void casoServicio(TipoJugador* jugador, TipoCasilla* propiedad, partidaGlobal* partida, int dados) {
+// Función para cuando un jugador cae en una casilla de servicio
+void casoServicio(TipoJugador* jugador, TipoCasilla* propiedad, PartidaGlobal* partida, int dados) {
     // Verificar que la propiedad no tiene dueño
     if (propiedad->propietario == NULL) {
         // Verificar que el jugador tiene suficiente dinero para comprar la propiedad
         if (jugador->dinero >= propiedad->precio) {
             char respuesta;
             printf("\nDinero Actual: %d\n", jugador->dinero);
-            imprimirDetallesServicio(propiedad);
+            mostrarDetalles(propiedad);
             printf("¿Quieres comprar la compañía %s por %d? (s/n): ", propiedad->nombre, propiedad->precio);
             scanf(" %c", &respuesta);
+            getchar();
 
             if (respuesta == 's' || respuesta == 'S') {
                 // Reducir el dinero del jugador en el precio de la propiedad
@@ -862,10 +1024,14 @@ void casoServicio(TipoJugador* jugador, TipoCasilla* propiedad, partidaGlobal* p
                 list_pushFront(jugador->propiedades, propiedad);
                 limpiar_pantalla();
                 printf("Felicidades %s, has comprado la compañía %s por %d!\n", jugador->nombre_jugador, propiedad->nombre, propiedad->precio);
-                jugador->servicios += 1;
+                jugador->cant_servicios += 1;
 
             } else {
-                printf("Has decidido no comprar %s.\n", propiedad->nombre);
+                printf("\nHaz decidido no comprar la propiedad %s, por lo cual pasará a subasta\n", propiedad->nombre);
+                printf("\nPresiona enter para continuar a la subasta...\n");
+                presioneEnter();
+                limpiar_pantalla();
+                subasta_de_propiedades(propiedad, partida);
             }
         } else {
             // El jugador no tiene suficiente dinero para comprar la propiedad
@@ -876,7 +1042,7 @@ void casoServicio(TipoJugador* jugador, TipoCasilla* propiedad, partidaGlobal* p
         if (strcmp(propiedad->propietario->nombre_jugador, jugador->nombre_jugador) == 0) {
             printf("Esta compañía es tuya.\n");
         } else {
-            if (propiedad->propietario->servicios == 1) {
+            if (propiedad->propietario->cant_servicios == 1) {
                 int renta_servicio = 60 * dados;
                 printf("%s tiene un dueño, debes pagar renta de: %d.\n", propiedad->nombre, renta_servicio);
                 verificar_bancarrota(jugador, renta_servicio, partida);
@@ -884,7 +1050,7 @@ void casoServicio(TipoJugador* jugador, TipoCasilla* propiedad, partidaGlobal* p
                     jugador->dinero -= renta_servicio;
                     propiedad->propietario->dinero += renta_servicio;
                 }
-            } else if (propiedad->propietario->servicios >= 2) {
+            } else if (propiedad->propietario->cant_servicios >= 2) {
                 int renta_servicio = 150 * dados;
                 printf("%s tiene un dueño, debes pagar renta de: %d.\n", propiedad->nombre, renta_servicio);
                 verificar_bancarrota(jugador, renta_servicio, partida);
@@ -900,7 +1066,7 @@ void casoServicio(TipoJugador* jugador, TipoCasilla* propiedad, partidaGlobal* p
 
 
 // Función para manejar cuando un jugador cae en un retiro de carta
-void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla)
+void casoCarta(TipoJugador *jugador, PartidaGlobal *partida, TipoCasilla *casilla, int dados)
 {
     TipoCarta *carta_sacada;
     // Si es casilla de la fortuna, se retira una carta de fortuna
@@ -937,7 +1103,7 @@ void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casill
     if(carta_sacada->cambio_posicion != -1){
         if(carta_sacada->cambio_penalizacion == -1){
             if(carta_sacada->cambio_posicion < jugador->posicion){
-                printf("Pasaste por la salida, cobra $2000\n");
+                printf("\nPasaste por la salida, cobra $2000\n");
                 jugador->dinero += 2000;
             }
         }
@@ -952,8 +1118,8 @@ void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casill
             casoPropiedad(jugador, nuevaCasillaActual, partida);
         else if(nuevaCasillaActual->tipo == 'M')
             casoMetro(jugador, nuevaCasillaActual, partida);
-        return;
-               
+        else if(nuevaCasillaActual->tipo == 'S')
+            casoServicio(jugador, nuevaCasillaActual, partida, dados);               
     }
     // Si le aplica penalización de cárcel, se le asigna
     if(carta_sacada->cambio_penalizacion != -1)
@@ -961,7 +1127,7 @@ void casoCarta(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casill
 }
 
 // Función para manejar cuando un jugador cae en un cobro de impuestos
-void casoImpuestos(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *casilla){
+void casoImpuestos(TipoJugador *jugador, PartidaGlobal *partida, TipoCasilla *casilla){
     printf("\nHaz caido en una casilla de pago\n");
     printf("\n%s\n", casilla->nombre);
     printf("Dinero a pagar: %d\n", casilla->precio);
@@ -974,24 +1140,22 @@ void casoImpuestos(TipoJugador *jugador, partidaGlobal *partida, TipoCasilla *ca
 }
 
 
-
 // Función para manejar cuando el jugador cae en una casilla
 // que lo envia directo a la carcel
-void casoCarcel(TipoJugador *jugador, partidaGlobal *partida){
+void casoCarcel(TipoJugador *jugador, PartidaGlobal *partida){
     printf("Haz sido detenido, vas a la carcel\n");
     jugador->posicion = 10;
     jugador->penalizacion = 3;
 }
 
 // Función para ejecutar la acción de cada casilla correspondiente
-void ejecutarAccionCasilla(TipoJugador *jugador, TipoCasilla *casilla, partidaGlobal *partida, int dados){
+void ejecutarAccionCasilla(TipoJugador *jugador, TipoCasilla *casilla, PartidaGlobal *partida, int dados){
     // Dependiendo del tipo de casilla se aplica un caso diferente
     if(casilla->tipo == 'P') casoPropiedad(jugador, casilla, partida);
-    else if(casilla->tipo == 'C') casoCarta(jugador, partida, casilla);
+    else if(casilla->tipo == 'C') casoCarta(jugador, partida, casilla, dados);
     else if(casilla->tipo == 'I') casoImpuestos(jugador, partida, casilla);
     else if(casilla->tipo == 'M')  casoMetro(jugador, casilla, partida);
     else if(casilla->tipo == 'S')  casoServicio(jugador, casilla, partida, dados);
-
     else if(casilla->tipo == 'J')  casoCarcel(jugador, partida);
 
     printf("\nPresiona enter para continuar...\n");
@@ -999,19 +1163,105 @@ void ejecutarAccionCasilla(TipoJugador *jugador, TipoCasilla *casilla, partidaGl
     limpiar_pantalla();
 }
 
+// Función que muestra el menú de cada turno de jugador
 void mostrarMenuDeTurno(){
     printf("¿Qué acción deseas realizar?\n\n");
-    printf("1. Construir o vender casas\n");
-    printf("2. Manejar hipotecas de las propiedades\n");
-    printf("3. Intercambiar con otros jugadores\n");
-    printf("4. Finalizar turno\n");
-    printf("5. Declararte en bancarrota\n");
+    printf("1. Modificar campos de tus propiedades\n");
+    printf("2. Intercambiar con otros jugadores\n");
+    printf("3. Finalizar turno\n");
+    printf("4. Declararte en bancarrota\n");
+}
+
+void mostrar_opciones_menu_propiedades(TipoCasilla *propiedad){
+    limpiar_pantalla();
+    mostrarDetalles(propiedad);
+    printf("¿Qué deseas hacer?\n");
+    printf("1. Comprar casas\n");
+    printf("2. Vender casas\n");
+    printf("3. Hipotecar propiedades\n");
+    printf("4. Deshipotecar propiedades\n");
+    printf("5. Salir de este menú\n");
+}
+
+TipoCasilla *elegir_propiedad(TipoJugador *jugador){
+    if(!list_isEmpty(jugador->propiedades)){
+        char respuesta;
+        TipoCasilla *propiedad_elegida = list_first(jugador->propiedades);
+        while(true){
+            mostrarDetalles(propiedad_elegida);
+            printf("¿Deseas elegir esta propiedad? (s/n): ");
+            scanf(" %c", &respuesta);
+            
+            if (respuesta == 's' || respuesta == 'S') {
+                return propiedad_elegida;
+            } else {
+                printf("¿Deseas continuar y ver la siguiente propiedad? (s/n): ");
+                scanf(" %c", &respuesta);
+
+                if (respuesta == 's' || respuesta == 'S'){
+                    propiedad_elegida = next_circular(jugador->propiedades);
+                    limpiar_pantalla();
+                }
+                else return NULL;
+            }
+        }
+    } else printf("No posees ninguna propiedad\n");
+    return NULL;
+}
+
+void menu_de_propiedades(TipoJugador *jugador){
+    limpiar_pantalla();
+    printf("Bienvenido al menú de propiedades\n\n");
+
+    char opcion;
+    do{
+        printf("¿Con qué propiedad deseas trabajar?\n");
+        TipoCasilla *propiedad = elegir_propiedad(jugador);
+        if(propiedad == NULL){
+            printf("No modificaste ninguna propiedad\n");
+            return;
+        }
+        mostrar_opciones_menu_propiedades(propiedad);
+        scanf(" %c", &opcion);
+
+        switch(opcion){
+            case '1':
+                comprar_casas(jugador, propiedad);
+                break;
+            case '2':
+                vender_casas(jugador, propiedad);
+                break;
+            case '3':
+                hipotecar_propiedad(jugador, propiedad);
+                break;
+            case '4':
+                recuperar_propiedad_hipotecada(jugador, propiedad);
+                break;
+            case '5':
+                printf("Saliendo...\n");
+                break;
+            default:
+                printf("Opción escogida no es válida, porfavor intentelo nuevamente\n");
+                break;
+        }
+
+        if(opcion != '5'){
+            printf("¿Deseas continuar en este menú? (s/n): ");
+            scanf(" %c", &opcion);
+
+            if(opcion == 'n' || opcion == 'N') return;
+        }
+        limpiar_pantalla();
+    } while(opcion != '5');
+}
+
+void menu_de_intercambio(TipoJugador *jugador, PartidaGlobal *partida){
+    
 }
 
 
-
 // Función para manejar el turno de cada jugador
-void turnoJugador(TipoJugador** jugador, partidaGlobal *partida){
+void turnoJugador(TipoJugador** jugador, PartidaGlobal *partida){
 
     limpiar_pantalla();
     printf("%s ES TU TURNO!\n\n", (*jugador)->nombre_jugador);
@@ -1063,10 +1313,13 @@ void turnoJugador(TipoJugador** jugador, partidaGlobal *partida){
         
         // Se ejecuta la acción de la casilla
         ejecutarAccionCasilla(*jugador, casillaActual, partida, totalDados);
-        
 
-        
-        
+        if((*jugador)->penalizacion > 0){
+            printf("¡OH NO! Estas en la cárcel\n");
+            printf("\nTu turno acaba aquí\n");
+            return;
+        }
+    
         char opcion;
 
         do{
@@ -1077,26 +1330,22 @@ void turnoJugador(TipoJugador** jugador, partidaGlobal *partida){
             getchar();
             switch(opcion){
                 case '1':
-                    // Lógica para construir o vender
+                    menu_de_propiedades(*jugador);
                     break;
                 case '2':
-                    // Lógica para manejar hipotecas
+                    menu_de_intercambio(*jugador, partida);
                     break;
                 case '3':
-                    // Lógica para intercambiar
-                    break;
-                case '4':
                     printf("\nAcabando turno ...\n\n");
                     break;
-                case '5':
+                case '4':
                     eliminarJugador(jugador, partida);
                     return;
-
                 default:
                     printf("\nOpción inválida. Por favor, selecciona una opción válida.\n\n");
                     break;
             }
-        } while(opcion != '4' && opcion != '5');
+        } while(opcion != '3' && opcion != '4');
         
         
         if(cont_dobles == 0) break;
@@ -1148,11 +1397,18 @@ void mostrarMenuInicial() {
     printf("Seleccione una opción: ");
 }
 
+void liberarMemoria(PartidaGlobal *partida){
+    list_clean(partida->jugadores);
+    queue_clean(partida->fortuna);
+    queue_clean(partida->arca_comunal);
+    free(partida);
+}
+
 // Función que inicia la partida
 void iniciarPartida(){
 
     // Se reserva memoria
-    partidaGlobal *partida =(partidaGlobal*)malloc(sizeof(partidaGlobal));
+    PartidaGlobal *partida =(PartidaGlobal*)malloc(sizeof(PartidaGlobal));
     if(partida == NULL){
         printf("Error al inicializar la partida\n");
         return;
@@ -1191,5 +1447,5 @@ void iniciarPartida(){
             break;
         }
     }
-    //liberarMemoria
+    liberarMemoria(partida);
 }

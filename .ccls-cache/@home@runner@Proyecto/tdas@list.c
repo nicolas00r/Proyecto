@@ -148,6 +148,7 @@ void *list_popFront(List *L) {
   }
   Node *temp = L->head;
   L->head = L->head->next;
+  L->current = L->head;
   if (L->head == NULL) {
     L->tail = NULL; // La lista ahora está vacía
   }

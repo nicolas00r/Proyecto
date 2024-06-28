@@ -285,6 +285,9 @@ void inicializar_contador(TipoJugador *jugador){
 //Funcion para solicitar la cantidad de jugadores
 int solicitar_jugadores()
 {
+    printf("\n╔══════════════════════════════════════════════════╗\n");
+    printf("║               SELECCIÓN DE JUGADORES             ║\n");
+    printf("╚══════════════════════════════════════════════════╝\n\n");
     // Creación de variable que contiene los jugadores
     int num_jugadores;
     do {
@@ -292,7 +295,7 @@ int solicitar_jugadores()
         scanf("%d", &num_jugadores); // Se leen los jugadores
         while (getchar() != '\n'); // Limpiar el buffer de entrada  
         if (num_jugadores < 2 || num_jugadores > 4)
-            printf("El número de jugadores debe estar entre 2 y 4.\n");
+            printf("!El número de jugadores debe estar entre 2 y 4!\n\n");
     } while (num_jugadores < 2 || num_jugadores > 4);
     return num_jugadores; // Se retorna la cantidad de jugadores
 }
@@ -394,7 +397,8 @@ void recuperar_propiedad_hipotecada(TipoJugador *jugador, TipoCasilla *propiedad
     // Se comprueba que este hipotecada y que sea del jugador
     if (propiedad->hipotecado && propiedad->propietario == jugador) {
         // Se determina el precio de la recuperación
-        int precio_venta = ((propiedad->precio / 2) + ((propiedad->precio_casa * propiedad->casas) /2)) + (precio_venta * 0.1);
+        int precio_venta = (propiedad->precio / 2) + (propiedad->precio * 0.1) +((propiedad->precio_casa * propiedad->casas) / 2);
+        
         
         // Preguntar al jugador si desea recuperar la propiedad
         printf("\n¿Quieres recuperar la propiedad %s por %d? (s/n): ", propiedad->nombre, precio_venta);
