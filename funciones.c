@@ -757,7 +757,7 @@ void subasta_de_propiedades(TipoCasilla *propiedad, PartidaGlobal *partida){
     presioneEnter();
     
     int dinero_aux;
-    int dinero_ofrecido = 100;
+    int dinero_ofrecido = (propiedad->precio / 2);
     char opcion; 
     
     List* turnos_subasta = list_create();
@@ -1217,7 +1217,7 @@ void menu_de_propiedades(TipoJugador *jugador){
 }
 
 void menu_de_intercambio(TipoJugador *jugador, PartidaGlobal *partida){
-    
+    printf("Bienvenido al menú de intercambio\n\n");
 }
 
 
