@@ -1451,6 +1451,19 @@ void menu_de_intercambio(TipoJugador *jugador, PartidaGlobal *partida){
     presioneEnter();
 }
 
+//FIANZA
+void pagarFianza(TipoJugador* jugador, int monto_fianza) {
+    // Verificar si el jugador tiene suficiente dinero para pagar la fianza
+    if (jugador->dinero >= monto_fianza) {
+        jugador->dinero -= monto_fianza;
+        jugador->penalizacion = 0; // Eliminar la penalización, sacando al jugador de la cárcel
+        printf("Has pagado una fianza de %d y has salido de la cárcel.\n", monto_fianza);
+    } else {
+        printf("No tienes suficiente dinero para pagar la fianza de %d.\n", monto_fianza);
+    }
+    presioneEnter();
+}
+
 // Función para manejar el turno de cada jugador
 void turnoJugador(TipoJugador** jugador, PartidaGlobal *partida){
 
@@ -1465,9 +1478,18 @@ void turnoJugador(TipoJugador** jugador, PartidaGlobal *partida){
         // Se comprueba si está en la cárcel
         if((*jugador)->penalizacion > 0){
             printf("¡OH NO!\n\n");
-            printf("Estas en la cárcel, tienes %d turnos de penalización restantes\n\n", (*jugador)->penalizacion);
-            (*jugador)->penalizacion --;
-            return;
+            printf("Estás en la cárcel, tienes %d turnos de penalización restantes\n\n", (*jugador)->penalizacion);
+
+            char opcion;
+            printf("¿Quieres pagar una fianza de 500 para salir de la cárcel? (s/n): ");
+            scanf(" %c", &opcion);
+            if (opcion == 's' || opcion == 'S') {
+                pagarFianza(*jugador, 500);
+                if((*jugador)->penalizacion == 0) continue; // Si paga la fianza, continúa su turno normalmente
+            } else {
+                (*jugador)->penalizacion--;
+                return;
+            }
         }
         
         // Se lanzan los dados
