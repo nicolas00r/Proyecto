@@ -9,7 +9,7 @@ Dado que el sistema está diseñado para ser accesible y fácil de probar, recom
 1. Visita [Repl.it](https://repl.it/).
 2. Crea una nueva cuenta o inicia sesión si ya tienes una.
 3. Una vez en tu dashboard, selecciona "New Repl" y elige "Import from GitHub".
-4. Pega la URL del repositorio: `https://github.com/username/sistema-gestion-pacientes.git`.
+4. Pega la URL del repositorio: `https://github.com/nicolas00r/Proyecto`.
 5. [Repl.it](http://repl.it/) clonará el repositorio y preparará un entorno de ejecución.
 6. Presiona el botón "Run" para compilar y ejecutar la aplicación.
 
@@ -19,9 +19,11 @@ Dado que el sistema está diseñado para ser accesible y fácil de probar, recom
 
 - Inicio de una nueva partida, acompañado de una asignación inicial de datos del jugador (nombre, dinero inicial, turnos).
 - Listado de las reglas más importantes del juego.
+- Visualización del tablero
 - Impresión por pantalla del estado del jugador en cada turno (nombre, dinero actual, posición actual, etc.).
 - Recorrido del tablero (funcionando bajo la lógica de lanzamiento de 2 dados al azar), aplicando efectos variados dependiendo en la casilla donde se caiga.
-- Compra de propiedades, compra y venta de casas para las mismas, además de la posibilidad de hipotecar propiedades para obtener dinero de regreso.
+- Compra y subasta de propiedades, compra y venta de casas para las mismas, además de la posibilidad de hipotecar propiedades para obtener dinero de regreso.
+- Intercambio entre jugadores (Dinero y propiedades)
 - Finalización del turno por parte del jugador (indicando que ya realizó todas las acciones deseadas para este turno).
 - Declaración de bancarrota por parte del jugador (terminando su participación en la partida de manera prematura).
 
@@ -50,24 +52,30 @@ Seleccione una opción: 3
 ````
 
 ````
+Mostrando reglas del juego...
+
+
 === Reglas de Monopoly ===
 1. En esta versión de Monopoly, la computadora actua como banquero.
 2. El objetivo del juego es ser el último jugador en pie, es decir, sin caer en bancarrota.
 3. Un jugador cae en bancarrota al tener una deuda más grande de lo que puede pagar, es decir, que ni hipotecando y vendiendo todos sus bienes podría llegar a saldar dicha deuda.
-4. Las partidas deben componerse de 2 a 4 jugadores.
-5. Los jugadores pueden moverse libremente por el tablero, sufiendo diferentes efectos en su travesía.
-6. Si un jugador cae en una propiedad sin dueño, puede comprarla. Si por el contrario esta ya tiene dueño, el jugador deberá pagar renta a este.
-7. Si un jugador posee una propiedad, este puede hipotecarla para obtener la mitad del costo de la propiedad. Para recuperar una propiedad hipotecada, el jugador deberá pagar un monto que depende de factores como el valor de la propiedad y la cantidad de casas que esta posea.
-8. El jugador puede caer sobre casillas de impuestos o cartas, las cuales son de fortuna o arca comunal y ejercen distintos efectos sobre dicho jugador.
-9. Si un jugador acaba en la carcel, deberá esperar 3 turnos o pagar una fianza para salir.
-10. Para comprar casas en sus propiedades, antes el jugador deberá poseer todas las demás propiedades de dicha zona.
-11. El jugador puede repartir las casas compradas para sus propiedades como guste, por ejemplo, si compra 4 casas para un barrio, puede ubicar todas ellas en una sola propiedad, como también puede poner 2 casas en 2 propiedades distintas.
-12. Si el jugador saca dobles en sus dados (ambos son el mismo número), debe lanzarlos nuevamente. En caso de obtener dobles 3 veces consecutivas, el jugador debe irse directo a la cárcel.
-13. Al pasar por la casilla de salida, el jugador cobra $2000.
-14. Si un jugador tiene la opción de comprar una propiedad y no lo hace, esta se pondrá en subasta y se pujará hasta encontrar un dueño. En caso de que ningún jugador puje, se le entregará la propiedad al último jugador consultado en la subasta.
-15. Si un jugador cae en una propiedad hipotecada o con su dueño en la cárcel, este último no percibirá beneficios de renta de la misma.
-16. Los jugadores pueden llevar a cabo negociaciones entre si, ofreciendo bienes de uno y otro para buscar cerrar un trato.
-17. Al caer en la cárcel, el jugador puede esperar 3 turnos para salir de esta, o también puede pagar $500 de fianza para salir de forma anticipada.
+4. Cuando un jugador se encuentre con una deuda que no pueda pagar, no se le permitirá intercambiar con otros jugadores. La única forma de salvarse de la bancarrota será hipotecando todas sus propiedades.
+5. Las partidas deben componerse de 2 a 4 jugadores.
+6. Los jugadores pueden moverse libremente por el tablero, sufiendo diferentes efectos en su travesía.
+7. Si un jugador cae en una propiedad sin dueño, puede comprarla. Si por el contrario esta ya tiene dueño, el jugador deberá pagar renta a este.
+8. Si un jugador posee una propiedad, este puede hipotecarla para obtener la mitad del costo de la propiedad sumado a la mitad del precio del total de casas compradas en la propiedad. Para recuperar una propiedad hipotecada, el jugador deberá pagar un monto que depende de factores como el valor de la propiedad y la cantidad de casas que esta posea.
+9. Las propiedades pueden hipotecarse con casas construidas, no es necesario venderlas para poder hipotecar.
+10. El jugador puede caer sobre casillas de impuestos o cartas, las cuales son de fortuna o arca comunal y ejercen distintos efectos sobre dicho jugador.
+11. Si un jugador acaba en la carcel, deberá esperar 3 turnos o pagar una fianza para salir.
+12. Para comprar casas en sus propiedades, antes el jugador deberá poseer todas las demás propiedades de dicha zona.
+13. El jugador puede repartir las casas compradas para sus propiedades como guste, por ejemplo, si compra 4 casas para un barrio, puede ubicar todas ellas en una sola propiedad, como también puede poner 2 casas en 2 propiedades distintas.
+14. Si el jugador saca dobles en sus dados (ambos son el mismo número), debe lanzarlos nuevamente. En caso de obtener dobles 3 veces consecutivas, el jugador debe irse directo a la cárcel.
+15. Al pasar por la casilla de salida, el jugador cobra $2000.
+16. Si un jugador tiene la opción de comprar una propiedad y no lo hace, esta se pondrá en subasta y se pujará hasta encontrar un dueño. En caso de que ningún jugador puje, se le entregará la propiedad al último jugador consultado en la subasta.
+17. La subasta iniciara con puja base correspondiente a la mitad del precio de la propiedad.
+18. Si un jugador cae en una propiedad hipotecada, el dueño de esta no percibirá beneficios de renta de la misma.
+19. Los jugadores pueden llevar a cabo negociaciones entre si, ofreciendo bienes de uno y otro para buscar cerrar un trato.
+20. Al caer en la cárcel, el jugador puede esperar 3 turnos para salir de esta, o también puede pagar $500 de fianza para salir de forma anticipada.
 ===========================
 ````
 
@@ -142,7 +150,7 @@ Carta sacada: HOSPITALIZACIÓN. PAGUE $1000.
 
 Presiona enter para continuar...
 ````
-Hemos caido en una propiedad, por lo que vamos a proceder a comprarla.
+Al haber lanzado los dados nuevamente, hemos caido en una propiedad, por lo que vamos a proceder a comprarla.
 ````
 ¡Haz lanzado los dados: 6 y 4 (Total: 10)!
 
@@ -207,7 +215,7 @@ Propietario: Perro
 3. Finalizar turno
 4. Declararte en bancarrota
 ````
-Hipotecamos AV. PEDRO MONT por $600
+Seleccionamos la opción 1 (Modificar campos de tus propiedades) e hipotecamos CAMPUS CURAUMA PUCV por $750
 ````
 ╔══════════════════════════════════════════════════╗
 ║            DETALLES DE LA PROPIEDAD              ║
@@ -237,6 +245,10 @@ Recuerda que no podrás cobrar renta por CAMPUS CURAUMA PUCV mientras esté hipo
 
 ¿Deseas continuar en este menú? (s/n): n
 ````
+````
+...
+````
+
 Ya en el turno de Sombrero, tiraremos los dados.
 ````
 Sombrero ES TU TURNO!
@@ -351,6 +363,9 @@ Perro ¿Deseas aceptar el intercambio? (s/n): s
 
 Presione enter para salir de este menú...
 ````
+````
+...
+````
 Ya en el turno de Perro, tiraremos los dados.
 ````
 Perro ES TU TURNO!
@@ -413,7 +428,10 @@ Felicidades Perro, has comprado la propiedad ESCUELA ECONOMÍA PUCV por 2000!
 
 Presiona enter para continuar...
 ````
-Finalmente, el jugador Perro se declara en bancarrota, dando como ganador al jugador Sombrero.
+````
+...
+````
+Finalmente, el jugador Perro se declara voluntariamente en bancarrota, dando como ganador al jugador Sombrero.
 ````
 ╔══════════════════════════════════════════════════╗
 ║                 MAPA DEL JUEGO                   ║
@@ -460,3 +478,35 @@ Presione enter para continuar
 
 Presiona enter para salir
 ````
+
+## Contribuciones individuales
+
+### Nicolas Reed:
+- Ideación del proyecto
+- Desarrollo del funcionamiento del juego
+- Codificación de menús de subastas e intercambio
+- Adaptación de los TDA'S para el desarrollo de la app
+- Revisión de errores
+- Autoevaluación 3/3 
+
+### Joaquín Garrido:
+- Ideación del proyecto
+- Desarrollo de cartas y aplicaciones de sus efectos
+- Redacción del informe inicial e informe final
+- Redacción del README
+- Revisión de errores
+- Autoevaluación 3/3 
+
+### Inti Liberona:
+- Ideación del proyecto
+- Planilla de propiedades
+- Lógica de compra y venta de casas
+- Implementación visual del tablero
+- Autoevaluación 3/3 
+
+### Benjamín Gonzalez:
+- Ideación del proyecto
+- Redacción del informe final
+- Lógica asignación de jugadores
+- Manejo del hipotecado y deshipotecado
+- Autoevaluación 3/3 
