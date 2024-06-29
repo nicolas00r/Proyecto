@@ -690,7 +690,7 @@ void mostrarTipo(char tipo){
 
 // Función para mostrar el estado del jugador
 void mostrar_estado_jugador(TipoJugador *jugador, PartidaGlobal *partida){
-    printf("Posición en el tablero: %02d\n", jugador->posicion);
+    printf("Posición en el tablero: %02d\n\n", jugador->posicion);
     printf("╔══════════════════════════════════════════════════╗\n");
     printf("║               ESTADO DEL JUGADOR                 ║\n");
     printf("╚══════════════════════════════════════════════════╝\n");
@@ -1477,6 +1477,7 @@ void menu_de_intercambio(TipoJugador *jugador, PartidaGlobal *partida){
     printf("\nPresione enter para salir de este menú...\n");
     presioneEnter();
 }
+
 //Visual
 void inicializarMapa(int mapa[SIZE][SIZE]) {
     // Inicializar la matriz con -1 para identificar las celdas vacías
@@ -1514,9 +1515,9 @@ void visualizarMapa(int mapa[SIZE][SIZE]) {
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
             if (mapa[i][j] == -1) {
-                printf("   ");  // Espacio en blanco para celdas vacías
+                printf("\t   ");  // Espacio en blanco para celdas vacías
             } else {
-                printf("%02d ", mapa[i][j]);  // Imprimir número con dos dígitos
+                printf("\t%02d ", mapa[i][j]);  // Imprimir número con dos dígitos
             }
         }
         printf("\n");
@@ -1716,6 +1717,7 @@ void iniciarPartida(){
     //MAPA
     int mapa[SIZE][SIZE];
     inicializarMapa(mapa);
+    
     // Ciclo de juego
     while(true)
     {
