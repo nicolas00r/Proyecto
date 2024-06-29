@@ -1753,15 +1753,24 @@ TipoJugador *verificarGanador(List *jugadores){
 
 // Función para mostrar las reglas del juego
 void mostrar_reglas() {
-    printf("Reglas del juego:\n");
-    printf("\n=== Reglas del Monopoly ===\n");
-    printf("1. El objetivo del juego es ser el jugador con más cantidad de dinero acumulado.\n");
-    printf("2. Los jugadores se mueven por el tablero comprando propiedades y cobrando renta.\n");
-    printf("3. Se pueden construir casas en propiedades para aumentar la renta que generan.\n");
-    printf("4. Si un jugador cae en una propiedad sin dueño, puede comprarla. Si ya tiene dueño, paga renta.\n");
-    printf("5. Hay casillas especiales como fortuna y arca comunal, la cual tienen efectos variados que pueden afectar positiva o negativamente al jugador.\n");
-    printf("6. Si un jugador acaba en la carcel, deberá esperar 3 turnos o pagar una fianza para salir.\n");
-    printf("7. El juego termina cuando solo queda un jugador con dinero y propiedades, es decir, cuando todo el resto este en bancarrota!.\n");
+    printf("\n=== Reglas de Monopoly ===\n");
+    printf("1. En esta versión de Monopoly, la computadora actua como banquero.\n");
+    printf("2. El objetivo del juego es ser el último jugador en pie, es decir, sin caer en bancarrota.\n");
+    printf("3. Un jugador cae en bancarrota al tener una deuda más grande de lo que puede pagar, es decir, que ni hipotecando y vendiendo todos sus bienes podría llegar a saldar dicha deuda.\n");
+    printf("4. Las partidas deben componerse de 2 a 4 jugadores.\n");
+    printf("5. Los jugadores pueden moverse libremente por el tablero, sufiendo diferentes efectos en su travesía.\n");
+    printf("6. Si un jugador cae en una propiedad sin dueño, puede comprarla. Si por el contrario esta ya tiene dueño, el jugador deberá pagar renta a este.\n");
+    printf("7. Si un jugador posee una propiedad, este puede hipotecarla para obtener la mitad del costo de la propiedad. Para recuperar una propiedad hipotecada, el jugador deberá pagar un monto que depende de factores como el valor de la propiedad y la cantidad de casas que esta posea.\n");
+    printf("8. El jugador puede caer sobre casillas de impuestos o cartas, las cuales son de fortuna o arca comunal y ejercen distintos efectos sobre dicho jugador.\n");
+    printf("9. Si un jugador acaba en la carcel, deberá esperar 3 turnos o pagar una fianza para salir.\n");
+    printf("10. Para comprar casas en sus propiedades, antes el jugador deberá poseer todas las demás propiedades de dicha zona.\n");
+    printf("11. El jugador puede repartir las casas compradas para sus propiedades como guste, por ejemplo, si compra 4 casas para un barrio, puede ubicar todas ellas en una sola propiedad, como también puede poner 2 casas en 2 propiedades distintas.\n");
+    printf("12. Si el jugador saca dobles en sus dados (ambos son el mismo número), debe lanzarlos nuevamente. En caso de obtener dobles 3 veces consecutivas, el jugador debe irse directo a la cárcel.\n");
+    printf("13. Al pasar por la casilla de salida, el jugador cobra $2000.\n");
+    printf("14. Si un jugador tiene la opción de comprar una propiedad y no lo hace, esta se pondrá en subasta y se pujará hasta encontrar un dueño. En caso de que ningún jugador puje, se le entregará la propiedad al último jugador consultado en la subasta.\n");
+    printf("15. Si un jugador cae en una propiedad hipotecada o con su dueño en la cárcel, este último no percibirá beneficios de renta de la misma.\n");
+    printf("16. Los jugadores pueden llevar a cabo negociaciones entre si, ofreciendo bienes de uno y otro para buscar cerrar un trato.\n");
+    printf("17. Al caer en la cárcel, el jugador puede esperar 3 turnos para salir de esta, o también puede pagar $500 de fianza para salir de forma anticipada.\n");
     printf("===========================\n");
 
     presioneEnter();
