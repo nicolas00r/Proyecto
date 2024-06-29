@@ -10,6 +10,7 @@
 // Definir numero de casillas y numero de cartas
 #define NUM_CASILLAS 40     
 #define NUM_CARTAS 12
+#define SIZE 11
 
 // STRUCTS
 
@@ -689,6 +690,7 @@ void mostrarTipo(char tipo){
 
 // Función para mostrar el estado del jugador
 void mostrar_estado_jugador(TipoJugador *jugador, PartidaGlobal *partida){
+    printf("Posición en el tablero: %02d\n", jugador->posicion);
     printf("╔══════════════════════════════════════════════════╗\n");
     printf("║               ESTADO DEL JUGADOR                 ║\n");
     printf("╚══════════════════════════════════════════════════╝\n");
@@ -696,7 +698,6 @@ void mostrar_estado_jugador(TipoJugador *jugador, PartidaGlobal *partida){
     printf("\nJugador: %s\n", jugador->nombre_jugador);
     printf("Dinero actual: %d\n", jugador->dinero);
     printf("Turnos de penalización en cárcel: %d\n", jugador->penalizacion);
-    printf("Posición en el tablero: %d\n", jugador->posicion);
     printf("Te encuentras en: %s\n", partida->tablero[jugador->posicion]->nombre);
     mostrarTipo(partida->tablero[jugador->posicion]->tipo);
     printf("Propietario: ");
@@ -1450,6 +1451,52 @@ void menu_de_intercambio(TipoJugador *jugador, PartidaGlobal *partida){
     printf("\nPresione enter para salir de este menú...\n");
     presioneEnter();
 }
+//Visual
+void inicializarMapa(int mapa[SIZE][SIZE]) {
+    // Inicializar la matriz con -1 para identificar las celdas vacías
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            mapa[i][j] = -1;
+        }
+    }
+
+    // Numerar el perímetro de la matriz
+    int contador = 0;
+    // Parte superior
+    for (int i = 0; i < SIZE; i++) { 
+        mapa[0][i] = contador++;
+    }
+    // Parte derecha
+    for (int i = 1; i < SIZE; i++) {
+        mapa[i][SIZE - 1] = contador++;
+    }
+    // Parte inferior
+    for (int i = SIZE - 2; i >= 0; i--) {
+        mapa[SIZE - 1][i] = contador++;
+    }
+    // Parte izquierda
+    for (int i = SIZE - 2; i > 0; i--) {
+        mapa[i][0] = contador++;
+    }
+}
+
+void visualizarMapa(int mapa[SIZE][SIZE]) {
+    printf("╔══════════════════════════════════════════════════╗\n");
+    printf("║                 MAPA DEL JUEGO                   ║\n");
+    printf("╚══════════════════════════════════════════════════╝\n");
+    
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            if (mapa[i][j] == -1) {
+                printf("   ");  // Espacio en blanco para celdas vacías
+            } else {
+                printf("%02d ", mapa[i][j]);  // Imprimir número con dos dígitos
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
 
 //FIANZA
 void pagarFianza(TipoJugador* jugador, int monto_fianza) {
@@ -1465,13 +1512,14 @@ void pagarFianza(TipoJugador* jugador, int monto_fianza) {
 }
 
 // Función para manejar el turno de cada jugador
-void turnoJugador(TipoJugador** jugador, PartidaGlobal *partida){
+void turnoJugador(TipoJugador** jugador, PartidaGlobal *partida, int mapa[SIZE][SIZE]){
 
     limpiar_pantalla();
     printf("%s ES TU TURNO!\n\n", (*jugador)->nombre_jugador);
 
     int cont_dobles = 0;
     do{
+        visualizarMapa(mapa);
         // Se muestra el estado del jugador
         mostrar_estado_jugador(*jugador, partida);
         
@@ -1497,7 +1545,6 @@ void turnoJugador(TipoJugador** jugador, PartidaGlobal *partida){
         presioneEnter();
         
         limpiar_pantalla();
-    
         int dado1 = tirar_dado();
         int dado2 = tirar_dado();
         int totalDados = dado1 + dado2;
@@ -1537,6 +1584,7 @@ void turnoJugador(TipoJugador** jugador, PartidaGlobal *partida){
 
         do{
             limpiar_pantalla();
+            visualizarMapa(mapa);
             mostrar_estado_jugador(*jugador, partida);
             mostrarMenuDeTurno();
             scanf(" %c", &opcion);
@@ -1639,10 +1687,13 @@ void iniciarPartida(){
     // Se obtiene el primer jugador de la lista
     TipoJugador* jugador_actual = (TipoJugador*)list_first(partida->jugadores);
 
+    //MAPA
+    int mapa[SIZE][SIZE];
+    inicializarMapa(mapa);
     // Ciclo de juego
     while(true)
     {
-        turnoJugador(&jugador_actual, partida);
+        turnoJugador(&jugador_actual, partida, mapa);
         printf("Presione enter para continuar\n");
         presioneEnter();
         
