@@ -1340,6 +1340,9 @@ void eleccion_de_propiedades(List *propiedadesPosibles, List *propiedadesPedidas
     // Si list_first retorna NULL es porque el jugador no posee propiedades
     if(propiedad == NULL) {
         printf("Este jugador no posee propiedades\n");
+        printf("\nPresione enter para continuar...\n");
+        presioneEnter();
+        limpiar_pantalla();
         return;
     }
 
