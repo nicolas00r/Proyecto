@@ -923,8 +923,7 @@ void casoMetro(TipoJugador *jugador, TipoCasilla* propiedad, PartidaGlobal *part
                 propiedad->propietario = jugador;
 
                 // Agregar la propiedad a la lista de propiedades del jugador
-                list_pushFront(jugador->propiedades, propiedad);  // Asumiendo que esta función está definida
-                // limpiar_pantalla();  // Asumiendo que esta función está definida
+                list_pushFront(jugador->propiedades, propiedad);  
                 printf("Felicidades %s, has comprado %s por %d!\n", jugador->nombre_jugador, propiedad->nombre, propiedad->precio);
 
                 // Incrementar el número de estaciones de metro del jugador
@@ -1000,7 +999,6 @@ void casoServicio(TipoJugador* jugador, TipoCasilla* propiedad, PartidaGlobal* p
 
                 // Agregar la propiedad a la lista de propiedades del jugador
                 list_pushFront(jugador->propiedades, propiedad);
-                limpiar_pantalla();
                 printf("Felicidades %s, has comprado la compañía %s por %d!\n", jugador->nombre_jugador, propiedad->nombre, propiedad->precio);
                 jugador->cont[propiedad->indiceSector]++;
 
@@ -1319,60 +1317,39 @@ void eleccion_de_propiedades(List *propiedadesPosibles, List *propiedadesPedidas
     limpiar_pantalla();
 }
 
-void menu_de_intercambio(TipoJugador *jugador, PartidaGlobal *partida){
-    char respuesta;
-    int dineroPedido;
-    int dineroOfrecido;
-
-    limpiar_pantalla();
-    printf("Bienvenido al menú de intercambio\n\n");
-    printf("Debes elegir con que jugador deseas intercambiar\n\n");
-    printf("Presiona enter para continuar a elegir...\n");
-    presioneEnter();
-    limpiar_pantalla();
-    
-    List *opciones = list_create();
-    rellenar_lista_opciones_intercambio(opciones, partida->jugadores);
-    TipoJugador *elegido = elegir_jugador_para_intercambio(opciones);
-    list_clean(opciones);
-
+void fase_de_eleccion(TipoJugador *elegido, int *dineroPedido, List *propiedadesPedidas){
     printf("Ahora debes elegir lo que quieres de %s\n\n", elegido->nombre_jugador);
     do{
-        
+
     printf("¿Cuanto dinero deseas de %s?: \n", elegido->nombre_jugador);
-    scanf(" %d", &dineroPedido);
+    scanf(" %d", dineroPedido);
     getchar();
-    if(dineroPedido < 0 || dineroPedido > elegido->dinero)
+        
+    if(*dineroPedido < 0 || *dineroPedido > elegido->dinero)
         printf("\nNo puedes elegir esa cantidad de dinero...\n Vuelva a intentarlo\n");
-    } while(dineroPedido < 0 || dineroPedido > elegido->dinero);
-    
-    
+    } while(*dineroPedido < 0 || *dineroPedido > elegido->dinero);
+
+
     printf("\n¿Que propiedades deseas de %s?\n", elegido->nombre_jugador);
-    List *propiedadesPedidas = list_create();
     eleccion_de_propiedades(elegido->propiedades, propiedadesPedidas);
+}
 
-    printf("\nPresiona enter para avanzar a la siguiente fase del intercambio\n");
-    presioneEnter();
-    limpiar_pantalla();
-
-    printf("Ahora debes elegir lo que le ofreces a %s\n\n", elegido->nombre_jugador);
+void fase_de_ofrecer(TipoJugador *jugador, int *dineroOfrecido, List *propiedadesOfrecidas){
+    printf("Ahora debes elegir lo que le ofreceras para el intercambio\n\n");
 
     do{
-    printf("¿Cuanto dinero le ofreces a %s?: \n", elegido->nombre_jugador);
-    scanf(" %d", &dineroOfrecido);
+    printf("¿Cuanto dinero deseas ofrecer: \n");
+    scanf(" %d", dineroOfrecido);
     getchar();
-    if(dineroOfrecido < 0 || dineroOfrecido > jugador->dinero)
+    if(*dineroOfrecido < 0 || *dineroOfrecido > jugador->dinero)
         printf("\nNo puedes elegir esa cantidad de dinero...\n Vuelva a intentarlo\n");
-    } while(dineroOfrecido < 0 || dineroOfrecido > jugador->dinero);
+    } while(*dineroOfrecido < 0 || *dineroOfrecido > jugador->dinero);
 
-    printf("\n¿Que propiedades le ofreces a %s?\n", elegido->nombre_jugador);
-    List *propiedadesOfrecidas = list_create();
+    printf("\n¿Que propiedades ofreceras?\n");
     eleccion_de_propiedades(jugador->propiedades, propiedadesOfrecidas);
+}
 
-    printf("====================================================\n");
-    printf("\n%s se te ha propuesto el siguiente intercambio: \n\n", elegido->nombre_jugador);
-    printf("====================================================\n");
-
+void mostrar_detalles_intercambio(int dineroPedido, List *propiedadesPedidas, int dineroOfrecido, List *propiedadesOfrecidas){
     printf("\nDinero pedido: %d\n\n", dineroPedido);
     printf("Se han solicitado las siguientes propiedades: \n");
     TipoCasilla *propiedad = list_first(propiedadesPedidas);
@@ -1390,64 +1367,126 @@ void menu_de_intercambio(TipoJugador *jugador, PartidaGlobal *partida){
         mostrarDetalles(propiedad);
         propiedad = list_next(propiedadesOfrecidas);
     }
+}
+
+void cambios_de_dinero(TipoJugador *jugador, TipoJugador *elegido, int dineroPedido, int dineroOfrecido){
+    jugador->dinero += dineroPedido;
+    jugador->dinero -= dineroOfrecido;
+
+    elegido->dinero -= dineroPedido;
+    elegido->dinero += dineroOfrecido;
+}
+
+void cambios_de_propiedad(TipoJugador *jugador, TipoJugador *elegido, List *propiedadesPedidas, List *propiedadesOfrecidas){
+    TipoCasilla *propiedadPedida = list_first(propiedadesPedidas);
+    while(propiedadPedida != NULL){
+        propiedadPedida->propietario = jugador;
+        jugador->cont[propiedadPedida->indiceSector]++;
+        elegido->cont[propiedadPedida->indiceSector]--;
+        list_pushFront(jugador->propiedades, propiedadPedida);
+        propiedadPedida = list_next(propiedadesPedidas);
+    }
+
+    TipoCasilla *propiedadOfrecida = list_first(propiedadesOfrecidas);
+    while(propiedadOfrecida != NULL){
+        propiedadOfrecida->propietario = elegido;
+        elegido->cont[propiedadOfrecida->indiceSector]++;
+        jugador->cont[propiedadOfrecida->indiceSector]--;
+        list_pushFront(elegido->propiedades, propiedadOfrecida);
+        propiedadOfrecida = list_next(propiedadesOfrecidas);
+    }
+}
+
+void actualizar_listas_propiedades(TipoJugador *jugador, TipoJugador *elegido){
+    TipoCasilla *aux1 = list_first(elegido->propiedades);
+    while(aux1 != NULL){
+        if(strcmp(aux1->propietario->nombre_jugador, elegido->nombre_jugador) != 0){
+            list_popCurrent(elegido->propiedades);
+            aux1 = list_current(elegido->propiedades);
+        }
+        else
+            aux1 = list_next(elegido->propiedades);
+    }
+
+    TipoCasilla *aux2 = list_first(jugador->propiedades);
+    while(aux2 != NULL){
+        if(strcmp(aux2->propietario->nombre_jugador, jugador->nombre_jugador) != 0){
+            list_popCurrent(jugador->propiedades);
+            aux2 = list_current(jugador->propiedades);
+        }
+        else
+            aux2 = list_next(jugador->propiedades);
+    }
+}
+
+void ejecutarIntercambio(TipoJugador *jugador, TipoJugador *elegido, int dineroPedido, int dineroOfrecido, List *propiedadesPedidas, List *propiedadesOfrecidas){
+    cambios_de_dinero(jugador, elegido, dineroPedido, dineroOfrecido);
+    cambios_de_propiedad(jugador, elegido, propiedadesPedidas, propiedadesOfrecidas);
+    actualizar_listas_propiedades(jugador, elegido);
+}
+
+
+void menu_de_intercambio(TipoJugador *jugador, PartidaGlobal *partida){
+    char respuesta;
+    int dineroPedido;
+    int dineroOfrecido;
+
+    limpiar_pantalla();
+    printf("Bienvenido al menú de intercambio\n\n");
+    printf("Debes elegir con que jugador deseas intercambiar\n\n");
+    printf("Presiona enter para continuar a elegir...\n");
+    presioneEnter();
+    limpiar_pantalla();
+    
+    List *opciones = list_create();
+    rellenar_lista_opciones_intercambio(opciones, partida->jugadores);
+    TipoJugador *elegido = elegir_jugador_para_intercambio(opciones);
+    list_clean(opciones);
+
+    List *propiedadesPedidas = list_create();
+    fase_de_eleccion(elegido, &dineroPedido, propiedadesPedidas);
+
+    printf("\nPresiona enter para avanzar a la siguiente fase del intercambio\n");
+    presioneEnter();
+    limpiar_pantalla();
+
+    List *propiedadesOfrecidas = list_create();
+    fase_de_ofrecer(jugador, &dineroOfrecido, propiedadesOfrecidas);
+
+    printf("====================================================\n");
+    printf("\n%s se te ha propuesto el siguiente intercambio: \n\n", elegido->nombre_jugador);
+    printf("====================================================\n");
+
+    mostrar_detalles_intercambio(dineroPedido, propiedadesPedidas, dineroOfrecido, propiedadesOfrecidas);
+    
     printf("====================================================\n");
     printf("\n%s ¿Deseas aceptar el intercambio? (s/n): ", elegido->nombre_jugador);
     scanf(" %c", &respuesta);
     getchar();
     
     if(respuesta == 'S' || respuesta == 's'){
-        jugador->dinero += dineroPedido;
-        jugador->dinero -= dineroOfrecido;
-
-        elegido->dinero -= dineroPedido;
-        elegido->dinero += dineroOfrecido;
-
-        TipoCasilla *propiedadPedida = list_first(propiedadesPedidas);
-        while(propiedadPedida != NULL){
-            propiedadPedida->propietario = jugador;
-            jugador->cont[propiedadPedida->indiceSector]++;
-            elegido->cont[propiedadPedida->indiceSector]--;
-            list_pushFront(jugador->propiedades, propiedadPedida);
-            propiedadPedida = list_next(propiedadesPedidas);
-        }
-
-
-        TipoCasilla *propiedadOfrecida = list_first(propiedadesOfrecidas);
-        while(propiedadOfrecida != NULL){
-            propiedadOfrecida->propietario = elegido;
-            elegido->cont[propiedadOfrecida->indiceSector]++;
-            jugador->cont[propiedadOfrecida->indiceSector]--;
-            list_pushFront(elegido->propiedades, propiedadOfrecida);
-            propiedadOfrecida = list_next(propiedadesOfrecidas);
-        }
-
-        TipoCasilla *aux1 = list_first(elegido->propiedades);
-        while(aux1 != NULL){
-            if(strcmp(aux1->propietario->nombre_jugador, elegido->nombre_jugador) != 0){
-                list_popCurrent(elegido->propiedades);
-                aux1 = list_current(elegido->propiedades);
-            }
-            else
-                aux1 = list_next(elegido->propiedades);
-        }
-
-        TipoCasilla *aux2 = list_first(jugador->propiedades);
-        while(aux2 != NULL){
-            if(strcmp(aux2->propietario->nombre_jugador, jugador->nombre_jugador) != 0){
-                list_popCurrent(jugador->propiedades);
-                aux2 = list_current(jugador->propiedades);
-            }
-            else
-                aux2 = list_next(jugador->propiedades);
-        }
-        
+        ejecutarIntercambio(jugador, elegido, dineroPedido, dineroOfrecido, propiedadesPedidas, propiedadesOfrecidas);
         printf("\n¡EL INTERCAMBIO FUE ACEPTADO!\n");
-    } else printf("\n¡EL INTERCAMBIO FUE RECHAZADO!\n");
+    }
+    else printf("\n¡EL INTERCAMBIO FUE RECHAZADO!\n");
     
     list_clean(propiedadesPedidas);
     list_clean(propiedadesOfrecidas);
     
     printf("\nPresione enter para salir de este menú...\n");
+    presioneEnter();
+}
+
+//FIANZA
+void pagarFianza(TipoJugador* jugador, int monto_fianza) {
+    // Verificar si el jugador tiene suficiente dinero para pagar la fianza
+    if (jugador->dinero >= monto_fianza) {
+        jugador->dinero -= monto_fianza;
+        jugador->penalizacion = 0; // Eliminar la penalización, sacando al jugador de la cárcel
+    printf("\nHas pagado una fianza de %d y has salido de la cárcel.\n\n", monto_fianza);
+    } else {
+        printf("\nNo tienes suficiente dinero para pagar la fianza de %d.\n", monto_fianza);
+    }
     presioneEnter();
 }
 
@@ -1465,9 +1504,18 @@ void turnoJugador(TipoJugador** jugador, PartidaGlobal *partida){
         // Se comprueba si está en la cárcel
         if((*jugador)->penalizacion > 0){
             printf("¡OH NO!\n\n");
-            printf("Estas en la cárcel, tienes %d turnos de penalización restantes\n\n", (*jugador)->penalizacion);
-            (*jugador)->penalizacion --;
-            return;
+            printf("Estás en la cárcel, tienes %d turnos de penalización restantes\n\n", (*jugador)->penalizacion);
+
+            char opcion;
+            printf("¿Quieres pagar una fianza de 500 para salir de la cárcel? (s/n): ");
+            scanf(" %c", &opcion);
+            if (opcion == 's' || opcion == 'S') {
+                pagarFianza(*jugador, 500);
+                if((*jugador)->penalizacion == 0) continue; // Si paga la fianza, continúa su turno normalmente
+            } else {
+                (*jugador)->penalizacion--;
+                return;
+            }
         }
         
         // Se lanzan los dados
