@@ -71,11 +71,12 @@ Mostrando reglas del juego...
 13. El jugador puede repartir las casas compradas para sus propiedades como guste, por ejemplo, si compra 4 casas para un barrio, puede ubicar todas ellas en una sola propiedad, como también puede poner 2 casas en 2 propiedades distintas.
 14. Si el jugador saca dobles en sus dados (ambos son el mismo número), debe lanzarlos nuevamente. En caso de obtener dobles 3 veces consecutivas, el jugador debe irse directo a la cárcel.
 15. Al pasar por la casilla de salida, el jugador cobra $2000.
-16. Si un jugador tiene la opción de comprar una propiedad y no lo hace, esta se pondrá en subasta y se pujará hasta encontrar un dueño. En caso de que ningún jugador puje, se le entregará la propiedad al último jugador consultado en la subasta.
+16. Si un jugador tiene la opción de comprar una propiedad y no lo hace, esta se pondrá en subasta y se pujará hasta encontrar un dueño. En caso de que ningún jugador puje, la subasta se cancelará y la propiedad quedará sin dueño hasta que alguien vuelva a caer en ella.
 17. La subasta iniciara con puja base correspondiente a la mitad del precio de la propiedad.
 18. Si un jugador cae en una propiedad hipotecada, el dueño de esta no percibirá beneficios de renta de la misma.
 19. Los jugadores pueden llevar a cabo negociaciones entre si, ofreciendo bienes de uno y otro para buscar cerrar un trato.
 20. Al caer en la cárcel, el jugador puede esperar 3 turnos para salir de esta, o también puede pagar $500 de fianza para salir de forma anticipada.
+21. La cárcel no es limitante para cobrar rentas o subastar por propiedades. El jugador será libre de hacerlo aunque se encuentre en penalización.
 ===========================
 ````
 

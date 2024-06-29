@@ -845,6 +845,25 @@ void subasta_de_propiedades(TipoCasilla *propiedad, PartidaGlobal *partida){
 
     // Se obtiene el ganador de la subasta
     TipoJugador *ganador = list_first(turnos_subasta);
+    // Si nadie pujo por la propiedad, se le pregunta al jugador restante si desea comprarla
+    if(dinero_ofrecido == (propiedad->precio / 2)){
+        // Si no tiene dinero suficiente se le avisa y termina la subasta
+        if(dinero_ofrecido > ganador->dinero){
+            printf("\nNo tienes dinero suficiente para comprar la propiedad\n");
+            printf("\nLa subasta no ha sido satisfactoria, nadie compro la propiedad\n");
+            return;
+        }
+
+        // Si posee dinero se le pregunta si desea adquirirla
+        printf("\n¿%s deseas adquirir la propiedad %s por $%d? (s/n)\n", ganador->nombre_jugador, propiedad->nombre, dinero_ofrecido);
+        scanf(" %c", &opcion);
+        getchar();
+        // Si la respuesta es negativa se termina la subasta
+        if(opcion == 'n' || opcion == 'N'){
+            printf("\nLa subasta no ha sido satisfactoria, nadie compro la propiedad\n");
+            return;
+        }   
+    }
     // Se limpia la lista de turnos de la subasta
     list_clean(turnos_subasta);
     printf("\n¡FELICIDADES %s HAS GANADO LA SUBASTA!\n\n", ganador->nombre_jugador);
@@ -1772,11 +1791,12 @@ void mostrar_reglas() {
     printf("13. El jugador puede repartir las casas compradas para sus propiedades como guste, por ejemplo, si compra 4 casas para un barrio, puede ubicar todas ellas en una sola propiedad, como también puede poner 2 casas en 2 propiedades distintas.\n");
     printf("14. Si el jugador saca dobles en sus dados (ambos son el mismo número), debe lanzarlos nuevamente. En caso de obtener dobles 3 veces consecutivas, el jugador debe irse directo a la cárcel.\n");
     printf("15. Al pasar por la casilla de salida, el jugador cobra $2000.\n");
-    printf("16. Si un jugador tiene la opción de comprar una propiedad y no lo hace, esta se pondrá en subasta y se pujará hasta encontrar un dueño. En caso de que ningún jugador puje, se le entregará la propiedad al último jugador consultado en la subasta.\n");
+    printf("16. Si un jugador tiene la opción de comprar una propiedad y no lo hace, esta se pondrá en subasta y se pujará hasta encontrar un dueño. En caso de que ningún jugador puje, la subasta se cancelará y la propiedad quedará sin dueño hasta que alguien vuelva a caer en ella.\n");
     printf("17. La subasta iniciara con puja base correspondiente a la mitad del precio de la propiedad.\n");
     printf("18. Si un jugador cae en una propiedad hipotecada, el dueño de esta no percibirá beneficios de renta de la misma.\n");
     printf("19. Los jugadores pueden llevar a cabo negociaciones entre si, ofreciendo bienes de uno y otro para buscar cerrar un trato.\n");
     printf("20. Al caer en la cárcel, el jugador puede esperar 3 turnos para salir de esta, o también puede pagar $500 de fianza para salir de forma anticipada.\n");
+    printf("21. La cárcel no es limitante para cobrar rentas o subastar por propiedades. El jugador será libre de hacerlo aunque se encuentre en penalización.\n");
     printf("===========================\n");
 
     presioneEnter();
