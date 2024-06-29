@@ -26,10 +26,12 @@ Dado que el sistema está diseñado para ser accesible y fácil de probar, recom
 - Declaración de bancarrota por parte del jugador (terminando su participación en la partida de manera prematura).
 
 ### Problemas conocidos:
+- Se deben respetar las indicaciones del juego, tales como al momento de responder una pregunta con s/n, debe responderse con estos caracteres, por el contrario el programa podría tener comportamientos indebidos.
+- Los nombres de los jugadores deben tener un largo máximo de 200 caracteres.
 
 ### A mejorar:
 
-- Apartado visual del juego (representación visual del tablero y los datos del jugador de una forma más amigable).
+- Apartado visual del juego (representación visual del tablero y los datos del jugador de una forma más agradable a la vista).
 - Implementación de la regla que obliga a repartir las casas al comprarlas (un ejemplo de esta regla sería que al comprar 4 casas para un barrio, no podría colocarlas todas en una sola propiedad, teniendo que repartirlas).
 - Implementación de las funciones de guardar partida y cargar partida, las cuales estuvieron consideradas hasta etapas avanzadas del proyecto.
 
@@ -48,18 +50,24 @@ Seleccione una opción: 3
 ````
 
 ````
-Mostrando reglas del juego...
-
-Reglas del juego:
-
-=== Reglas del Monopoly ===
-1. El objetivo del juego es ser el jugador con más cantidad de dinero acumulado.
-2. Los jugadores se mueven por el tablero comprando propiedades y cobrando renta.
-3. Se pueden construir casas en propiedades para aumentar la renta que generan.
-4. Si un jugador cae en una propiedad sin dueño, puede comprarla. Si ya tiene dueño, paga renta.
-5. Hay casillas especiales como fortuna y arca comunal, la cual tienen efectos variados que pueden afectar positiva o negativamente al jugador.
-6. Si un jugador acaba en la carcel, deberá esperar 3 turnos o pagar una fianza para salir.
-7. El juego termina cuando solo queda un jugador con dinero y propiedades, es decir, cuando todo el resto este en bancarrota!.
+=== Reglas de Monopoly ===
+1. En esta versión de Monopoly, la computadora actua como banquero.
+2. El objetivo del juego es ser el último jugador en pie, es decir, sin caer en bancarrota.
+3. Un jugador cae en bancarrota al tener una deuda más grande de lo que puede pagar, es decir, que ni hipotecando y vendiendo todos sus bienes podría llegar a saldar dicha deuda.
+4. Las partidas deben componerse de 2 a 4 jugadores.
+5. Los jugadores pueden moverse libremente por el tablero, sufiendo diferentes efectos en su travesía.
+6. Si un jugador cae en una propiedad sin dueño, puede comprarla. Si por el contrario esta ya tiene dueño, el jugador deberá pagar renta a este.
+7. Si un jugador posee una propiedad, este puede hipotecarla para obtener la mitad del costo de la propiedad. Para recuperar una propiedad hipotecada, el jugador deberá pagar un monto que depende de factores como el valor de la propiedad y la cantidad de casas que esta posea.
+8. El jugador puede caer sobre casillas de impuestos o cartas, las cuales son de fortuna o arca comunal y ejercen distintos efectos sobre dicho jugador.
+9. Si un jugador acaba en la carcel, deberá esperar 3 turnos o pagar una fianza para salir.
+10. Para comprar casas en sus propiedades, antes el jugador deberá poseer todas las demás propiedades de dicha zona.
+11. El jugador puede repartir las casas compradas para sus propiedades como guste, por ejemplo, si compra 4 casas para un barrio, puede ubicar todas ellas en una sola propiedad, como también puede poner 2 casas en 2 propiedades distintas.
+12. Si el jugador saca dobles en sus dados (ambos son el mismo número), debe lanzarlos nuevamente. En caso de obtener dobles 3 veces consecutivas, el jugador debe irse directo a la cárcel.
+13. Al pasar por la casilla de salida, el jugador cobra $2000.
+14. Si un jugador tiene la opción de comprar una propiedad y no lo hace, esta se pondrá en subasta y se pujará hasta encontrar un dueño. En caso de que ningún jugador puje, se le entregará la propiedad al último jugador consultado en la subasta.
+15. Si un jugador cae en una propiedad hipotecada o con su dueño en la cárcel, este último no percibirá beneficios de renta de la misma.
+16. Los jugadores pueden llevar a cabo negociaciones entre si, ofreciendo bienes de uno y otro para buscar cerrar un trato.
+17. Al caer en la cárcel, el jugador puede esperar 3 turnos para salir de esta, o también puede pagar $500 de fianza para salir de forma anticipada.
 ===========================
 ````
 
@@ -88,13 +96,29 @@ Veremos que el jugador que inicia la partida es Perro, por lo que es su turno y 
 Perro ES TU TURNO!
 
 ╔══════════════════════════════════════════════════╗
+║                 MAPA DEL JUEGO                   ║
+╚══════════════════════════════════════════════════╝
+    00  01  02  03  04  05  06  07  08  09  10 
+    39                                      11 
+    38                                      12 
+    37                                      13 
+    36                                      14 
+    35                                      15 
+    34                                      16 
+    33                                      17 
+    32                                      18 
+    31                                      19 
+    30  29  28  27  26  25  24  23  22  21  20 
+
+Posición en el tablero: 00
+
+╔══════════════════════════════════════════════════╗
 ║               ESTADO DEL JUGADOR                 ║
 ╚══════════════════════════════════════════════════╝
 ════════════════════════════════════════════════════
 Jugador: Perro
 Dinero actual: 15000
 Turnos de penalización en cárcel: 0
-Posición en el tablero: 0
 Te encuentras en: SALIDA
 Tipo: Salida
 Propietario: -
@@ -120,26 +144,27 @@ Presiona enter para continuar...
 ````
 Hemos caido en una propiedad, por lo que vamos a proceder a comprarla.
 ````
-¡Haz lanzado los dados: 6 y 1 (Total: 7)!
+¡Haz lanzado los dados: 6 y 4 (Total: 10)!
 
-¡Te moviste a la casilla 9!
+¡Te moviste a la casilla 12!
 
 Dinero Actual: 14000
 
 ╔══════════════════════════════════════════════════╗
 ║            DETALLES DE LA PROPIEDAD              ║
 ╚══════════════════════════════════════════════════╝
-Nombre: AV. PEDRO MONT
-Sector: VALPARAÍSO
-Precio: $1200
-Renta: $160
-Precio por casa: $500
+Nombre: CAMPUS CURAUMA PUCV
+Sector: CURAUMA
+Precio: $1500
+Renta: $235
+Hipotecada: No
+Precio por casa: $1000
 Numero de casas: 0
-Posición: 9
+Posición: 12
 
-¿Quieres comprar AV. PEDRO MONT por 1200? (s/n): s
+¿Quieres comprar CAMPUS CURAUMA PUCV por 1500? (s/n): s
 
-Felicidades Perro, has comprado la propiedad AV. PEDRO MONT por 1200!
+Felicidades Perro, has comprado la propiedad CAMPUS CURAUMA PUCV por 1500!
 
 Presiona enter para continuar...
 ````
@@ -147,14 +172,30 @@ Presiona enter para continuar...
 Ya teniendo una propiedad, vamos a hipotecarla para obtener una fracción del dinero por el que la compramos.
 ````
 ╔══════════════════════════════════════════════════╗
+║                 MAPA DEL JUEGO                   ║
+╚══════════════════════════════════════════════════╝
+    00  01  02  03  04  05  06  07  08  09  10 
+    39                                      11 
+    38                                      12 
+    37                                      13 
+    36                                      14 
+    35                                      15 
+    34                                      16 
+    33                                      17 
+    32                                      18 
+    31                                      19 
+    30  29  28  27  26  25  24  23  22  21  20 
+
+Posición en el tablero: 12
+
+╔══════════════════════════════════════════════════╗
 ║               ESTADO DEL JUGADOR                 ║
 ╚══════════════════════════════════════════════════╝
 ════════════════════════════════════════════════════
 Jugador: Perro
-Dinero actual: 12800
+Dinero actual: 12500
 Turnos de penalización en cárcel: 0
-Posición en el tablero: 9
-Te encuentras en: AV. PEDRO MONT
+Te encuentras en: CAMPUS CURAUMA PUCV
 Tipo: Propiedad
 Propietario: Perro
 ════════════════════════════════════════════════════
@@ -165,20 +206,20 @@ Propietario: Perro
 2. Intercambiar con otros jugadores
 3. Finalizar turno
 4. Declararte en bancarrota
-1
 ````
 Hipotecamos AV. PEDRO MONT por $600
 ````
 ╔══════════════════════════════════════════════════╗
 ║            DETALLES DE LA PROPIEDAD              ║
 ╚══════════════════════════════════════════════════╝
-Nombre: AV. PEDRO MONT
-Sector: VALPARAÍSO
-Precio: $1200
-Renta: $160
-Precio por casa: $500
+Nombre: CAMPUS CURAUMA PUCV
+Sector: CURAUMA
+Precio: $1500
+Renta: $235
+Hipotecada: No
+Precio por casa: $1000
 Numero de casas: 0
-Posición: 9
+Posición: 12
 
 ¿Qué deseas hacer?
 1. Comprar casas
@@ -188,17 +229,34 @@ Posición: 9
 5. Salir de este menú
 3
 ¿
-Quieres hipotecar la propiedad AV. PEDRO MONT por 600? (s/n): s
+Quieres hipotecar la propiedad CAMPUS CURAUMA PUCV por 750? (s/n): s
 
-Felicidades Perro, has hipotecado la propiedad AV. PEDRO MONT y has recibido 600!
+Felicidades Perro, has hipotecado la propiedad CAMPUS CURAUMA PUCV y has recibido 750!
 
-Recuerda que no podrás cobrar renta por AV. PEDRO MONT mientras esté hipotecada.
+Recuerda que no podrás cobrar renta por CAMPUS CURAUMA PUCV mientras esté hipotecada.
 
-¿Deseas continuar en este menú? (s/n):
+¿Deseas continuar en este menú? (s/n): n
 ````
 Ya en el turno de Sombrero, tiraremos los dados.
 ````
 Sombrero ES TU TURNO!
+
+╔══════════════════════════════════════════════════╗
+║                 MAPA DEL JUEGO                   ║
+╚══════════════════════════════════════════════════╝
+    00  01  02  03  04  05  06  07  08  09  10 
+    39                                      11 
+    38                                      12 
+    37                                      13 
+    36                                      14 
+    35                                      15 
+    34                                      16 
+    33                                      17 
+    32                                      18 
+    31                                      19 
+    30  29  28  27  26  25  24  23  22  21  20 
+
+Posición en el tablero: 00
 
 ╔══════════════════════════════════════════════════╗
 ║               ESTADO DEL JUGADOR                 ║
@@ -207,7 +265,6 @@ Sombrero ES TU TURNO!
 Jugador: Sombrero
 Dinero actual: 15000
 Turnos de penalización en cárcel: 0
-Posición en el tablero: 0
 Te encuentras en: SALIDA
 Tipo: Salida
 Propietario: -
@@ -215,37 +272,176 @@ Propietario: -
 
 Presiona enter para lanzar los dados!
 ````
-Habiendonos movido a ESTACIÓN PUERTO, la compraremos.
+Hemos caido en una casilla de fortuna, por lo que sufriremos los efectos de una carta de este tipo.
 ````
-¡Haz lanzado los dados: 1 y 4 (Total: 5)!
+¡Haz lanzado los dados: 6 y 1 (Total: 7)!
 
-¡Te moviste a la casilla 5!
+¡Te moviste a la casilla 7!
 
-Dinero Actual: 15000
+¡CARTA DE LA FORTUNA!
+
+Carta sacada: AVANCE HASTA LA CASILLA DE SALIDA, COBRE $2000
+
+Pasaste por la salida, cobra $2000
+
+Presiona enter para continuar...
+````
+Ya que sombrero no ha obtenido propiedades, hará negocios con su rival Perro para obtener una a cambio de dinero.
+````
 ╔══════════════════════════════════════════════════╗
-║            DETALLES DE LA ESTACIÓN               ║
+║            DETALLES DE LA PROPIEDAD              ║
 ╚══════════════════════════════════════════════════╝
-Nombre: ESTACIÓN PUERTO
-Precio: $2000
-Renta base: $250
-*El valor de la renta se duplica según la cantidad de metros que controlas*
+Nombre: CAMPUS CURAUMA PUCV
+Sector: CURAUMA
+Precio: $1500
+Renta: $235
+Hipotecada: Sí
+Precio por casa: $1000
+Numero de casas: 0
+Posición: 12
 
-¿Quieres comprar ESTACIÓN PUERTO por 2000? (s/n): s
-Felicidades Sombrero, has comprado ESTACIÓN PUERTO por 2000!
+¿Deseas elegir esta propiedad? (s/n): s
+¿Deseas continuar eligiendo propiedades? (s/n): n
 ````
-Finalmente, el jugador Sombrero se declara en bancarrota, por lo que Perro es el ganador de la partida!.
 ````
+Ahora debes elegir lo que le ofreceras para el intercambio
+
+¿Cuanto dinero deseas ofrecer: 
+2000
+
+¿Que propiedades ofreceras?
+
+Presiona enter para continuar a elegir propiedades...
+
+Este jugador no posee propiedades
+====================================================
+
+Perro se te ha propuesto el siguiente intercambio: 
+
+====================================================
+
+Dinero pedido: 0
+
+Se han solicitado las siguientes propiedades: 
+
+╔══════════════════════════════════════════════════╗
+║            DETALLES DE LA PROPIEDAD              ║
+╚══════════════════════════════════════════════════╝
+Nombre: CAMPUS CURAUMA PUCV
+Sector: CURAUMA
+Precio: $1500
+Renta: $235
+Hipotecada: Sí
+Precio por casa: $1000
+Numero de casas: 0
+Posición: 12
+
+====================================================
+
+Dinero ofrecido: 2000
+
+Se han ofrecido las siguientes propiedades: 
+-
+
+====================================================
+
+Perro ¿Deseas aceptar el intercambio? (s/n): s
+
+¡EL INTERCAMBIO FUE ACEPTADO!
+
+Presione enter para salir de este menú...
+````
+Ya en el turno de Perro, tiraremos los dados.
+````
+Perro ES TU TURNO!
+
+╔══════════════════════════════════════════════════╗
+║                 MAPA DEL JUEGO                   ║
+╚══════════════════════════════════════════════════╝
+    00  01  02  03  04  05  06  07  08  09  10 
+    39                                      11 
+    38                                      12 
+    37                                      13 
+    36                                      14 
+    35                                      15 
+    34                                      16 
+    33                                      17 
+    32                                      18 
+    31                                      19 
+    30  29  28  27  26  25  24  23  22  21  20 
+
+Posición en el tablero: 12
+
 ╔══════════════════════════════════════════════════╗
 ║               ESTADO DEL JUGADOR                 ║
 ╚══════════════════════════════════════════════════╝
 ════════════════════════════════════════════════════
-Jugador: Sombrero
-Dinero actual: 13000
+Jugador: Perro
+Dinero actual: 15250
 Turnos de penalización en cárcel: 0
-Posición en el tablero: 5
-Te encuentras en: ESTACIÓN PUERTO
-Tipo: Metro
+Te encuentras en: CAMPUS CURAUMA PUCV
+Tipo: Propiedad
 Propietario: Sombrero
+════════════════════════════════════════════════════
+
+Presiona enter para lanzar los dados!
+````
+Hemos caido en una propiedad, por lo que la compraremos.
+````
+
+¡Haz lanzado los dados: 6 y 1 (Total: 7)!
+
+¡Te moviste a la casilla 19!
+
+Dinero Actual: 15250
+
+╔══════════════════════════════════════════════════╗
+║            DETALLES DE LA PROPIEDAD              ║
+╚══════════════════════════════════════════════════╝
+Nombre: ESCUELA ECONOMÍA PUCV
+Sector: COSTA VALPO
+Precio: $2000
+Renta: $320
+Hipotecada: No
+Precio por casa: $1000
+Numero de casas: 0
+Posición: 19
+
+¿Quieres comprar ESCUELA ECONOMÍA PUCV por 2000? (s/n): s
+
+Felicidades Perro, has comprado la propiedad ESCUELA ECONOMÍA PUCV por 2000!
+
+Presiona enter para continuar...
+````
+Finalmente, el jugador Perro se declara en bancarrota, dando como ganador al jugador Sombrero.
+````
+╔══════════════════════════════════════════════════╗
+║                 MAPA DEL JUEGO                   ║
+╚══════════════════════════════════════════════════╝
+    00  01  02  03  04  05  06  07  08  09  10 
+    39                                      11 
+    38                                      12 
+    37                                      13 
+    36                                      14 
+    35                                      15 
+    34                                      16 
+    33                                      17 
+    32                                      18 
+    31                                      19 
+    30  29  28  27  26  25  24  23  22  21  20 
+
+Posición en el tablero: 19
+
+╔══════════════════════════════════════════════════╗
+║               ESTADO DEL JUGADOR                 ║
+╚══════════════════════════════════════════════════╝
+════════════════════════════════════════════════════
+Jugador: Perro
+Dinero actual: 13250
+Turnos de penalización en cárcel: 0
+Te encuentras en: ESCUELA ECONOMÍA PUCV
+Tipo: Propiedad
+Propietario: Perro
 ════════════════════════════════════════════════════
 
 ¿Qué acción deseas realizar?
@@ -256,10 +452,11 @@ Propietario: Sombrero
 4. Declararte en bancarrota
 4
 
-Sombrero haz sido eliminado, estas en bancarrota.
+Perro haz sido eliminado, estas en bancarrota.
 
 Presione enter para continuar
 
-¡El jugador Perro es el ganador del juego!
+¡El jugador Sombrero es el ganador del juego!
 
 Presiona enter para salir
+````
