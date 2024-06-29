@@ -20,7 +20,7 @@ int main() {
                 break;
             case '2':
                 limpiar_pantalla();
-                printf("Esta función no esta implementada en el programa\n");
+                printf("Esta función no esta implementada en el programa...\n");
                 printf("Presiona enter para continuar\n");
                 presioneEnter();
                 limpiar_pantalla();
